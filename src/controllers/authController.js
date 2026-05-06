@@ -78,10 +78,15 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password, rememberMe } = req.body;
+        
+        console.log('🔐 Login attempt:', { email, hasPassword: !!password, rememberMe });
 
         // Find user
         const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+        console.log('👤 User lookup result:', user ? { id: user.id, email: user.email, hasPassword: !!user.password } : 'User not found');
+        
         if (!user) {
+            console.log('❌ Login failed: User not found for email:', email);
             return res.status(401).json({ 
                 success: false, 
                 message: 'E-posta veya şifre hatalı.' 
@@ -89,13 +94,19 @@ const login = async (req, res) => {
         }
 
         // Verify password
+        console.log('🔍 Verifying password...');
         const isValidPassword = await bcrypt.compare(password, user.password);
+        console.log('🔑 Password verification result:', isValidPassword);
+        
         if (!isValidPassword) {
+            console.log('❌ Login failed: Invalid password for user:', email);
             return res.status(401).json({ 
                 success: false, 
                 message: 'E-posta veya şifre hatalı.' 
             });
         }
+
+        console.log('✅ Login successful for user:', email);
 
         // Update last login
         db.prepare("UPDATE users SET last_login = datetime('now') WHERE id = ?").run(user.id);
@@ -116,13 +127,16 @@ const login = async (req, res) => {
         expiresAt.setDate(expiresAt.getDate() + (rememberMe ? 30 : 7));
 
         // Delete old sessions for this user (optional: keep only latest)
-        db.prepare('DELETE FROM sessions WHERE user_id = ?').run(user.id);
+        const deletedSessions = db.prepare('DELETE FROM sessions WHERE user_id = ?').run(user.id);
+        console.log('🧹 Deleted old sessions:', deletedSessions.changes);
 
         // Save new session
         db.prepare(`
             INSERT INTO sessions (user_id, token, expires_at) 
             VALUES (?, ?, ?)
         `).run(user.id, token, expiresAt.toISOString());
+        
+        console.log('💾 New session created for user:', user.id);
 
         // Set cookie
         res.cookie('token', token, {
@@ -146,7 +160,7 @@ const login = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('❌ Login error:', error);
         res.status(500).json({ 
             success: false, 
             message: 'Sunucu hatası. Lütfen tekrar deneyin.' 
@@ -201,6 +215,38 @@ const getCurrentUser = (req, res) => {
 
     } catch (error) {
         console.error('Get current user error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Sunucu hatası.' 
+        });
+    }
+};
+
+// Debug: List all users (DEVELOPMENT ONLY)
+const debugListUsers = (req, res) => {
+    try {
+        if (process.env.NODE_ENV === 'production') {
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Bu endpoint sadece development modunda kullanılabilir.' 
+            });
+        }
+
+        const users = db.prepare(`
+            SELECT id, email, created_at, last_login 
+            FROM users 
+            ORDER BY created_at DESC
+        `).all();
+
+        console.log('📋 Debug: All users in database:', users);
+
+        res.json({
+            success: true,
+            data: { users, count: users.length }
+        });
+
+    } catch (error) {
+        console.error('Debug list users error:', error);
         res.status(500).json({ 
             success: false, 
             message: 'Sunucu hatası.' 
@@ -276,5 +322,6 @@ module.exports = {
     login,
     logout,
     getCurrentUser,
-    changePassword
+    changePassword,
+    debugListUsers
 };
