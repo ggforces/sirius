@@ -17,6 +17,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const earningsRoutes = require('./src/routes/earningsRoutes');
 const farmlabsRoutes = require('./src/routes/farmlabsRoutes');
 const accountsRoutes = require('./src/routes/accountsRoutes');
+const tasksRoutes = require('./src/routes/tasks');
 const viewRoutes = require('./src/routes/viewRoutes');
 
 const app = express();
@@ -31,7 +32,7 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://unpkg.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://unpkg.com"],
-            scriptSrc: ["'self'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://static.cloudflareinsights.com"],
+            scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://static.cloudflareinsights.com"],
             imgSrc: ["'self'", "data:", "https:"],
             connectSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cloudflareinsights.com"],
         },
@@ -90,6 +91,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/earnings', earningsRoutes);
 app.use('/api/farmlabs', farmlabsRoutes);
 app.use('/api/accounts', accountsRoutes);
+app.use('/api/tasks', tasksRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

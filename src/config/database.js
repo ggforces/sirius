@@ -107,6 +107,55 @@ function initializeDatabase() {
         }
     }
 
+    // Migration: Add Steam account check columns
+    const steamAccountColumns = [
+        'steamid TEXT',
+        'is_prime INTEGER DEFAULT 0',
+        'limited INTEGER DEFAULT NULL',
+        'trade_link TEXT',
+        'first_purchase_at TEXT',
+        'tfa_enabled_at TEXT',
+        'wallet_balance REAL DEFAULT 0',
+        'wallet_currency TEXT DEFAULT "USD"',
+        'last_checked_at TEXT',
+        'refresh_token TEXT',
+        'nickname TEXT',
+        'avatar TEXT',
+        'level INTEGER'
+    ];
+
+    steamAccountColumns.forEach(column => {
+        try {
+            db.exec(`ALTER TABLE steam_accounts ADD COLUMN ${column}`);
+            console.log(`✅ Migration: ${column.split(' ')[0]} column added to steam_accounts table`);
+        } catch (error) {
+            if (!error.message.includes('duplicate column name')) {
+                console.error('Migration error:', error.message);
+            }
+        }
+    });
+
+    // Inventories table
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS inventories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_id INTEGER NOT NULL,
+            assetid TEXT,
+            market_hash_name TEXT,
+            tradable INTEGER DEFAULT 0,
+            trade_unlock_at TEXT DEFAULT NULL,
+            context INTEGER DEFAULT 2,
+            fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (account_id) REFERENCES steam_accounts(id) ON DELETE CASCADE
+        )
+    `);
+
+    // Create indexes for inventories
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_inventories_account_id ON inventories(account_id);
+        CREATE INDEX IF NOT EXISTS idx_inventories_market_hash_name ON inventories(market_hash_name);
+    `);
+
     console.log('✅ Database initialized successfully');
 }
 

@@ -438,7 +438,7 @@ function switchPage(pageName) {
     const titles = {
         'dashboard': 'Dashboard',
         'accounts': 'Steam Hesapları',
-        'automation': 'Otomasyon',
+        'automation': 'Görevler',
         'reports': 'Raporlar',
         'settings': 'Ayarlar'
     };
@@ -446,6 +446,12 @@ function switchPage(pageName) {
     const pageTitle = document.getElementById('pageTitle');
     if (pageTitle) {
         pageTitle.textContent = titles[pageName] || 'Dashboard';
+    }
+    
+    // Initialize page-specific functionality
+    if (pageName === 'automation' && typeof tasksManager !== 'undefined') {
+        // Reinitialize tasks manager to refresh data
+        tasksManager.loadAccounts();
     }
 }
 
@@ -497,6 +503,14 @@ function showNotification(message, type = 'info') {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
+
+// Make showNotification globally available
+window.showNotification = showNotification;
+
+// Make dashboard functions globally available
+window.dashboard = {
+    showPage: switchPage
+};
 
 // ==================== CHANGE PASSWORD ====================
 

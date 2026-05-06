@@ -132,8 +132,16 @@ function openAddModal() {
 }
 
 function openEditModal(accountId) {
+    if (!accounts || accounts.length === 0) {
+        showNotification('Hesaplar henüz yüklenmedi', 'error');
+        return;
+    }
+    
     const account = accounts.find(a => a.id === accountId);
-    if (!account) return;
+    if (!account) {
+        showNotification('Hesap bulunamadı', 'error');
+        return;
+    }
     
     editingAccountId = accountId;
     document.getElementById('modalTitle').textContent = window.APP_TRANSLATIONS.accounts.editAccount;

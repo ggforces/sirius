@@ -43,3 +43,6 @@ temp/
 
 # Deploy script (local only)
 deploy.bat
+
+# SF CLI (local development tool)
+SF CLI/
