@@ -162,4 +162,23 @@ function initializeDatabase() {
 // Initialize on module load
 initializeDatabase();
 
+// Clean expired sessions on startup
+function cleanupExpiredSessions() {
+    try {
+        const result = db.prepare(`
+            DELETE FROM sessions 
+            WHERE expires_at < datetime('now')
+        `).run();
+        
+        if (result.changes > 0) {
+            console.log(`🧹 Startup cleanup: Removed ${result.changes} expired sessions`);
+        }
+    } catch (error) {
+        console.error('Startup session cleanup error:', error);
+    }
+}
+
+// Run cleanup on startup
+cleanupExpiredSessions();
+
 module.exports = db;

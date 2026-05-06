@@ -27,9 +27,11 @@ const authenticateToken = (req, res, next) => {
         `).get(token);
 
         if (!session) {
+            // Clear invalid cookie
+            res.clearCookie('token');
             return res.status(401).json({ 
                 success: false, 
-                message: 'Oturum geçersiz veya süresi dolmuş.' 
+                message: 'Oturum geçersiz veya süresi dolmuş. Lütfen tekrar giriş yapın.' 
             });
         }
 

@@ -8,7 +8,9 @@ async function checkAuth() {
         });
         
         if (!response.ok) {
-            // Not authenticated, redirect to home
+            // Clear any stored user data and redirect
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
             window.location.href = '/';
             return null;
         }
@@ -17,11 +19,17 @@ async function checkAuth() {
         if (data.success) {
             return data.data.user;
         } else {
+            // Clear any stored user data and redirect
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
             window.location.href = '/';
             return null;
         }
     } catch (error) {
         console.error('Auth check error:', error);
+        // Clear any stored user data and redirect
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
         window.location.href = '/';
         return null;
     }
