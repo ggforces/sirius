@@ -283,7 +283,6 @@ const createMobileToggle = () => {
 
 // ==================== INITIALIZE ====================
 
-console.log('Sirius Common - Loaded');
 loadUserData();
 createMobileToggle();
 

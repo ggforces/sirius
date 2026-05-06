@@ -203,5 +203,4 @@ document.getElementById('syncDropsBtn')?.addEventListener('click', syncFarmlabsD
 
 // ==================== INITIALIZE ====================
 
-console.log('Settings Page - Loaded');
 loadFarmlabsApiKey();

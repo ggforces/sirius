@@ -31,9 +31,9 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://unpkg.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://unpkg.com"],
-            scriptSrc: ["'self'", "'unsafe-eval'", "https://cdn.jsdelivr.net"],
+            scriptSrc: ["'self'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://static.cloudflareinsights.com"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://cdn.jsdelivr.net"],
+            connectSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cloudflareinsights.com"],
         },
     },
 }));

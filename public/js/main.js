@@ -75,7 +75,8 @@ loginForm.addEventListener('submit', async (e) => {
     
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    const rememberMe = document.getElementById('rememberMe').checked;
+    const rememberMeCheckbox = document.getElementById('rememberMe');
+    const rememberMe = rememberMeCheckbox ? rememberMeCheckbox.checked : false;
     
     // Basic validation
     if (!email || !password) {
@@ -134,7 +135,6 @@ registerForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
-    const acceptTerms = document.getElementById('acceptTerms').checked;
     
     // Basic validation
     if (!email || !password || !passwordConfirm) {
@@ -270,8 +270,7 @@ const registerPassword = document.getElementById('registerPassword');
 if (registerPassword) {
     registerPassword.addEventListener('input', (e) => {
         const password = e.target.value;
-        const strength = calculatePasswordStrength(password);
-        updatePasswordStrengthUI(strength);
+        calculatePasswordStrength(password);
     });
 }
 
@@ -285,19 +284,6 @@ function calculatePasswordStrength(password) {
     if (/[^a-zA-Z0-9]/.test(password)) strength++;
     
     return strength;
-}
-
-function updatePasswordStrengthUI(strength) {
-    // This can be enhanced with a visual indicator
-    const hints = [
-        'Çok zayıf',
-        'Zayıf',
-        'Orta',
-        'Güçlü',
-        'Çok güçlü'
-    ];
-    
-    console.log('Password strength:', hints[strength] || hints[0]);
 }
 
 // ==================== USER SESSION CHECK ====================
@@ -405,9 +391,6 @@ async function handleLogout() {
 }
 
 // ==================== INITIALIZE ====================
-
-console.log('Sirius Steam Automation - Frontend Loaded');
-console.log('Ready for user interaction');
 
 // Check user session on page load
 checkUserSession();

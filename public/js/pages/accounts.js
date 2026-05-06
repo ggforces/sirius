@@ -308,5 +308,4 @@ setupPasswordToggles();
 
 // ==================== INITIALIZE ====================
 
-console.log('Accounts Page - Loaded');
 loadAccounts();

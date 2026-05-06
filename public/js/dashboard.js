@@ -781,7 +781,6 @@ const createMobileToggle = () => {
 
 // ==================== INITIALIZE ====================
 
-console.log('Sirius Dashboard - Loaded');
 loadUserData();
 loadPageFromURL(); // Load correct page based on URL
 loadFarmlabsApiKey(); // Load FarmLabs API key status

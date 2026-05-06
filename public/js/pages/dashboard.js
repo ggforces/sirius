@@ -254,5 +254,4 @@ document.querySelectorAll('.action-btn').forEach(btn => {
 
 // ==================== INITIALIZE ====================
 
-console.log('Dashboard Page - Loaded');
 loadEarningsData();
