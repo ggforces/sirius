@@ -1,0 +1,43 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Database files (will be in volume)
+*.sqlite
+*.sqlite-journal
+*.db
+data
+backups
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Archive
+archive
+
+# Deploy script
+deploy.bat

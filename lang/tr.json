@@ -1,0 +1,148 @@
+{
+  "app": {
+    "name": "Sirius Steam Otomasyon",
+    "logo": "SIRIUS",
+    "lang": "tr"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "accounts": "Steam Hesapları",
+    "automation": "Otomasyon",
+    "reports": "Raporlar",
+    "settings": "Ayarlar"
+  },
+  "topbar": {
+    "logout": "Çıkış"
+  },
+  "sidebar": {
+    "loading": "Yükleniyor..."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stats": {
+      "thisWeek": "Bu Hafta",
+      "thisMonth": "Bu Ay",
+      "last3Months": "Son 3 Ay",
+      "totalEarnings": "Toplam Kazanç"
+    },
+    "chart": {
+      "title": "Son 6 Aylık Haftalık Kazanç",
+      "lastUpdate": "Son güncelleme",
+      "refreshBtn": "Verileri Güncelle",
+      "infoNote": "Drop sayıları haftalık kazançların ikiye bölünmesiyle hesaplanır (her hesap haftada 2 drop alır). Turuncu renkli değerler hesap başına ortalama kazancı gösterir."
+    },
+    "quickActions": {
+      "title": "Hızlı İşlemler",
+      "addAccount": "Hesap Ekle",
+      "checkAccounts": "Kontrol Et",
+      "loadBalance": "Bakiye Yükle",
+      "viewReports": "Raporlar"
+    },
+    "activity": {
+      "title": "Son Aktiviteler",
+      "welcome": "Hoş Geldiniz!",
+      "accountCreated": "Hesabınız başarıyla oluşturuldu",
+      "justNow": "Az önce"
+    }
+  },
+  "accounts": {
+    "title": "Steam Hesapları",
+    "comingSoon": "Bu özellik yakında eklenecek...",
+    "addAccount": "Hesap Ekle",
+    "editAccount": "Hesap Düzenle",
+    "noAccounts": "Henüz Steam hesabı eklenmemiş",
+    "addFirstAccount": "İlk Hesabı Ekle",
+    "table": {
+      "username": "Kullanıcı Adı",
+      "password": "Şifre",
+      "sharedSecret": "Shared Secret",
+      "identitySecret": "Identity Secret",
+      "actions": "İşlemler"
+    },
+    "form": {
+      "username": "Steam Kullanıcı Adı",
+      "usernamePlaceholder": "Kullanıcı adınızı girin",
+      "password": "Steam Şifresi",
+      "passwordPlaceholder": "Şifrenizi girin",
+      "sharedSecret": "Shared Secret",
+      "sharedSecretPlaceholder": "Shared secret kodunu girin",
+      "identitySecret": "Identity Secret",
+      "identitySecretPlaceholder": "Identity secret kodunu girin"
+    },
+    "deleteConfirm": {
+      "title": "Hesabı Sil",
+      "message": "Bu Steam hesabını silmek istediğinizden emin misiniz?"
+    }
+  },
+  "automation": {
+    "title": "Otomasyon Görevleri",
+    "comingSoon": "Bu özellik yakında eklenecek..."
+  },
+  "reports": {
+    "title": "Raporlar & İstatistikler",
+    "comingSoon": "Bu özellik yakında eklenecek..."
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "profile": {
+      "title": "Profil Bilgileri",
+      "email": "E-posta",
+      "createdAt": "Kayıt Tarihi",
+      "lastLogin": "Son Giriş",
+      "loading": "Yükleniyor..."
+    },
+    "security": {
+      "title": "Güvenlik",
+      "currentPassword": "Mevcut Şifre",
+      "currentPasswordPlaceholder": "Mevcut şifrenizi girin",
+      "newPassword": "Yeni Şifre",
+      "newPasswordPlaceholder": "Yeni şifrenizi girin",
+      "newPasswordHint": "En az 8 karakter olmalıdır",
+      "confirmPassword": "Yeni Şifre Tekrar",
+      "confirmPasswordPlaceholder": "Yeni şifrenizi tekrar girin",
+      "changePasswordBtn": "Şifreyi Değiştir"
+    },
+    "farmlabs": {
+      "title": "FarmLabs Entegrasyonu",
+      "infoBox": {
+        "title": "FarmLabs API Key Nasıl Alınır?",
+        "description": "FarmLabs API key'inizi kullanarak drop verilerinizi otomatik olarak senkronize edebilirsiniz.",
+        "linkText": "FarmLabs Dashboard'a Git"
+      },
+      "permissions": {
+        "title": "Gerekli API İzinleri",
+        "description": "API key oluştururken aşağıdaki endpoint'leri seçmeniz gerekmektedir:",
+        "listDrops": "Drop verilerinizi listelemek ve çekmek için gereklidir",
+        "viewStats": "Drop istatistiklerinizi görüntülemek için gereklidir",
+        "note": "Not: Sadece bu 2 endpoint'i seçmeniz yeterlidir. \"View Drop\" endpoint'ine gerek yoktur."
+      },
+      "security": {
+        "title": "Güvenlik ve Gizlilik",
+        "description": "API key'iniz güvenli bir şekilde saklanır:",
+        "encryption": "AES-256 şifreleme ile korunur",
+        "noDisplay": "Kaydedildikten sonra SİZ DAHİL HİÇ KİMSE tarafından görüntülenemez",
+        "secure": "Sadece sizin hesabınızdan erişilebilir"
+      },
+      "infoText": "FarmLabs API key'inizi girerek drop'larınızı otomatik olarak senkronize edebilirsiniz. API key'inizi",
+      "dashboardLink": "FarmLabs Dashboard",
+      "infoText2": "üzerinden alabilirsiniz.",
+      "apiKeyLabel": "FarmLabs API Key",
+      "apiKeyPlaceholder": "flabs_xxxxxxxxxxxxxxxxxxxxxxxx",
+      "apiKeyStatusNotSaved": "⚠️ API key kaydedilmemiş - Kaydettikten sonra bir daha görüntüleyemezsiniz!",
+      "apiKeyStatusSaved": "API key kaydedildi",
+      "testBtn": "Test Et",
+      "saveBtn": "Kaydet",
+      "syncBtn": "Dropleri Senkronize Et"
+    }
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "success": "Başarılı",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "close": "Kapat"
+  }
+}

@@ -1,0 +1,99 @@
+/* ==================== SVG ICON SYSTEM ==================== */
+
+/* Phosphor Icons - Custom sizing */
+.ph, .ph-bold {
+    font-size: 1.25rem;
+    line-height: 1;
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Navigation icons */
+.nav-icon .ph, .nav-icon .ph-bold {
+    font-size: 1.5rem;
+}
+
+/* Stat card icons */
+.stat-icon .ph, .stat-icon .ph-bold {
+    font-size: 2rem;
+}
+
+/* Button icons */
+.btn-icon .ph, .btn-icon .ph-bold {
+    font-size: 1rem;
+}
+
+/* Action button icons */
+.action-icon .ph, .action-icon .ph-bold {
+    font-size: 1.75rem;
+}
+
+/* Activity icons */
+.activity-icon .ph, .activity-icon .ph-bold {
+    font-size: 2.5rem;
+}
+
+/* Label icons */
+.label-icon .ph, .label-icon .ph-bold {
+    font-size: 1.25rem;
+}
+
+/* Info icons */
+.info-icon .ph, .info-icon .ph-bold {
+    font-size: 1.25rem;
+}
+
+/* Topbar icons */
+.topbar-btn .ph, .topbar-btn .ph-bold {
+    font-size: 1.25rem;
+}
+
+/* Spinning animation for loading states */
+@keyframes ph-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.ph-spin {
+    animation: ph-spin 1s linear infinite;
+    display: inline-block;
+}
+
+.icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.icon svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
+
+/* Icon sizes */
+.icon-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+.icon-md {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.icon-lg {
+    width: 2rem;
+    height: 2rem;
+}
+
+.icon-xl {
+    width: 2.5rem;
+    height: 2.5rem;
+}

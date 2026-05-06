@@ -1,0 +1,177 @@
+<!-- Accounts Header -->
+<div class="section">
+    <div class="section-header">
+        <h2 class="section-title">{{t:accounts.title}}</h2>
+        <button class="btn btn-primary" id="addAccountBtn">
+            <span class="btn-icon">
+                <i class="ph-bold ph-plus"></i>
+            </span>
+            {{t:accounts.addAccount}}
+        </button>
+    </div>
+
+    <!-- Accounts Table -->
+    <div class="accounts-table-container">
+        <table class="accounts-table" id="accountsTable">
+            <thead>
+                <tr>
+                    <th>{{t:accounts.table.username}}</th>
+                    <th>{{t:accounts.table.password}}</th>
+                    <th>{{t:accounts.table.sharedSecret}}</th>
+                    <th>{{t:accounts.table.identitySecret}}</th>
+                    <th>{{t:accounts.table.actions}}</th>
+                </tr>
+            </thead>
+            <tbody id="accountsTableBody">
+                <!-- Accounts will be loaded here -->
+                <tr class="loading-row">
+                    <td colspan="5" class="text-center">
+                        <i class="ph-bold ph-circle-notch ph-spin"></i>
+                        {{t:common.loading}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <i class="ph-bold ph-game-controller"></i>
+            <p>{{t:accounts.noAccounts}}</p>
+            <button class="btn btn-primary" onclick="document.getElementById('addAccountBtn').click()">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-plus"></i>
+                </span>
+                {{t:accounts.addFirstAccount}}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Account Modal -->
+<div class="modal" id="accountModal">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">{{t:accounts.addAccount}}</h3>
+            <button class="modal-close" id="modalClose">
+                <i class="ph-bold ph-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="accountForm">
+                <input type="hidden" id="accountId">
+                
+                <div class="form-group">
+                    <label for="username">
+                        <i class="ph-bold ph-user"></i>
+                        {{t:accounts.form.username}}
+                    </label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        placeholder="{{t:accounts.form.usernamePlaceholder}}"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="ph-bold ph-lock"></i>
+                        {{t:accounts.form.password}}
+                    </label>
+                    <div class="input-with-icon">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            placeholder="{{t:accounts.form.passwordPlaceholder}}"
+                            required
+                            autocomplete="new-password"
+                        >
+                        <button type="button" class="toggle-password" data-target="password">
+                            <i class="ph-bold ph-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sharedSecret">
+                        <i class="ph-bold ph-key"></i>
+                        {{t:accounts.form.sharedSecret}}
+                    </label>
+                    <div class="input-with-icon">
+                        <input 
+                            type="password" 
+                            id="sharedSecret" 
+                            placeholder="{{t:accounts.form.sharedSecretPlaceholder}}"
+                            required
+                            autocomplete="off"
+                        >
+                        <button type="button" class="toggle-password" data-target="sharedSecret">
+                            <i class="ph-bold ph-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="identitySecret">
+                        <i class="ph-bold ph-fingerprint"></i>
+                        {{t:accounts.form.identitySecret}}
+                    </label>
+                    <div class="input-with-icon">
+                        <input 
+                            type="password" 
+                            id="identitySecret" 
+                            placeholder="{{t:accounts.form.identitySecretPlaceholder}}"
+                            required
+                            autocomplete="off"
+                        >
+                        <button type="button" class="toggle-password" data-target="identitySecret">
+                            <i class="ph-bold ph-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">
+                        {{t:common.cancel}}
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span class="btn-icon">
+                            <i class="ph-bold ph-floppy-disk"></i>
+                        </span>
+                        <span id="submitBtnText">{{t:common.save}}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-overlay" id="deleteModalOverlay"></div>
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h3 class="modal-title">{{t:accounts.deleteConfirm.title}}</h3>
+            <button class="modal-close" id="deleteModalClose">
+                <i class="ph-bold ph-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>{{t:accounts.deleteConfirm.message}}</p>
+            <p class="delete-account-name" id="deleteAccountName"></p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">
+                {{t:common.cancel}}
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-trash"></i>
+                </span>
+                {{t:common.delete}}
+            </button>
+        </div>
+    </div>
+</div>

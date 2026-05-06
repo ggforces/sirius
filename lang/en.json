@@ -1,0 +1,148 @@
+{
+  "app": {
+    "name": "Sirius Steam Automation",
+    "logo": "SIRIUS",
+    "lang": "en"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "accounts": "Steam Accounts",
+    "automation": "Automation",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "topbar": {
+    "logout": "Logout"
+  },
+  "sidebar": {
+    "loading": "Loading..."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stats": {
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "last3Months": "Last 3 Months",
+      "totalEarnings": "Total Earnings"
+    },
+    "chart": {
+      "title": "Last 6 Months Weekly Earnings",
+      "lastUpdate": "Last update",
+      "refreshBtn": "Refresh Data",
+      "infoNote": "Drop counts are calculated by dividing weekly earnings by two (each account receives 2 drops per week). Orange values show average earnings per account."
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "addAccount": "Add Account",
+      "checkAccounts": "Check Status",
+      "loadBalance": "Load Balance",
+      "viewReports": "Reports"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "welcome": "Welcome!",
+      "accountCreated": "Your account has been successfully created",
+      "justNow": "Just now"
+    }
+  },
+  "accounts": {
+    "title": "Steam Accounts",
+    "comingSoon": "This feature is coming soon...",
+    "addAccount": "Add Account",
+    "editAccount": "Edit Account",
+    "noAccounts": "No Steam accounts added yet",
+    "addFirstAccount": "Add First Account",
+    "table": {
+      "username": "Username",
+      "password": "Password",
+      "sharedSecret": "Shared Secret",
+      "identitySecret": "Identity Secret",
+      "actions": "Actions"
+    },
+    "form": {
+      "username": "Steam Username",
+      "usernamePlaceholder": "Enter your username",
+      "password": "Steam Password",
+      "passwordPlaceholder": "Enter your password",
+      "sharedSecret": "Shared Secret",
+      "sharedSecretPlaceholder": "Enter shared secret code",
+      "identitySecret": "Identity Secret",
+      "identitySecretPlaceholder": "Enter identity secret code"
+    },
+    "deleteConfirm": {
+      "title": "Delete Account",
+      "message": "Are you sure you want to delete this Steam account?"
+    }
+  },
+  "automation": {
+    "title": "Automation Tasks",
+    "comingSoon": "This feature is coming soon..."
+  },
+  "reports": {
+    "title": "Reports & Statistics",
+    "comingSoon": "This feature is coming soon..."
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile Information",
+      "email": "Email",
+      "createdAt": "Registration Date",
+      "lastLogin": "Last Login",
+      "loading": "Loading..."
+    },
+    "security": {
+      "title": "Security",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "newPasswordHint": "Must be at least 8 characters",
+      "confirmPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Re-enter your new password",
+      "changePasswordBtn": "Change Password"
+    },
+    "farmlabs": {
+      "title": "FarmLabs Integration",
+      "infoBox": {
+        "title": "How to Get FarmLabs API Key?",
+        "description": "You can automatically synchronize your drop data using your FarmLabs API key.",
+        "linkText": "Go to FarmLabs Dashboard"
+      },
+      "permissions": {
+        "title": "Required API Permissions",
+        "description": "You need to select the following endpoints when creating your API key:",
+        "listDrops": "Required to list and fetch your drop data",
+        "viewStats": "Required to view your drop statistics",
+        "note": "Note: You only need to select these 2 endpoints. \"View Drop\" endpoint is not required."
+      },
+      "security": {
+        "title": "Security and Privacy",
+        "description": "Your API key is stored securely:",
+        "encryption": "Protected with AES-256 encryption",
+        "noDisplay": "Cannot be viewed by ANYONE (including you) after saving",
+        "secure": "Only accessible from your account"
+      },
+      "infoText": "Enter your FarmLabs API key to automatically synchronize your drops. You can get your API key from",
+      "dashboardLink": "FarmLabs Dashboard",
+      "infoText2": ".",
+      "apiKeyLabel": "FarmLabs API Key",
+      "apiKeyPlaceholder": "flabs_xxxxxxxxxxxxxxxxxxxxxxxx",
+      "apiKeyStatusNotSaved": "⚠️ API key not saved - You won't be able to view it again after saving!",
+      "apiKeyStatusSaved": "API key saved",
+      "testBtn": "Test",
+      "saveBtn": "Save",
+      "syncBtn": "Synchronize Drops"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
+  }
+}

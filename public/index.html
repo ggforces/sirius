@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sirius - Steam Otomasyon Sistemi</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="stars-container">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="20" cy="20" r="18" stroke="url(#gradient)" stroke-width="2"/>
+                        <circle cx="20" cy="20" r="4" fill="url(#gradient)"/>
+                        <path d="M20 2 L20 10" stroke="url(#gradient)" stroke-width="2"/>
+                        <path d="M20 30 L20 38" stroke="url(#gradient)" stroke-width="2"/>
+                        <path d="M2 20 L10 20" stroke="url(#gradient)" stroke-width="2"/>
+                        <path d="M30 20 L38 20" stroke="url(#gradient)" stroke-width="2"/>
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#7b2ff7;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="logo-text">SIRIUS</span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" id="loginBtn">Giriş Yap</button>
+                    <button class="btn btn-primary" id="registerBtn">Kayıt Ol</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Steam Otomasyonu</span>
+                    <br>Yeni Nesil Kontrol
+                </h1>
+                <p class="hero-subtitle">
+                    Hesaplarınızı otomatik yönetin, güvenliği artırın ve zamandan tasarruf edin.
+                    Sirius ile Steam hesap yönetimi artık çok daha kolay.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary btn-large" id="heroRegisterBtn">
+                        Hemen Başla
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7 3L14 10L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button class="btn btn-outline btn-large">
+                        Daha Fazla Bilgi
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Floating Cards -->
+            <div class="floating-cards">
+                <div class="feature-card card-1">
+                    <div class="card-icon">🛡️</div>
+                    <h3>Güvenli</h3>
+                    <p>256-bit şifreleme</p>
+                </div>
+                <div class="feature-card card-2">
+                    <div class="card-icon">⚡</div>
+                    <h3>Hızlı</h3>
+                    <p>Anlık işlem</p>
+                </div>
+                <div class="feature-card card-3">
+                    <div class="card-icon">🤖</div>
+                    <h3>Otomasyon</h3>
+                    <p>7/24 aktif</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-overlay" id="loginOverlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="loginClose">&times;</button>
+            <div class="modal-header">
+                <h2>Giriş Yap</h2>
+                <p>Hesabınıza erişim sağlayın</p>
+            </div>
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">E-posta</label>
+                    <input type="email" id="loginEmail" placeholder="ornek@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Şifre</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <div class="form-footer">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Beni hatırla</span>
+                    </label>
+                    <a href="#" class="link">Şifremi unuttum</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Giriş Yap</button>
+                <div class="form-divider">
+                    <span>Hesabınız yok mu?</span>
+                </div>
+                <button type="button" class="btn btn-outline btn-full" id="switchToRegister">Kayıt Ol</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-overlay" id="registerOverlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="registerClose">&times;</button>
+            <div class="modal-header">
+                <h2>Kayıt Ol</h2>
+                <p>Yeni hesap oluşturun</p>
+            </div>
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerEmail">E-posta</label>
+                    <input type="email" id="registerEmail" placeholder="ornek@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Şifre</label>
+                    <input type="password" id="registerPassword" placeholder="••••••••" required minlength="8">
+                    <small class="form-hint">En az 8 karakter olmalıdır</small>
+                </div>
+                <div class="form-group">
+                    <label for="registerPasswordConfirm">Şifre Tekrar</label>
+                    <input type="password" id="registerPasswordConfirm" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Kayıt Ol</button>
+                <div class="form-divider">
+                    <span>Zaten hesabınız var mı?</span>
+                </div>
+                <button type="button" class="btn btn-outline btn-full" id="switchToLogin">Giriş Yap</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

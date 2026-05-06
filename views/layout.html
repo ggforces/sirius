@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="{{t:app.lang}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{PAGE_TITLE}} - {{t:app.name}}</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css" rel="stylesheet">
+    {{EXTRA_HEAD}}
+</head>
+<body class="dashboard-body">
+    <!-- Animated Background -->
+    <div class="stars-container">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="18" stroke="url(#gradient)" stroke-width="2"/>
+                    <circle cx="20" cy="20" r="4" fill="url(#gradient)"/>
+                    <path d="M20 2 L20 10" stroke="url(#gradient)" stroke-width="2"/>
+                    <path d="M20 30 L20 38" stroke="url(#gradient)" stroke-width="2"/>
+                    <path d="M2 20 L10 20" stroke="url(#gradient)" stroke-width="2"/>
+                    <path d="M30 20 L38 20" stroke="url(#gradient)" stroke-width="2"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#7b2ff7;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">{{t:app.logo}}</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/panel/dashboard" class="nav-item {{ACTIVE_DASHBOARD}}">
+                <span class="nav-icon">
+                    <i class="ph-bold ph-house"></i>
+                </span>
+                <span class="nav-label">{{t:nav.dashboard}}</span>
+            </a>
+            <a href="/panel/accounts" class="nav-item {{ACTIVE_ACCOUNTS}}">
+                <span class="nav-icon">
+                    <i class="ph-bold ph-game-controller"></i>
+                </span>
+                <span class="nav-label">{{t:nav.accounts}}</span>
+            </a>
+            <a href="/panel/automation" class="nav-item {{ACTIVE_AUTOMATION}}">
+                <span class="nav-icon">
+                    <i class="ph-bold ph-robot"></i>
+                </span>
+                <span class="nav-label">{{t:nav.automation}}</span>
+            </a>
+            <a href="/panel/reports" class="nav-item {{ACTIVE_REPORTS}}">
+                <span class="nav-icon">
+                    <i class="ph-bold ph-chart-line"></i>
+                </span>
+                <span class="nav-label">{{t:nav.reports}}</span>
+            </a>
+            <a href="/panel/settings" class="nav-item {{ACTIVE_SETTINGS}}">
+                <span class="nav-icon">
+                    <i class="ph-bold ph-gear"></i>
+                </span>
+                <span class="nav-label">{{t:nav.settings}}</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <span id="userInitial">U</span>
+                </div>
+                <div class="user-details">
+                    <div class="user-email" id="sidebarUserEmail">{{t:sidebar.loading}}</div>
+                    <div class="user-balance">$<span id="sidebarUserBalance">0.00</span></div>
+                </div>
+            </div>
+            
+            <!-- Language Switcher -->
+            <div class="sidebar-language-switcher">
+                <button class="sidebar-lang-btn" data-lang="tr" title="Türkçe">
+                    <span class="flag-icon">🇹🇷</span>
+                    <span class="lang-label">Türkçe</span>
+                </button>
+                <button class="sidebar-lang-btn" data-lang="en" title="English">
+                    <span class="flag-icon">🇬🇧</span>
+                    <span class="lang-label">English</span>
+                </button>
+            </div>
+            
+            <!-- Logout Button -->
+            <button class="sidebar-logout-btn" id="sidebarLogoutBtn">
+                <i class="ph-bold ph-sign-out"></i>
+                <span class="logout-label">{{t:topbar.logout}}</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title">{{PAGE_TITLE}}</h1>
+            </div>
+            <div class="topbar-right">
+                <button class="topbar-btn" id="notificationBtn">
+                    <i class="ph-bold ph-bell"></i>
+                    <span class="badge">3</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            {{CONTENT}}
+        </div>
+    </main>
+
+    <script src="/js/common.js"></script>
+    {{EXTRA_SCRIPTS}}
+</body>
+</html>

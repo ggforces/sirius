@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel - Sirius Steam Otomasyon</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-body">
+    <!-- Animated Background -->
+    <div class="stars-container">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="18" stroke="url(#gradient)" stroke-width="2"/>
+                    <circle cx="20" cy="20" r="4" fill="url(#gradient)"/>
+                    <path d="M20 2 L20 10" stroke="url(#gradient)" stroke-width="2"/>
+                    <path d="M20 30 L20 38" stroke="url(#gradient)" stroke-width="2"/>
+                    <path d="M2 20 L10 20" stroke="url(#gradient)" stroke-width="2"/>
+                    <path d="M30 20 L38 20" stroke="url(#gradient)" stroke-width="2"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#7b2ff7;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">SIRIUS</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-page="accounts">
+                <span class="nav-icon">🎮</span>
+                <span class="nav-label">Steam Hesapları</span>
+            </a>
+            <a href="#" class="nav-item" data-page="automation">
+                <span class="nav-icon">🤖</span>
+                <span class="nav-label">Otomasyon</span>
+            </a>
+            <a href="#" class="nav-item" data-page="reports">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Raporlar</span>
+            </a>
+            <a href="#" class="nav-item" data-page="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Ayarlar</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <span id="userInitial">U</span>
+                </div>
+                <div class="user-details">
+                    <div class="user-email" id="sidebarUserEmail">Yükleniyor...</div>
+                    <div class="user-balance">$<span id="sidebarUserBalance">0.00</span></div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            </div>
+            <div class="topbar-right">
+                <button class="topbar-btn" id="notificationBtn">
+                    <span class="icon">🔔</span>
+                    <span class="badge">3</span>
+                </button>
+                <button class="topbar-btn" id="logoutBtn">
+                    <span class="icon">🚪</span>
+                    <span class="label">Çıkış</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="content-area" id="contentArea">
+            <!-- Dashboard Page -->
+            <div class="page-content" id="dashboardPage">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Bu Hafta</div>
+                            <div class="stat-value">$<span id="statThisWeek">0.00</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📆</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Bu Ay</div>
+                            <div class="stat-value">$<span id="statThisMonth">0.00</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Son 3 Ay</div>
+                            <div class="stat-value">$<span id="statLast3Months">0.00</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Toplam Kazanç</div>
+                            <div class="stat-value">$<span id="statTotal">0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Earnings Chart -->
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Son 6 Aylık Haftalık Kazanç</h2>
+                        <div class="section-actions">
+                            <span class="last-update" id="earningsLastUpdate">Son güncelleme: -</span>
+                            <button class="btn btn-primary btn-sm" id="refreshEarningsBtn">
+                                <span class="btn-icon">🔄</span>
+                                Verileri Güncelle
+                            </button>
+                        </div>
+                    </div>
+                    <div class="earnings-card">
+                        <div class="chart-info-note">
+                            <div class="info-text">
+                                Drop sayıları haftalık kazançların ikiye bölünmesiyle hesaplanır (her hesap haftada 2 drop alır). Turuncu renkli değerler hesap başına ortalama kazancı gösterir.
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="earningsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section">
+                    <h2 class="section-title">Hızlı İşlemler</h2>
+                    <div class="actions-grid">
+                        <button class="action-btn">
+                            <span class="action-icon">➕</span>
+                            <span class="action-label">Hesap Ekle</span>
+                        </button>
+                        <button class="action-btn">
+                            <span class="action-icon">🔍</span>
+                            <span class="action-label">Kontrol Et</span>
+                        </button>
+                        <button class="action-btn">
+                            <span class="action-icon">💳</span>
+                            <span class="action-label">Bakiye Yükle</span>
+                        </button>
+                        <button class="action-btn">
+                            <span class="action-icon">📈</span>
+                            <span class="action-label">Raporlar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="section">
+                    <h2 class="section-title">Son Aktiviteler</h2>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">🎉</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Hoş Geldiniz!</div>
+                                <div class="activity-desc">Hesabınız başarıyla oluşturuldu</div>
+                                <div class="activity-time" id="joinTime">Az önce</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Pages (Hidden by default) -->
+            <div class="page-content" id="accountsPage" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">Steam Hesapları</h2>
+                    <p class="placeholder-text">Bu özellik yakında eklenecek...</p>
+                </div>
+            </div>
+
+            <div class="page-content" id="automationPage" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">Otomasyon Görevleri</h2>
+                    <p class="placeholder-text">Bu özellik yakında eklenecek...</p>
+                </div>
+            </div>
+
+            <div class="page-content" id="reportsPage" style="display: none;">
+                <div class="section">
+                    <h2 class="section-title">Raporlar & İstatistikler</h2>
+                    <p class="placeholder-text">Bu özellik yakında eklenecek...</p>
+                </div>
+            </div>
+
+            <div class="page-content" id="settingsPage" style="display: none;">
+                <!-- Profile Information -->
+                <div class="section">
+                    <h2 class="section-title">Profil Bilgileri</h2>
+                    <div class="settings-card">
+                        <div class="settings-row">
+                            <div class="settings-label">
+                                <span class="label-icon">📧</span>
+                                <span class="label-text">E-posta</span>
+                            </div>
+                            <div class="settings-value">
+                                <span id="settingsEmail">Yükleniyor...</span>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-label">
+                                <span class="label-icon">📅</span>
+                                <span class="label-text">Kayıt Tarihi</span>
+                            </div>
+                            <div class="settings-value">
+                                <span id="settingsCreatedAt">Yükleniyor...</span>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-label">
+                                <span class="label-icon">🕐</span>
+                                <span class="label-text">Son Giriş</span>
+                            </div>
+                            <div class="settings-value">
+                                <span id="settingsLastLogin">Yükleniyor...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="section">
+                    <h2 class="section-title">Güvenlik</h2>
+                    <div class="settings-card">
+                        <form id="changePasswordForm">
+                            <div class="form-group-settings">
+                                <label for="currentPassword">
+                                    <span class="label-icon">🔒</span>
+                                    Mevcut Şifre
+                                </label>
+                                <input type="password" id="currentPassword" placeholder="Mevcut şifrenizi girin" required>
+                            </div>
+                            <div class="form-group-settings">
+                                <label for="newPassword">
+                                    <span class="label-icon">🔑</span>
+                                    Yeni Şifre
+                                </label>
+                                <input type="password" id="newPassword" placeholder="Yeni şifrenizi girin" required minlength="8">
+                                <small class="form-hint-settings">En az 8 karakter olmalıdır</small>
+                            </div>
+                            <div class="form-group-settings">
+                                <label for="confirmNewPassword">
+                                    <span class="label-icon">🔑</span>
+                                    Yeni Şifre Tekrar
+                                </label>
+                                <input type="password" id="confirmNewPassword" placeholder="Yeni şifrenizi tekrar girin" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-icon">💾</span>
+                                    Şifreyi Değiştir
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- FarmLabs Integration -->
+                <div class="section">
+                    <h2 class="section-title">FarmLabs Entegrasyonu</h2>
+                    <div class="settings-card">
+                        <div class="settings-info">
+                            <p class="info-text">
+                                <span class="info-icon">ℹ️</span>
+                                FarmLabs API key'inizi girerek drop'larınızı otomatik olarak senkronize edebilirsiniz.
+                                API key'inizi <a href="https://dashboard.farmlabs.dev/user-api-keys" target="_blank" rel="noopener">FarmLabs Dashboard</a> üzerinden alabilirsiniz.
+                            </p>
+                        </div>
+                        
+                        <form id="farmlabsApiKeyForm">
+                            <div class="form-group-settings">
+                                <label for="farmlabsApiKey">
+                                    <span class="label-icon">🔑</span>
+                                    FarmLabs API Key
+                                </label>
+                                <input 
+                                    type="password" 
+                                    id="farmlabsApiKey" 
+                                    placeholder="flabs_xxxxxxxxxxxxxxxxxxxxxxxx" 
+                                    autocomplete="off"
+                                >
+                                <small class="form-hint-settings" id="apiKeyStatus">API key kaydedilmemiş</small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" id="testApiKeyBtn">
+                                    <span class="btn-icon">🧪</span>
+                                    Test Et
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-icon">💾</span>
+                                    Kaydet
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="settings-divider"></div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-success" id="syncDropsBtn">
+                                <span class="btn-icon">🔄</span>
+                                Dropleri Senkronize Et
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

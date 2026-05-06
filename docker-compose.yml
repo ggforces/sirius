@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  sirius-app:
+    build: .
+    container_name: sirius-steam-automation
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    environment:
+      - NODE_ENV=production
+      - PORT=5050
+      - DB_PATH=/app/data/database.sqlite
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS}
+    volumes:
+      # Persist database
+      - ./data:/app/data
+      # Optional: Mount logs directory
+      - ./logs:/app/logs
+    networks:
+      - sirius-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5050/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  sirius-network:
+    driver: bridge
+
+volumes:
+  sirius-data:
+    driver: local
