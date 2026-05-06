@@ -125,11 +125,14 @@ function attachTableEventListeners() {
 
 function openAddModal() {
     editingAccountId = null;
-    document.getElementById('modalTitle').textContent = window.APP_TRANSLATIONS.accounts.addAccount;
+    document.getElementById('modalTitle').textContent = 'Hesap Ekle';
     document.getElementById('accountForm').reset();
     document.getElementById('accountId').value = '';
     document.getElementById('accountModal').classList.add('active');
 }
+
+// Make openAddModal globally available
+window.openAddModal = openAddModal;
 
 function openEditModal(accountId) {
     if (!accounts || accounts.length === 0) {

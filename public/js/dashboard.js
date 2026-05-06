@@ -453,6 +453,11 @@ function switchPage(pageName) {
         // Reinitialize tasks manager to refresh data
         tasksManager.loadAccounts();
     }
+    
+    if (pageName === 'accounts' && typeof loadAccounts !== 'undefined') {
+        // Reload accounts when switching to accounts page
+        loadAccounts();
+    }
 }
 
 // Load correct page based on URL
