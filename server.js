@@ -188,6 +188,57 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Debug endpoint - Database info (only in development)
+app.get('/api/debug/db', (req, res) => {
+    if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json({
+            success: false,
+            message: 'Debug endpoint is disabled in production'
+        });
+    }
+    
+    try {
+        const db = require('./src/config/database');
+        
+        const users = db.prepare('SELECT id, email, created_at FROM users').all();
+        const accounts = db.prepare('SELECT id, username, user_id FROM accounts').all();
+        const sessions = db.prepare('SELECT user_id, expires_at FROM sessions WHERE expires_at > datetime("now")').all();
+        const proxies = db.prepare('SELECT id, host, port, user_id, is_locked, cooldown_until FROM proxies').all();
+        const tasks = db.prepare('SELECT id, type, status, user_id FROM tasks').all();
+        
+        res.json({
+            success: true,
+            data: {
+                users: {
+                    count: users.length,
+                    list: users
+                },
+                accounts: {
+                    count: accounts.length,
+                    list: accounts
+                },
+                sessions: {
+                    count: sessions.length,
+                    list: sessions
+                },
+                proxies: {
+                    count: proxies.length,
+                    list: proxies
+                },
+                tasks: {
+                    count: tasks.length,
+                    list: tasks
+                }
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
 // Language switching endpoint
 app.post('/api/language', (req, res) => {
     const { lang } = req.body;
