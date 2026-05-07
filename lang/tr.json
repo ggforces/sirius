@@ -7,7 +7,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "accounts": "Steam Hesapları",
-    "automation": "Otomasyon",
+    "tasks": "Görevler",
     "reports": "Raporlar",
     "settings": "Ayarlar"
   },
@@ -74,9 +74,48 @@
       "message": "Bu Steam hesabını silmek istediğinizden emin misiniz?"
     }
   },
-  "automation": {
-    "title": "Otomasyon Görevleri",
-    "comingSoon": "Bu özellik yakında eklenecek..."
+  "tasks": {
+    "title": "Görevler",
+    "header": {
+      "title": "Steam Hesap Kontrol Görevleri",
+      "bulkCheck": "Toplu Kontrol",
+      "refresh": "Yenile"
+    },
+    "accounts": {
+      "title": "Steam Hesapları",
+      "loading": "Hesaplar yükleniyor...",
+      "noAccounts": "Henüz Steam hesabı eklenmemiş",
+      "noAccountsDesc": "Hesap kontrolü yapabilmek için önce Steam hesaplarınızı eklemelisiniz.",
+      "addAccount": "Hesap Ekle"
+    },
+    "results": {
+      "title": "Kontrol Sonuçları"
+    },
+    "bulkModal": {
+      "title": "Toplu Hesap Kontrolü",
+      "selectPrompt": "Kontrol edilecek hesapları seçin:",
+      "selectAll": "Tümünü Seç",
+      "accountsSelected": "hesap seçildi",
+      "checking": "Hesaplar kontrol ediliyor...",
+      "starting": "Başlatılıyor...",
+      "completed": "Kontrol Tamamlandı",
+      "startCheck": "Kontrolü Başlat"
+    },
+    "card": {
+      "checked": "Kontrol Edildi",
+      "unchecked": "Kontrol Edilmedi",
+      "steamId": "Steam ID",
+      "primeStatus": "Prime Status",
+      "prime": "Prime",
+      "nonPrime": "Non-Prime",
+      "limited": "Limited",
+      "unlimited": "Unlimited",
+      "limitedWallet": "Limited (Wallet)",
+      "unknown": "Bilinmiyor",
+      "wallet": "Cüzdan",
+      "checkBtn": "Kontrol Et",
+      "inventoryBtn": "Envanter"
+    }
   },
   "reports": {
     "title": "Raporlar & İstatistikler",

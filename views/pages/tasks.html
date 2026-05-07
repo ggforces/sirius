@@ -1,0 +1,106 @@
+<!-- Tasks Header -->
+<div class="section">
+    <div class="section-header">
+        <h2 class="section-title">{{t:tasks.header.title}}</h2>
+        <div class="section-actions">
+            <button class="btn btn-primary" id="bulkCheckBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-magnifying-glass"></i>
+                </span>
+                {{t:tasks.header.bulkCheck}}
+            </button>
+            <button class="btn btn-secondary" id="refreshAccountsBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-arrow-clockwise"></i>
+                </span>
+                {{t:tasks.header.refresh}}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Account Selection -->
+<div class="section">
+    <h3 class="section-subtitle">{{t:tasks.accounts.title}}</h3>
+    <div class="accounts-container" id="accountsContainer">
+        <div class="loading-state" id="accountsLoading">
+            <div class="loading-spinner"></div>
+            <span>{{t:tasks.accounts.loading}}</span>
+        </div>
+        <div class="empty-state" id="accountsEmpty" style="display: none;">
+            <div class="empty-icon">
+                <i class="ph-bold ph-game-controller"></i>
+            </div>
+            <h3>{{t:tasks.accounts.noAccounts}}</h3>
+            <p>{{t:tasks.accounts.noAccountsDesc}}</p>
+            <button class="btn btn-primary" id="addAccountFromTasks">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-plus"></i>
+                </span>
+                {{t:tasks.accounts.addAccount}}
+            </button>
+        </div>
+        <div class="accounts-grid" id="accountsGrid" style="display: none;">
+            <!-- Accounts will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Check Results -->
+<div class="section" id="resultsSection" style="display: none;">
+    <h3 class="section-subtitle">{{t:tasks.results.title}}</h3>
+    <div class="results-container" id="resultsContainer">
+        <!-- Results will be displayed here -->
+    </div>
+</div>
+
+<!-- Bulk Check Modal -->
+<div class="modal" id="bulkCheckModal">
+    <div class="modal-overlay" id="bulkCheckModalOverlay"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">{{t:tasks.bulkModal.title}}</h3>
+            <button class="modal-close" id="closeBulkCheckModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="bulk-check-step" id="selectAccountsStep">
+                <h4>{{t:tasks.bulkModal.selectPrompt}}</h4>
+                <div class="account-selection">
+                    <div class="selection-header">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="selectAllAccounts">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-label">{{t:tasks.bulkModal.selectAll}}</span>
+                        </label>
+                        <span class="selected-count" id="selectedCount">0 {{t:tasks.bulkModal.accountsSelected}}</span>
+                    </div>
+                    <div class="accounts-list" id="bulkAccountsList">
+                        <!-- Accounts will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            <div class="bulk-check-step" id="checkProgressStep" style="display: none;">
+                <h4>{{t:tasks.bulkModal.checking}}</h4>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0 / 0</div>
+                </div>
+                <div class="current-check" id="currentCheck">
+                    {{t:tasks.bulkModal.starting}}
+                </div>
+            </div>
+            <div class="bulk-check-step" id="checkResultsStep" style="display: none;">
+                <h4>{{t:tasks.bulkModal.completed}}</h4>
+                <div class="results-summary" id="resultsSummary">
+                    <!-- Results summary will be shown here -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" id="cancelBulkCheck">{{t:common.cancel}}</button>
+            <button class="btn btn-primary" id="startBulkCheck">{{t:tasks.bulkModal.startCheck}}</button>
+        </div>
+    </div>
+</div>

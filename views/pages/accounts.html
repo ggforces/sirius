@@ -37,7 +37,7 @@
         <div class="empty-state" id="emptyState" style="display: none;">
             <i class="ph-bold ph-game-controller"></i>
             <p>{{t:accounts.noAccounts}}</p>
-            <button class="btn btn-primary" onclick="document.getElementById('addAccountBtn').click()">
+            <button class="btn btn-primary" id="addFirstAccountBtn">
                 <span class="btn-icon">
                     <i class="ph-bold ph-plus"></i>
                 </span>
@@ -50,18 +50,15 @@
 <!-- Add/Edit Account Modal -->
 <div class="modal" id="accountModal">
     <div class="modal-overlay" id="modalOverlay"></div>
-    <div class="modal-content">
+    <div class="modal-content modal-compact">
         <div class="modal-header">
             <h3 class="modal-title" id="modalTitle">{{t:accounts.addAccount}}</h3>
-            <button class="modal-close" id="modalClose">
-                <i class="ph-bold ph-x"></i>
-            </button>
         </div>
         <div class="modal-body">
-            <form id="accountForm">
+            <form id="accountForm" class="compact-form">
                 <input type="hidden" id="accountId">
                 
-                <div class="form-group">
+                <div class="form-row">
                     <label for="username">
                         <i class="ph-bold ph-user"></i>
                         {{t:accounts.form.username}}
@@ -75,71 +72,51 @@
                     >
                 </div>
                 
-                <div class="form-group">
+                <div class="form-row">
                     <label for="password">
                         <i class="ph-bold ph-lock"></i>
                         {{t:accounts.form.password}}
                     </label>
-                    <div class="input-with-icon">
-                        <input 
-                            type="password" 
-                            id="password" 
-                            placeholder="{{t:accounts.form.passwordPlaceholder}}"
-                            required
-                            autocomplete="new-password"
-                        >
-                        <button type="button" class="toggle-password" data-target="password">
-                            <i class="ph-bold ph-eye"></i>
-                        </button>
-                    </div>
+                    <input 
+                        type="text" 
+                        id="password" 
+                        placeholder="{{t:accounts.form.passwordPlaceholder}}"
+                        required
+                        autocomplete="new-password"
+                    >
                 </div>
                 
-                <div class="form-group">
+                <div class="form-row">
                     <label for="sharedSecret">
                         <i class="ph-bold ph-key"></i>
                         {{t:accounts.form.sharedSecret}}
                     </label>
-                    <div class="input-with-icon">
-                        <input 
-                            type="password" 
-                            id="sharedSecret" 
-                            placeholder="{{t:accounts.form.sharedSecretPlaceholder}}"
-                            required
-                            autocomplete="off"
-                        >
-                        <button type="button" class="toggle-password" data-target="sharedSecret">
-                            <i class="ph-bold ph-eye"></i>
-                        </button>
-                    </div>
+                    <input 
+                        type="text" 
+                        id="sharedSecret" 
+                        placeholder="{{t:accounts.form.sharedSecretPlaceholder}}"
+                        required
+                        autocomplete="off"
+                    >
                 </div>
                 
-                <div class="form-group">
+                <div class="form-row">
                     <label for="identitySecret">
                         <i class="ph-bold ph-fingerprint"></i>
                         {{t:accounts.form.identitySecret}}
                     </label>
-                    <div class="input-with-icon">
-                        <input 
-                            type="password" 
-                            id="identitySecret" 
-                            placeholder="{{t:accounts.form.identitySecretPlaceholder}}"
-                            required
-                            autocomplete="off"
-                        >
-                        <button type="button" class="toggle-password" data-target="identitySecret">
-                            <i class="ph-bold ph-eye"></i>
-                        </button>
-                    </div>
+                    <input 
+                        type="text" 
+                        id="identitySecret" 
+                        placeholder="{{t:accounts.form.identitySecretPlaceholder}}"
+                        required
+                        autocomplete="off"
+                    >
                 </div>
                 
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelBtn">
-                        {{t:common.cancel}}
-                    </button>
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <span class="btn-icon">
-                            <i class="ph-bold ph-floppy-disk"></i>
-                        </span>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save" id="submitBtn">
+                        <i class="ph-bold ph-floppy-disk"></i>
                         <span id="submitBtnText">{{t:common.save}}</span>
                     </button>
                 </div>
@@ -154,9 +131,6 @@
     <div class="modal-content modal-small">
         <div class="modal-header">
             <h3 class="modal-title">{{t:accounts.deleteConfirm.title}}</h3>
-            <button class="modal-close" id="deleteModalClose">
-                <i class="ph-bold ph-x"></i>
-            </button>
         </div>
         <div class="modal-body">
             <p>{{t:accounts.deleteConfirm.message}}</p>

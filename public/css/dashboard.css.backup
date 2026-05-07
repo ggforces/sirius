@@ -1008,6 +1008,366 @@
     margin-bottom: 1.5rem;
 }
 
+/* ==================== MODERN FULL-WIDTH MODAL SYSTEM ==================== */
+
+/* Override general modal styles for compact modal */
+.modal-content.modal-compact {
+    max-width: 480px;
+    width: 96%;
+    margin: 2vh auto;
+    max-height: 96vh;
+    overflow: hidden;
+    position: relative;
+    padding: 0 !important; /* Override general modal padding */
+    background: linear-gradient(145deg, rgba(15, 20, 30, 0.98), rgba(25, 30, 40, 0.95));
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(0, 212, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+}
+
+/* Header - minimal padding with important */
+.modal-compact .modal-header {
+    padding: 1rem 1.5rem 0.5rem 1.5rem !important; /* Force override */
+    border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+    position: relative;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent);
+}
+
+.modal-compact .modal-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+    padding-right: 0; /* Remove padding since no close button */
+    background: linear-gradient(135deg, var(--primary), #00b8e6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.5px;
+}
+
+.modal-compact .modal-close {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.3rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: var(--gray-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-compact .modal-close:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+    transform: scale(1.05);
+}
+
+/* Body - minimal padding with important */
+.modal-compact .modal-body {
+    padding: 0.5rem 0 1.5rem 0 !important; /* Force override */
+    max-height: calc(96vh - 140px);
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Form - full width, modern spacing */
+.compact-form {
+    position: relative;
+    min-height: 420px;
+    padding-top: 0; /* Remove top padding to eliminate space after header */
+}
+
+/* Form rows - minimal spacing with important */
+.compact-form .form-row {
+    margin: 0 0 0.8rem 0 !important; /* Force override */
+    padding: 0 1.5rem;
+}
+
+.compact-form .form-row:last-of-type {
+    margin-bottom: 0;
+}
+
+/* Labels - minimal spacing with important */
+.compact-form label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--light);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem !important; /* Force override */
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.compact-form label i {
+    font-size: 1.2rem;
+    color: var(--primary);
+    background: rgba(0, 212, 255, 0.1);
+    padding: 0.3rem;
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Inputs - modern glass effect */
+.compact-form input {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: var(--light);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    margin: 0;
+    backdrop-filter: blur(10px);
+}
+
+.compact-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(0, 212, 255, 0.05);
+    box-shadow: 
+        0 0 0 3px rgba(0, 212, 255, 0.15),
+        0 4px 20px rgba(0, 212, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.compact-form input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}
+
+/* Input with toggle - modern */
+.input-with-toggle {
+    position: relative;
+    width: 100%;
+}
+
+.input-with-toggle input {
+    padding-right: 3.5rem;
+}
+
+.input-with-toggle .toggle-btn {
+    position: absolute;
+    right: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.input-with-toggle .toggle-btn:hover {
+    background: rgba(0, 212, 255, 0.15);
+    border-color: rgba(0, 212, 255, 0.3);
+    color: var(--primary);
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* Form actions - minimal spacing */
+.form-actions {
+    position: static;
+    display: flex;
+    justify-content: flex-end;
+    margin: 1rem 1.5rem 0 1.5rem; /* Reduced top margin */
+    padding: 0;
+}
+
+.form-actions .btn-save {
+    padding: 0.9rem 1.4rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    min-width: 100px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, var(--primary), #0099cc);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-actions .btn-save::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.form-actions .btn-save:hover::before {
+    left: 100%;
+}
+
+.form-actions .btn-save:hover {
+    background: linear-gradient(135deg, #00b8e6, var(--primary));
+    transform: translateY(-2px);
+    box-shadow: 
+        0 8px 25px rgba(0, 212, 255, 0.4),
+        0 0 20px rgba(0, 212, 255, 0.2);
+}
+
+.form-actions .btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.form-actions .btn-save:disabled:hover {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.form-actions .btn-save i {
+    font-size: 1rem;
+}
+
+/* Hide cancel button and close button */
+.form-actions .btn-cancel,
+.modal-compact .modal-close {
+    display: none !important;
+}
+
+/* Normal modal body padding */
+.modal-compact .modal-body {
+    padding-bottom: 1.5rem;
+}
+
+.compact-form .form-row:last-of-type {
+    margin-bottom: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .modal-content.modal-compact {
+        width: 98%;
+        margin: 1vh auto;
+        max-height: 98vh;
+        border-radius: 12px;
+    }
+    
+    .modal-compact .modal-header {
+        padding: 0.8rem 1.2rem 0.4rem 1.2rem !important;
+    }
+    
+    .modal-compact .modal-title {
+        font-size: 1.4rem;
+        padding-right: 0; /* Remove padding since no close button */
+        text-align: center;
+    }
+    
+    .modal-compact .modal-body {
+        max-height: calc(98vh - 120px);
+        padding-bottom: 1.5rem;
+    }
+    
+    .compact-form {
+        min-height: 380px;
+        padding-top: 0; /* Remove top padding on mobile too */
+    }
+    
+    .compact-form .form-row {
+        padding: 0 1.2rem;
+        margin-bottom: 0.6rem !important;
+    }
+    
+    .compact-form .form-row:last-of-type {
+        margin-bottom: 1rem;
+    }
+    
+    .compact-form label {
+        font-size: 0.8rem;
+        gap: 0.5rem;
+        margin-bottom: 0.2rem !important;
+    }
+    
+    .compact-form label i {
+        font-size: 1.1rem;
+        width: 22px;
+        height: 22px;
+    }
+    
+    .compact-form input {
+        padding: 0.9rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 10px;
+    }
+    
+    .compact-form input::placeholder {
+        font-size: 0.85rem;
+    }
+    
+    .input-with-toggle input {
+        padding-right: 3.2rem;
+    }
+    
+    .input-with-toggle .toggle-btn {
+        width: 28px;
+        height: 28px;
+        right: 0.6rem;
+        font-size: 0.9rem;
+        border-radius: 6px;
+    }
+    
+    .form-actions {
+        margin: 0.8rem 1.2rem 0 1.2rem;
+    }
+    
+    .form-actions .btn-save {
+        padding: 0.8rem 1.1rem;
+        font-size: 0.85rem;
+        border-radius: 10px;
+        min-width: 85px;
+    }
+    
+    .form-actions .btn-save i {
+        font-size: 0.9rem;
+    }
+}
+
 /* ==================== MODAL ==================== */
 
 .modal {
@@ -1040,13 +1400,14 @@
     position: relative;
     background: rgba(23, 26, 34, 0.98);
     border: 1px solid rgba(0, 212, 255, 0.3);
-    border-radius: var(--radius-md);
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
+    border-radius: 12px;
+    width: 95%;
+    max-width: 450px;
+    margin: 2vh auto;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     animation: modalSlideIn 0.3s ease;
+    overflow: visible;
+    max-height: 95vh;
 }
 
 .modal-content.modal-small {
@@ -1068,7 +1429,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem 1rem 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -1101,13 +1462,23 @@
 }
 
 .modal-body {
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    height: auto;
+    max-height: calc(90vh - 100px);
+    overflow-y: visible;
+}
+
+/* Smart overflow for modal body - only show scroll when truly needed */
+@media (max-height: 600px) {
+    .modal-body {
+        overflow-y: auto;
+    }
 }
 
 .modal-actions {
     display: flex;
     gap: 1rem;
-    padding: 1.5rem;
+    padding: 1rem 1.5rem 1.25rem 1.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -1117,7 +1488,8 @@
 
 /* Form Groups */
 .form-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
+}
 }
 
 .form-group label {
@@ -1127,7 +1499,7 @@
     color: var(--gray-light);
     font-weight: 600;
     font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
 }
 
 .form-group input {
@@ -1211,12 +1583,33 @@
     }
     
     .modal-content {
-        width: 95%;
+        width: 98%;
         max-width: none;
+        margin: 1vh auto;
+        max-height: 98vh;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+        height: auto;
+        max-height: calc(95vh - 80px);
+        overflow-y: visible;
+    }
+    
+    /* Smart overflow for mobile - show scroll when needed */
+    @media (max-height: 500px) {
+        .modal-body {
+            overflow-y: auto;
+        }
+    }
+    
+    .modal-header {
+        padding: 1rem;
     }
     
     .modal-actions {
         flex-direction: column;
+        padding: 1rem;
     }
     
     .modal-actions .btn {
@@ -1678,19 +2071,6 @@
     backdrop-filter: blur(5px);
 }
 
-.modal-content {
-    background: rgba(23, 26, 34, 0.95);
-    margin: 5% auto;
-    padding: 0;
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    border-radius: 16px;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow: hidden;
-    backdrop-filter: blur(20px);
-}
-
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -1724,8 +2104,9 @@
 
 .modal-body {
     padding: var(--spacing-lg);
-    max-height: 60vh;
-    overflow-y: auto;
+    height: auto;
+    max-height: calc(90vh - 100px);
+    overflow-y: visible;
 }
 
 .modal-footer {

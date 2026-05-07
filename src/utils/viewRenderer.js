@@ -31,7 +31,7 @@ class ViewRenderer {
             const activeNav = {
                 ACTIVE_DASHBOARD: pageName === 'dashboard' ? 'active' : '',
                 ACTIVE_ACCOUNTS: pageName === 'accounts' ? 'active' : '',
-                ACTIVE_AUTOMATION: pageName === 'automation' ? 'active' : '',
+                ACTIVE_TASKS: pageName === 'tasks' ? 'active' : '',
                 ACTIVE_REPORTS: pageName === 'reports' ? 'active' : '',
                 ACTIVE_SETTINGS: pageName === 'settings' ? 'active' : ''
             };
@@ -98,7 +98,7 @@ class ViewRenderer {
         const titleMap = {
             dashboard: 'dashboard.title',
             accounts: 'accounts.title',
-            automation: 'automation.title',
+            tasks: 'tasks.title',
             reports: 'reports.title',
             settings: 'settings.title'
         };

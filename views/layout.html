@@ -4,9 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{PAGE_TITLE}} - {{t:app.name}}</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/dashboard.css">
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Components -->
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link rel="stylesheet" href="/css/components/forms.css">
+    <link rel="stylesheet" href="/css/components/modals.css">
+    
+    <!-- Layout -->
+    <link rel="stylesheet" href="/css/layout/sidebar.css">
+    <link rel="stylesheet" href="/css/layout/topbar.css">
+    
+    <!-- Page Specific -->
+    <link rel="stylesheet" href="/css/pages/dashboard.css">
+    <link rel="stylesheet" href="/css/pages/accounts.css">
+    
+    <!-- Utilities -->
+    <link rel="stylesheet" href="/css/utilities/spacing.css">
+    
+    <!-- Icons -->
     <link rel="stylesheet" href="/css/icons.css">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -56,11 +78,11 @@
                 </span>
                 <span class="nav-label">{{t:nav.accounts}}</span>
             </a>
-            <a href="/panel/automation" class="nav-item {{ACTIVE_AUTOMATION}}">
+            <a href="/panel/tasks" class="nav-item {{ACTIVE_TASKS}}">
                 <span class="nav-icon">
                     <i class="ph-bold ph-robot"></i>
                 </span>
-                <span class="nav-label">{{t:nav.automation}}</span>
+                <span class="nav-label">{{t:nav.tasks}}</span>
             </a>
             <a href="/panel/reports" class="nav-item {{ACTIVE_REPORTS}}">
                 <span class="nav-icon">

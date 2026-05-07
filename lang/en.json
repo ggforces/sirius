@@ -7,7 +7,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "accounts": "Steam Accounts",
-    "automation": "Automation",
+    "tasks": "Tasks",
     "reports": "Reports",
     "settings": "Settings"
   },
@@ -74,9 +74,48 @@
       "message": "Are you sure you want to delete this Steam account?"
     }
   },
-  "automation": {
-    "title": "Automation Tasks",
-    "comingSoon": "This feature is coming soon..."
+  "tasks": {
+    "title": "Tasks",
+    "header": {
+      "title": "Steam Account Check Tasks",
+      "bulkCheck": "Bulk Check",
+      "refresh": "Refresh"
+    },
+    "accounts": {
+      "title": "Steam Accounts",
+      "loading": "Loading accounts...",
+      "noAccounts": "No Steam accounts added yet",
+      "noAccountsDesc": "You need to add Steam accounts first to perform account checks.",
+      "addAccount": "Add Account"
+    },
+    "results": {
+      "title": "Check Results"
+    },
+    "bulkModal": {
+      "title": "Bulk Account Check",
+      "selectPrompt": "Select accounts to check:",
+      "selectAll": "Select All",
+      "accountsSelected": "accounts selected",
+      "checking": "Checking accounts...",
+      "starting": "Starting...",
+      "completed": "Check Completed",
+      "startCheck": "Start Check"
+    },
+    "card": {
+      "checked": "Checked",
+      "unchecked": "Not Checked",
+      "steamId": "Steam ID",
+      "primeStatus": "Prime Status",
+      "prime": "Prime",
+      "nonPrime": "Non-Prime",
+      "limited": "Limited",
+      "unlimited": "Unlimited",
+      "limitedWallet": "Limited (Wallet)",
+      "unknown": "Unknown",
+      "wallet": "Wallet",
+      "checkBtn": "Check",
+      "inventoryBtn": "Inventory"
+    }
   },
   "reports": {
     "title": "Reports & Statistics",

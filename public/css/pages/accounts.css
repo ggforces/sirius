@@ -1,0 +1,287 @@
+/* ==================== ACCOUNTS PAGE SPECIFIC STYLES ==================== */
+
+/* Compact form for server-side rendered accounts page */
+.compact-form {
+    position: relative;
+    padding-top: 0;
+}
+
+.compact-form .form-row {
+    margin: 0 0 1.75rem 0;
+    padding: 0 1.5rem;
+}
+
+.compact-form .form-row:last-of-type {
+    margin-bottom: 0;
+}
+
+.compact-form label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--light);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.compact-form label i {
+    font-size: 1.3rem;
+    color: var(--primary);
+    background: rgba(0, 212, 255, 0.1);
+    padding: 0.4rem;
+    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compact-form input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: var(--light);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    margin: 0;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+.compact-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(0, 212, 255, 0.05);
+    box-shadow: 
+        0 0 0 3px rgba(0, 212, 255, 0.15),
+        0 4px 20px rgba(0, 212, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.compact-form input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.9rem;
+}
+
+/* Compact form actions */
+.compact-form .form-actions {
+    position: static;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin: 1.5rem 1.5rem 0 1.5rem;
+    padding: 0;
+}
+
+.compact-form .form-actions .btn-save {
+    padding: 0.9rem 1.4rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    min-width: 120px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, var(--primary), #0099cc);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.compact-form .form-actions .btn-save::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.compact-form .form-actions .btn-save:hover::before {
+    left: 100%;
+}
+
+.compact-form .form-actions .btn-save:hover {
+    background: linear-gradient(135deg, #00b8e6, var(--primary));
+    transform: translateY(-2px);
+    box-shadow: 
+        0 8px 25px rgba(0, 212, 255, 0.4),
+        0 0 20px rgba(0, 212, 255, 0.2);
+}
+
+.compact-form .form-actions .btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.compact-form .form-actions .btn-save:disabled:hover {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.compact-form .form-actions .btn-save i {
+    font-size: 1rem;
+}
+
+.compact-form .form-actions .btn-cancel {
+    display: none;
+}
+
+/* Modal compact specific */
+.modal-content.modal-compact {
+    max-width: 520px;
+    width: 96%;
+    margin: 2vh auto;
+    max-height: 96vh;
+    padding: 0;
+}
+
+.modal-compact .modal-header {
+    padding: 2rem 2rem 2rem 2rem;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+    position: relative;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), transparent);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-compact .modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+    padding-right: 0;
+    background: linear-gradient(135deg, var(--primary), #00b8e6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.5px;
+}
+
+.modal-compact .modal-close {
+    display: none;
+}
+
+.modal-compact .modal-body {
+    padding: 2.5rem 0 1.5rem 0;
+    max-height: calc(96vh - 140px);
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .compact-form .form-row {
+        padding: 0 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .compact-form label {
+        font-size: 0.8rem;
+        gap: 0.6rem;
+        margin-bottom: 0.6rem;
+    }
+    
+    .compact-form label i {
+        font-size: 1.2rem;
+        width: 26px;
+        height: 26px;
+    }
+    
+    .compact-form input {
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+    
+    .compact-form .form-actions {
+        margin: 1.25rem 1.25rem 0 1.25rem;
+        flex-direction: column;
+    }
+    
+    .compact-form .form-actions .btn-save,
+    .compact-form .form-actions .btn-cancel {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content.modal-compact {
+        width: 98%;
+        margin: 1vh auto;
+        max-height: 98vh;
+        border-radius: 12px;
+    }
+    
+    .modal-compact .modal-header {
+        padding: 1.5rem 1.25rem 1rem 1.25rem;
+    }
+    
+    .modal-compact .modal-title {
+        font-size: 1.3rem;
+    }
+    
+    .modal-compact .modal-body {
+        max-height: calc(98vh - 120px);
+        padding: 0.3rem 0 1rem 0;
+    }
+    
+    .compact-form .form-row {
+        padding: 0 1rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .compact-form label {
+        font-size: 0.75rem;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .compact-form label i {
+        font-size: 1.1rem;
+        width: 24px;
+        height: 24px;
+    }
+    
+    .compact-form input {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+    
+    .compact-form .form-actions {
+        margin: 1rem 1rem 0 1rem;
+    }
+    
+    .compact-form .form-actions .btn-save,
+    .compact-form .form-actions .btn-cancel {
+        padding: 0.75rem 1.1rem;
+        font-size: 0.85rem;
+        border-radius: 10px;
+        min-width: 100px;
+    }
+    
+    .compact-form .form-actions .btn-save i {
+        font-size: 0.9rem;
+    }
+}

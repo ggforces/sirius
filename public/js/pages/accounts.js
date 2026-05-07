@@ -45,27 +45,9 @@ function renderAccounts() {
     tbody.innerHTML = accounts.map(account => `
         <tr data-id="${account.id}">
             <td class="username-cell">${escapeHtml(account.username)}</td>
-            <td class="secret-cell">
-                <span class="secret-hidden">••••••••</span>
-                <span class="secret-visible" style="display: none;">${escapeHtml(account.password)}</span>
-                <button class="btn-icon-small toggle-secret" data-field="password" data-id="${account.id}">
-                    <i class="ph-bold ph-eye"></i>
-                </button>
-            </td>
-            <td class="secret-cell">
-                <span class="secret-hidden">••••••••••••</span>
-                <span class="secret-visible" style="display: none;">${escapeHtml(account.shared_secret)}</span>
-                <button class="btn-icon-small toggle-secret" data-field="shared_secret" data-id="${account.id}">
-                    <i class="ph-bold ph-eye"></i>
-                </button>
-            </td>
-            <td class="secret-cell">
-                <span class="secret-hidden">••••••••••••</span>
-                <span class="secret-visible" style="display: none;">${escapeHtml(account.identity_secret)}</span>
-                <button class="btn-icon-small toggle-secret" data-field="identity_secret" data-id="${account.id}">
-                    <i class="ph-bold ph-eye"></i>
-                </button>
-            </td>
+            <td class="secret-cell">${escapeHtml(account.password)}</td>
+            <td class="secret-cell">${escapeHtml(account.shared_secret)}</td>
+            <td class="secret-cell">${escapeHtml(account.identity_secret)}</td>
             <td class="actions-cell">
                 <button class="btn-icon-small btn-edit" data-id="${account.id}" title="Düzenle">
                     <i class="ph-bold ph-pencil-simple"></i>
@@ -84,26 +66,6 @@ function renderAccounts() {
 // ==================== ATTACH EVENT LISTENERS ====================
 
 function attachTableEventListeners() {
-    // Toggle secret visibility
-    document.querySelectorAll('.toggle-secret').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const cell = e.target.closest('.secret-cell');
-            const hidden = cell.querySelector('.secret-hidden');
-            const visible = cell.querySelector('.secret-visible');
-            const icon = btn.querySelector('i');
-            
-            if (hidden.style.display === 'none') {
-                hidden.style.display = 'inline';
-                visible.style.display = 'none';
-                icon.className = 'ph-bold ph-eye';
-            } else {
-                hidden.style.display = 'none';
-                visible.style.display = 'inline';
-                icon.className = 'ph-bold ph-eye-slash';
-            }
-        });
-    });
-    
     // Edit buttons
     document.querySelectorAll('.btn-edit').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -273,38 +235,18 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ==================== PASSWORD TOGGLE ====================
-
-function setupPasswordToggles() {
-    document.querySelectorAll('.toggle-password').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetId = btn.dataset.target;
-            const input = document.getElementById(targetId);
-            const icon = btn.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'ph-bold ph-eye-slash';
-            } else {
-                input.type = 'password';
-                icon.className = 'ph-bold ph-eye';
-            }
-        });
-    });
-}
-
 // ==================== EVENT LISTENERS ====================
 
 // Add account button
 document.getElementById('addAccountBtn').addEventListener('click', openAddModal);
 
-// Modal close buttons
-document.getElementById('modalClose').addEventListener('click', closeModal);
+// Add first account button (in empty state)
+document.getElementById('addFirstAccountBtn').addEventListener('click', openAddModal);
+
+// Modal close - only overlay click
 document.getElementById('modalOverlay').addEventListener('click', closeModal);
-document.getElementById('cancelBtn').addEventListener('click', closeModal);
 
 // Delete modal close buttons
-document.getElementById('deleteModalClose').addEventListener('click', closeDeleteModal);
 document.getElementById('deleteModalOverlay').addEventListener('click', closeDeleteModal);
 document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
 
@@ -313,9 +255,6 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', handleDele
 
 // Form submit
 document.getElementById('accountForm').addEventListener('submit', handleFormSubmit);
-
-// Setup password toggles
-setupPasswordToggles();
 
 // ==================== INITIALIZE ====================
 

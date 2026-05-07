@@ -1,0 +1,168 @@
+/* ==================== FORMS ==================== */
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--gray-light);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--form-input-bg);
+    border: 1px solid var(--form-input-border);
+    border-radius: var(--radius-sm);
+    color: var(--light);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    transition: all var(--transition-normal);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--form-input-focus-border);
+    background: var(--form-input-focus-bg);
+    box-shadow: var(--form-input-focus-shadow);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.form-hint {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+.form-hint-warning {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #ffc107 !important;
+    font-weight: 600;
+    padding: 0.5rem;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: var(--radius-sm);
+    margin-top: 0.5rem;
+}
+
+.form-hint-warning i {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* Input with icon/toggle */
+.input-with-icon,
+.input-with-toggle {
+    position: relative;
+}
+
+.input-with-icon input,
+.input-with-toggle input {
+    padding-right: 3rem;
+}
+
+.input-with-icon .toggle-password,
+.input-with-toggle .toggle-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--gray);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border-radius: var(--radius-sm);
+}
+
+.input-with-icon .toggle-password:hover,
+.input-with-toggle .toggle-btn:hover {
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--primary);
+}
+
+/* Checkbox */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+
+/* Form actions */
+.form-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.form-actions .btn {
+    flex: 1;
+}
+
+/* Form divider */
+.form-divider {
+    text-align: center;
+    position: relative;
+    margin: var(--spacing-sm) 0;
+}
+
+.form-divider span {
+    background: rgba(10, 14, 39, 0.95);
+    padding: 0 var(--spacing-sm);
+    color: var(--gray);
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+}
+
+.form-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+}

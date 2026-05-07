@@ -5,12 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel - Sirius Steam Otomasyon</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18' stroke='%2300d4ff' stroke-width='2' fill='none'/%3E%3Ccircle cx='20' cy='20' r='4' fill='%2300d4ff'/%3E%3C/svg%3E">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/dashboard.css">
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Components -->
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link rel="stylesheet" href="/css/components/forms.css">
+    <link rel="stylesheet" href="/css/components/modals.css">
+    
+    <!-- Layout -->
+    <link rel="stylesheet" href="/css/layout/sidebar.css">
+    <link rel="stylesheet" href="/css/layout/topbar.css">
+    
+    <!-- Page Specific -->
+    <link rel="stylesheet" href="/css/pages/dashboard.css">
+    
+    <!-- Utilities -->
+    <link rel="stylesheet" href="/css/utilities/spacing.css">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="dashboard-body">
@@ -52,7 +70,7 @@
                 <span class="nav-icon">🎮</span>
                 <span class="nav-label">Steam Hesapları</span>
             </a>
-            <a href="#" class="nav-item" data-page="automation">
+            <a href="#" class="nav-item" data-page="tasks">
                 <span class="nav-icon">📋</span>
                 <span class="nav-label">Görevler</span>
             </a>
@@ -199,7 +217,7 @@
 
             <!-- Other Pages (Hidden by default) -->
             <div class="page-content" id="accountsPage" style="display: none;">
-                <!-- Accounts Header -->
+                <!-- Accounts Section -->
                 <div class="section">
                     <div class="section-header">
                         <h2 class="section-title">Steam Hesapları</h2>
@@ -210,10 +228,7 @@
                             </button>
                         </div>
                     </div>
-                </div>
-
-                <!-- Accounts Table -->
-                <div class="section">
+                    
                     <div class="accounts-table-container">
                         <table class="accounts-table" id="accountsTable">
                             <thead>
@@ -240,7 +255,7 @@
                             <div class="empty-icon">🎮</div>
                             <h3>Henüz Steam hesabı eklenmemiş</h3>
                             <p>Steam hesaplarınızı ekleyerek otomasyonu başlatabilirsiniz.</p>
-                            <button class="btn btn-primary" onclick="openAddModal()">
+                            <button class="btn btn-primary" id="addFirstAccountDashboard">
                                 <span class="btn-icon">➕</span>
                                 İlk Hesabı Ekle
                             </button>
@@ -249,7 +264,7 @@
                 </div>
             </div>
 
-            <div class="page-content" id="automationPage" style="display: none;">
+            <div class="page-content" id="tasksPage" style="display: none;">
                 <!-- Tasks Header -->
                 <div class="section">
                     <div class="section-header">
@@ -279,7 +294,7 @@
                             <div class="empty-icon">🎮</div>
                             <h3>Henüz Steam hesabı eklenmemiş</h3>
                             <p>Hesap kontrolü yapabilmek için önce Steam hesaplarınızı eklemelisiniz.</p>
-                            <button class="btn btn-primary" onclick="window.dashboard.showPage('accounts')">
+                            <button class="btn btn-primary" id="addAccountFromTasks">
                                 <span class="btn-icon">➕</span>
                                 Hesap Ekle
                             </button>
@@ -432,6 +447,7 @@
 
     <!-- Bulk Check Modal -->
     <div class="modal" id="bulkCheckModal">
+        <div class="modal-overlay" id="bulkCheckModalOverlay"></div>
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Toplu Hesap Kontrolü</h3>
@@ -486,7 +502,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="modalTitle">Hesap Ekle</h3>
-                <button class="modal-close" id="modalClose">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="accountForm">
@@ -497,7 +512,7 @@
                             <i class="ph-bold ph-user"></i>
                             Kullanıcı Adı
                         </label>
-                        <input type="text" id="username" required>
+                        <input type="text" id="username" required placeholder="Kullanıcı adınız">
                     </div>
                     
                     <div class="form-group">
@@ -505,12 +520,7 @@
                             <i class="ph-bold ph-lock"></i>
                             Şifre
                         </label>
-                        <div class="input-with-icon">
-                            <input type="password" id="password" required>
-                            <button type="button" class="toggle-password" data-target="password">
-                                <i class="ph-bold ph-eye"></i>
-                            </button>
-                        </div>
+                        <input type="text" id="password" required placeholder="Şifreniz">
                     </div>
                     
                     <div class="form-group">
@@ -518,12 +528,7 @@
                             <i class="ph-bold ph-key"></i>
                             Shared Secret
                         </label>
-                        <div class="input-with-icon">
-                            <input type="password" id="sharedSecret" required>
-                            <button type="button" class="toggle-password" data-target="sharedSecret">
-                                <i class="ph-bold ph-eye"></i>
-                            </button>
-                        </div>
+                        <input type="text" id="sharedSecret" required placeholder="Shared secret kodunuz">
                     </div>
                     
                     <div class="form-group">
@@ -531,17 +536,11 @@
                             <i class="ph-bold ph-fingerprint"></i>
                             Identity Secret
                         </label>
-                        <div class="input-with-icon">
-                            <input type="password" id="identitySecret" required>
-                            <button type="button" class="toggle-password" data-target="identitySecret">
-                                <i class="ph-bold ph-eye"></i>
-                            </button>
-                        </div>
+                        <input type="text" id="identitySecret" required placeholder="Identity secret kodunuz">
                     </div>
                 </form>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" id="cancelBtn">İptal</button>
                 <button type="submit" class="btn btn-primary" id="submitBtn" form="accountForm">
                     <span id="submitBtnText">Kaydet</span>
                 </button>
@@ -555,7 +554,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Hesabı Sil</h3>
-                <button class="modal-close" id="deleteModalClose">&times;</button>
             </div>
             <div class="modal-body">
                 <p>Bu hesabı silmek istediğinizden emin misiniz?</p>

@@ -47,6 +47,11 @@ class TasksManager {
                 this.closeBulkCheckModal();
             }
         });
+
+        // Close modal on overlay click
+        document.getElementById('bulkCheckModalOverlay')?.addEventListener('click', () => {
+            this.closeBulkCheckModal();
+        });
     }
 
     async loadAccounts() {

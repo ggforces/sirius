@@ -34,16 +34,16 @@ router.get('/accounts', (req, res) => {
 });
 
 /**
- * Automation page
+ * Tasks page
  */
-router.get('/automation', (req, res) => {
+router.get('/tasks', (req, res) => {
     try {
-        const html = viewRenderer.render('automation', {
-            EXTRA_SCRIPTS: '<script src="/js/pages/automation.js"></script>'
+        const html = viewRenderer.render('tasks', {
+            EXTRA_SCRIPTS: '<script src="/js/pages/tasks.js"></script>'
         }, req.translations, req.lang);
         res.send(html);
     } catch (error) {
-        console.error('Automation render error:', error);
+        console.error('Tasks render error:', error);
         res.status(500).send(req.t('common.error'));
     }
 });

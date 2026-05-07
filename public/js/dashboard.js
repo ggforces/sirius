@@ -446,7 +446,7 @@ function switchPage(pageName) {
     const titles = {
         'dashboard': 'Dashboard',
         'accounts': 'Steam Hesapları',
-        'automation': 'Görevler',
+        'tasks': 'Görevler',
         'reports': 'Raporlar',
         'settings': 'Ayarlar'
     };
@@ -457,7 +457,7 @@ function switchPage(pageName) {
     }
     
     // Initialize page-specific functionality
-    if (pageName === 'automation' && typeof tasksManager !== 'undefined') {
+    if (pageName === 'tasks' && typeof tasksManager !== 'undefined') {
         // Reinitialize tasks manager to refresh data
         tasksManager.loadAccounts();
     }
@@ -733,6 +733,26 @@ document.getElementById('changePasswordForm')?.addEventListener('submit', handle
 document.getElementById('testApiKeyBtn')?.addEventListener('click', testFarmlabsApiKey);
 document.getElementById('farmlabsApiKeyForm')?.addEventListener('submit', saveFarmlabsApiKey);
 document.getElementById('syncDropsBtn')?.addEventListener('click', syncFarmlabsDrops);
+
+// Add account buttons (from empty states)
+document.getElementById('addFirstAccountDashboard')?.addEventListener('click', () => {
+    // Switch to accounts page and open add modal
+    switchPage('accounts');
+    // Wait a bit for page to load, then trigger add modal
+    setTimeout(() => {
+        if (typeof openAddModal === 'function') {
+            openAddModal();
+        } else {
+            // Fallback: click the add account button
+            document.getElementById('addAccountBtn')?.click();
+        }
+    }, 100);
+});
+
+document.getElementById('addAccountFromTasks')?.addEventListener('click', () => {
+    // Switch to accounts page
+    switchPage('accounts');
+});
 
 // Navigation items
 document.querySelectorAll('.nav-item').forEach(item => {
