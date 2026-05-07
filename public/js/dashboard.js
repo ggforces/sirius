@@ -8,7 +8,13 @@ async function checkAuth() {
         });
         
         if (!response.ok) {
-            // Clear any stored user data and redirect
+            // 429 (rate limit) durumunda logout etme
+            if (response.status === 429) {
+                showNotification('Çok fazla istek gönderildi. Lütfen bekleyin.', 'error');
+                return null; // Logout etmeden null dön
+            }
+            
+            // Diğer hatalar için logout et (401, 403, vb.)
             localStorage.removeItem('user');
             localStorage.removeItem('token');
             window.location.href = '/';

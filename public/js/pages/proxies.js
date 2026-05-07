@@ -129,7 +129,7 @@ function getProxyStatus(proxy) {
     }
     
     if (proxy.cooldown_until && new Date(proxy.cooldown_until) > now) {
-        return { class: 'cooldown', text: 'Cooldown' };
+        return { class: 'cooldown', text: 'Beklemede' };
     }
     
     return { class: 'available', text: 'Kullanılabilir' };

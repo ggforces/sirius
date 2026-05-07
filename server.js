@@ -54,33 +54,105 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // 100 requests (300'den düşürüldü)
-    message: { 
-        success: false, 
-        message: 'Çok fazla istek gönderildi. Lütfen daha sonra tekrar deneyin.' 
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-});
+// Rate limiting - Farklı kullanıcı tipleri için farklı limitler
+const createRateLimiter = (windowMs, max, message) => {
+    return rateLimit({
+        windowMs,
+        max,
+        message: { success: false, message },
+        standardHeaders: true,
+        legacyHeaders: false,
+    });
+};
 
-// Apply rate limiting to API routes
-app.use('/api/', limiter);
+// Anonim kullanıcılar için rate limiter (düşük limit)
+const anonymousLimiter = createRateLimiter(
+    parseInt(process.env.RATE_LIMIT_ANONYMOUS_WINDOW_MS) || 15 * 60 * 1000, // 15 dakika
+    parseInt(process.env.RATE_LIMIT_ANONYMOUS_MAX) || 100, // 100 istek
+    'Çok fazla istek gönderildi. Lütfen giriş yapın veya daha sonra tekrar deneyin.'
+);
+
+// Login olan kullanıcılar için rate limiter (yüksek limit)
+const authenticatedLimiter = createRateLimiter(
+    parseInt(process.env.RATE_LIMIT_AUTHENTICATED_WINDOW_MS) || 15 * 60 * 1000, // 15 dakika
+    parseInt(process.env.RATE_LIMIT_AUTHENTICATED_MAX) || 1000, // 1000 istek (10x daha fazla)
+    'Çok fazla istek gönderildi. Lütfen bir süre bekleyin.'
+);
+
+// Dinamik rate limiter - kullanıcı tipine göre limit uygula
+const dynamicLimiter = (req, res, next) => {
+    const token = req.cookies.token || 
+                 (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+    
+    // Token varsa authenticated limiter, yoksa anonymous limiter kullan
+    if (token) {
+        authenticatedLimiter(req, res, next);
+    } else {
+        anonymousLimiter(req, res, next);
+    }
+};
+
+// Apply dynamic rate limiting to API routes
+app.use('/api/', dynamicLimiter);
 
 // Stricter rate limiting for auth routes
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // 5 requests per window
+    windowMs: parseInt(process.env.RATE_LIMIT_AUTH_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+    max: parseInt(process.env.RATE_LIMIT_AUTH_MAX) || 5, // 5 requests per window
     message: { 
         success: false, 
         message: 'Çok fazla giriş denemesi. Lütfen 15 dakika sonra tekrar deneyin.' 
     }
 });
 
+// Kritik işlemler için rate limiter (şifre değiştirme, hesap silme vb.)
+const criticalLimiter = rateLimit({
+    windowMs: parseInt(process.env.RATE_LIMIT_CRITICAL_WINDOW_MS) || 15 * 60 * 1000, // 15 dakika
+    max: parseInt(process.env.RATE_LIMIT_CRITICAL_MAX) || 10, // 10 istek
+    message: { 
+        success: false, 
+        message: 'Çok fazla işlem denemesi. Lütfen 15 dakika sonra tekrar deneyin.' 
+    }
+});
+
+// Yazma işlemleri için rate limiter (POST/PUT/DELETE)
+const writeLimiter = rateLimit({
+    windowMs: parseInt(process.env.RATE_LIMIT_WRITE_WINDOW_MS) || 1 * 60 * 1000, // 1 dakika
+    max: parseInt(process.env.RATE_LIMIT_WRITE_MAX) || 30, // 30 istek
+    message: { 
+        success: false, 
+        message: 'Çok fazla yazma işlemi. Lütfen bir dakika bekleyin.' 
+    }
+});
+
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/change-password', criticalLimiter);
+
+// Yazma işlemleri için ekstra koruma
+app.use('/api/accounts', (req, res, next) => {
+    if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+        writeLimiter(req, res, next);
+    } else {
+        next();
+    }
+});
+
+app.use('/api/tasks', (req, res, next) => {
+    if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+        writeLimiter(req, res, next);
+    } else {
+        next();
+    }
+});
+
+app.use('/api/proxies', (req, res, next) => {
+    if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+        writeLimiter(req, res, next);
+    } else {
+        next();
+    }
+});
 
 // ==================== GENERAL MIDDLEWARE ====================
 

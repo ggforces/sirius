@@ -19,28 +19,36 @@
 <div class="section">
     <div class="stats-grid stats-grid-proxies">
         <div class="stat-card">
-            <div class="stat-icon">📊</div>
+            <div class="stat-icon">
+                <i class="ph-bold ph-chart-bar"></i>
+            </div>
             <div class="stat-info">
                 <div class="stat-label">{{t:proxies.stats.total}}</div>
                 <div class="stat-value"><span id="statTotalProxies">0</span></div>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon">
+                <i class="ph-bold ph-check-circle"></i>
+            </div>
             <div class="stat-info">
                 <div class="stat-label">{{t:proxies.stats.available}}</div>
                 <div class="stat-value"><span id="statAvailableProxies">0</span></div>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">🔒</div>
+            <div class="stat-icon">
+                <i class="ph-bold ph-lock"></i>
+            </div>
             <div class="stat-info">
                 <div class="stat-label">{{t:proxies.stats.locked}}</div>
                 <div class="stat-value"><span id="statLockedProxies">0</span></div>
             </div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon">⏳</div>
+            <div class="stat-icon">
+                <i class="ph-bold ph-clock"></i>
+            </div>
             <div class="stat-info">
                 <div class="stat-label">{{t:proxies.stats.cooldown}}</div>
                 <div class="stat-value"><span id="statCooldownProxies">0</span></div>
@@ -107,60 +115,52 @@
     <h3 class="section-subtitle">{{t:proxies.webshare.title}}</h3>
     
     <!-- Info Box -->
-    <div class="settings-info-box info-box-primary">
-        <div class="info-box-icon">
-            <i class="ph-bold ph-info"></i>
-        </div>
-        <div class="info-box-content">
+    <div class="webshare-info-box">
+        <div class="info-box-header">
+            <div class="info-box-icon">
+                <i class="ph-bold ph-info"></i>
+            </div>
             <h4 class="info-box-title">{{t:proxies.webshare.infoBox.title}}</h4>
-            <p class="info-box-text">{{t:proxies.webshare.infoBox.description}}</p>
-            <a href="https://www.webshare.io/?referral_code=your_code" target="_blank" rel="noopener" class="info-box-link">
-                <i class="ph-bold ph-arrow-square-out"></i>
-                {{t:proxies.webshare.infoBox.linkText}}
-            </a>
         </div>
+        <p class="info-box-text">{{t:proxies.webshare.infoBox.description}}</p>
+        <a href="https://www.webshare.io/?referral_code=your_code" target="_blank" rel="noopener" class="info-box-link">
+            <i class="ph-bold ph-arrow-square-out"></i>
+            {{t:proxies.webshare.infoBox.linkText}}
+        </a>
     </div>
     
     <!-- API Key Form -->
-    <div class="settings-card">
+    <div class="webshare-card">
         <form id="webshareApiKeyForm">
-            <div class="form-group-settings">
-                <label for="webshareApiKey">
-                    <span class="label-icon">
-                        <i class="ph-bold ph-key"></i>
-                    </span>
+            <div class="webshare-form-group">
+                <label for="webshareApiKey" class="webshare-label">
+                    <i class="ph-bold ph-key"></i>
                     {{t:proxies.webshare.apiKeyLabel}}
                 </label>
-                <input 
-                    type="password" 
-                    id="webshareApiKey" 
-                    placeholder="{{t:proxies.webshare.apiKeyPlaceholder}}" 
-                    autocomplete="off"
-                >
-                <small class="form-hint-settings" id="webshareApiKeyStatus">
+                <div class="webshare-input-wrapper">
+                    <input 
+                        type="password" 
+                        id="webshareApiKey" 
+                        class="webshare-input"
+                        placeholder="{{t:proxies.webshare.apiKeyPlaceholder}}" 
+                        autocomplete="off"
+                    >
+                </div>
+                <small class="webshare-hint" id="webshareApiKeyStatus">
                     {{t:proxies.webshare.apiKeyStatusNotSaved}}
                 </small>
             </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <span class="btn-icon">
-                        <i class="ph-bold ph-floppy-disk"></i>
-                    </span>
-                    {{t:proxies.webshare.saveBtn}}
+            <div class="webshare-actions">
+                <button type="submit" class="btn btn-primary btn-webshare">
+                    <i class="ph-bold ph-floppy-disk"></i>
+                    <span>{{t:proxies.webshare.saveBtn}}</span>
+                </button>
+                <button type="button" class="btn btn-success btn-webshare" id="syncWebshareBtn">
+                    <i class="ph-bold ph-arrows-clockwise"></i>
+                    <span>{{t:proxies.webshare.syncBtn}}</span>
                 </button>
             </div>
         </form>
-        
-        <div class="settings-divider"></div>
-        
-        <div class="form-actions">
-            <button type="button" class="btn btn-success" id="syncWebshareBtn">
-                <span class="btn-icon">
-                    <i class="ph-bold ph-arrows-clockwise"></i>
-                </span>
-                {{t:proxies.webshare.syncBtn}}
-            </button>
-        </div>
     </div>
 </div>
 

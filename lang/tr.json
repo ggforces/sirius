@@ -128,7 +128,7 @@
       "total": "Toplam Proxy",
       "available": "Kullanılabilir",
       "locked": "Kilitli",
-      "cooldown": "Cooldown'da"
+      "cooldown": "Beklemede"
     },
     "manual": {
       "title": "Manuel Proxy'ler",
