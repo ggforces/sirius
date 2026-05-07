@@ -54,6 +54,15 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// ==================== GENERAL MIDDLEWARE (BEFORE RATE LIMITING) ====================
+
+// Cookie parser MUST be before rate limiting to read cookies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// ==================== RATE LIMITING ====================
+
 // Rate limiting - Farklı kullanıcı tipleri için farklı limitler
 const createRateLimiter = (windowMs, max, message) => {
     return rateLimit({
@@ -154,11 +163,8 @@ app.use('/api/proxies', (req, res, next) => {
     }
 });
 
-// ==================== GENERAL MIDDLEWARE ====================
+// ==================== STATIC FILES & i18n ====================
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(express.static('public'));
 
 // i18n middleware
