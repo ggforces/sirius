@@ -18,7 +18,14 @@ const earningsRoutes = require('./src/routes/earningsRoutes');
 const farmlabsRoutes = require('./src/routes/farmlabsRoutes');
 const accountsRoutes = require('./src/routes/accountsRoutes');
 const tasksRoutes = require('./src/routes/tasks');
+const proxiesRoutes = require('./src/routes/proxiesRoutes');
 const viewRoutes = require('./src/routes/viewRoutes');
+
+// Import task queue service
+const taskQueueService = require('./src/services/taskQueueService');
+
+// Import task executor worker
+const taskExecutor = require('./src/workers/taskExecutor');
 
 const app = express();
 const PORT = process.env.PORT || 5050;
@@ -92,6 +99,7 @@ app.use('/api/earnings', earningsRoutes);
 app.use('/api/farmlabs', farmlabsRoutes);
 app.use('/api/accounts', accountsRoutes);
 app.use('/api/tasks', tasksRoutes);
+app.use('/api/proxies', proxiesRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -173,6 +181,17 @@ app.listen(PORT, () => {
     console.log(`║   Server: http://localhost:${PORT}       ║`);
     console.log(`║   Environment: ${process.env.NODE_ENV}            ║`);
     console.log('║   Database: SQLite (Local)             ║');
+    console.log('╠════════════════════════════════════════╣');
+    console.log('║   🔄 Task Queue: Active                ║');
+    console.log('║   🔄 Task Executor: Active             ║');
+    console.log('╚════════════════════════════════════════╝');
+    
+    // Start task queue processor
+    taskQueueService.startTaskQueueProcessor();
+    
+    // Start task executor worker
+    taskExecutor.startTaskExecutor();
+    
     console.log('║   Status: ✅ Running                    ║');
     console.log('╚════════════════════════════════════════╝');
 });

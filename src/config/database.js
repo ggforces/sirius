@@ -5,6 +5,9 @@ require('dotenv').config();
 const dbPath = process.env.DB_PATH || './database.sqlite';
 const db = new Database(dbPath);
 
+// Enable WAL mode for better concurrent performance
+db.pragma('journal_mode = WAL');
+
 // Enable foreign keys
 db.pragma('foreign_keys = ON');
 
@@ -135,6 +138,23 @@ function initializeDatabase() {
         }
     });
 
+    // Migration: Add proxy columns to users table
+    const userProxyColumns = [
+        'proxy_method TEXT DEFAULT "manual"',
+        'webshare_api_key TEXT DEFAULT NULL'
+    ];
+
+    userProxyColumns.forEach(column => {
+        try {
+            db.exec(`ALTER TABLE users ADD COLUMN ${column}`);
+            console.log(`✅ Migration: ${column.split(' ')[0]} column added to users table`);
+        } catch (error) {
+            if (!error.message.includes('duplicate column name')) {
+                console.error('Migration error:', error.message);
+            }
+        }
+    });
+
     // Inventories table
     db.exec(`
         CREATE TABLE IF NOT EXISTS inventories (
@@ -150,10 +170,68 @@ function initializeDatabase() {
         )
     `);
 
+    // Proxies table
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS proxies (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
+            ip TEXT NOT NULL,
+            port INTEGER NOT NULL,
+            is_locked INTEGER DEFAULT 0,
+            locked_by_task_id INTEGER DEFAULT NULL,
+            locked_at DATETIME DEFAULT NULL,
+            last_used_at DATETIME DEFAULT NULL,
+            cooldown_until DATETIME DEFAULT NULL,
+            success_count INTEGER DEFAULT 0,
+            failure_count INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `);
+
+    // Tasks table
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            account_id INTEGER NOT NULL,
+            type TEXT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            proxy_id INTEGER DEFAULT NULL,
+            started_at DATETIME DEFAULT NULL,
+            completed_at DATETIME DEFAULT NULL,
+            timeout_at DATETIME DEFAULT NULL,
+            result TEXT DEFAULT NULL,
+            error TEXT DEFAULT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (account_id) REFERENCES steam_accounts(id) ON DELETE CASCADE,
+            FOREIGN KEY (proxy_id) REFERENCES proxies(id) ON DELETE SET NULL
+        )
+    `);
+
     // Create indexes for inventories
     db.exec(`
         CREATE INDEX IF NOT EXISTS idx_inventories_account_id ON inventories(account_id);
         CREATE INDEX IF NOT EXISTS idx_inventories_market_hash_name ON inventories(market_hash_name);
+    `);
+
+    // Create indexes for proxies
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_proxies_user_id ON proxies(user_id);
+        CREATE INDEX IF NOT EXISTS idx_proxies_is_locked ON proxies(is_locked);
+        CREATE INDEX IF NOT EXISTS idx_proxies_last_used ON proxies(last_used_at);
+        CREATE INDEX IF NOT EXISTS idx_proxies_cooldown ON proxies(cooldown_until);
+    `);
+
+    // Create indexes for tasks
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
+        CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+        CREATE INDEX IF NOT EXISTS idx_tasks_proxy_id ON tasks(proxy_id);
+        CREATE INDEX IF NOT EXISTS idx_tasks_account_id ON tasks(account_id);
     `);
 
     console.log('✅ Database initialized successfully');

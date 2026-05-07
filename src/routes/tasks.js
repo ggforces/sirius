@@ -4,7 +4,10 @@ const {
     getUserAccounts, 
     checkSingleAccount, 
     checkMultipleAccounts, 
-    getAccountInventory 
+    getAccountInventory,
+    getTaskStatus,
+    getUserTasks,
+    getTaskStatistics
 } = require('../controllers/tasksController');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -22,5 +25,14 @@ router.post('/check-bulk', checkMultipleAccounts);
 
 // Get account inventory
 router.get('/inventory/:accountId', getAccountInventory);
+
+// Get task status
+router.get('/task/:taskId', getTaskStatus);
+
+// Get user's tasks
+router.get('/tasks', getUserTasks);
+
+// Get task statistics
+router.get('/statistics', getTaskStatistics);
 
 module.exports = router;

@@ -7,6 +7,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "accounts": "Steam Accounts",
+    "proxies": "Proxies",
     "tasks": "Tasks",
     "reports": "Reports",
     "settings": "Settings"
@@ -115,6 +116,64 @@
       "wallet": "Wallet",
       "checkBtn": "Check",
       "inventoryBtn": "Inventory"
+    }
+  },
+  "proxies": {
+    "title": "Proxy Management",
+    "method": {
+      "manual": "Manual",
+      "webshare": "Webshare"
+    },
+    "stats": {
+      "total": "Total Proxies",
+      "available": "Available",
+      "locked": "Locked",
+      "cooldown": "In Cooldown"
+    },
+    "manual": {
+      "title": "Manual Proxies",
+      "addProxy": "Add Proxy",
+      "noProxies": "No proxies added yet",
+      "noProxiesDesc": "You can start by adding proxies manually.",
+      "addFirstProxy": "Add First Proxy"
+    },
+    "webshare": {
+      "title": "Webshare Integration",
+      "infoBox": {
+        "title": "What is Webshare?",
+        "description": "Webshare is an automatic proxy provider. You can automatically synchronize your proxies with API key.",
+        "linkText": "Go to Webshare"
+      },
+      "apiKeyLabel": "Webshare API Key",
+      "apiKeyPlaceholder": "ws_xxxxxxxxxxxxxxxxxxxxxxxx",
+      "apiKeyStatusNotSaved": "API key not saved",
+      "apiKeyStatusSaved": "API key saved",
+      "saveBtn": "Save",
+      "syncBtn": "Synchronize Proxies"
+    },
+    "table": {
+      "ip": "IP Address",
+      "port": "Port",
+      "username": "Username",
+      "status": "Status",
+      "health": "Health",
+      "lastUsed": "Last Used",
+      "actions": "Actions"
+    },
+    "modal": {
+      "title": "Add Proxy",
+      "ip": "IP Address",
+      "ipPlaceholder": "192.168.1.1",
+      "port": "Port",
+      "portPlaceholder": "8080",
+      "username": "Username",
+      "usernamePlaceholder": "proxy_username",
+      "password": "Password",
+      "passwordPlaceholder": "proxy_password"
+    },
+    "deleteConfirm": {
+      "title": "Delete Proxy",
+      "message": "Are you sure you want to delete this proxy?"
     }
   },
   "reports": {

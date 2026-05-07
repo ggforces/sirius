@@ -7,6 +7,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "accounts": "Steam Hesapları",
+    "proxies": "Proxy'ler",
     "tasks": "Görevler",
     "reports": "Raporlar",
     "settings": "Ayarlar"
@@ -115,6 +116,64 @@
       "wallet": "Cüzdan",
       "checkBtn": "Kontrol Et",
       "inventoryBtn": "Envanter"
+    }
+  },
+  "proxies": {
+    "title": "Proxy Yönetimi",
+    "method": {
+      "manual": "Manuel",
+      "webshare": "Webshare"
+    },
+    "stats": {
+      "total": "Toplam Proxy",
+      "available": "Kullanılabilir",
+      "locked": "Kilitli",
+      "cooldown": "Cooldown'da"
+    },
+    "manual": {
+      "title": "Manuel Proxy'ler",
+      "addProxy": "Proxy Ekle",
+      "noProxies": "Henüz proxy eklenmemiş",
+      "noProxiesDesc": "Manuel olarak proxy ekleyerek başlayabilirsiniz.",
+      "addFirstProxy": "İlk Proxy'i Ekle"
+    },
+    "webshare": {
+      "title": "Webshare Entegrasyonu",
+      "infoBox": {
+        "title": "Webshare Nedir?",
+        "description": "Webshare, otomatik proxy sağlayıcısıdır. API key ile proxy'lerinizi otomatik olarak senkronize edebilirsiniz.",
+        "linkText": "Webshare'e Git"
+      },
+      "apiKeyLabel": "Webshare API Key",
+      "apiKeyPlaceholder": "ws_xxxxxxxxxxxxxxxxxxxxxxxx",
+      "apiKeyStatusNotSaved": "API key kaydedilmemiş",
+      "apiKeyStatusSaved": "API key kaydedildi",
+      "saveBtn": "Kaydet",
+      "syncBtn": "Proxy'leri Senkronize Et"
+    },
+    "table": {
+      "ip": "IP Adresi",
+      "port": "Port",
+      "username": "Kullanıcı Adı",
+      "status": "Durum",
+      "health": "Sağlık",
+      "lastUsed": "Son Kullanım",
+      "actions": "İşlemler"
+    },
+    "modal": {
+      "title": "Proxy Ekle",
+      "ip": "IP Adresi",
+      "ipPlaceholder": "192.168.1.1",
+      "port": "Port",
+      "portPlaceholder": "8080",
+      "username": "Kullanıcı Adı",
+      "usernamePlaceholder": "proxy_username",
+      "password": "Şifre",
+      "passwordPlaceholder": "proxy_password"
+    },
+    "deleteConfirm": {
+      "title": "Proxy'i Sil",
+      "message": "Bu proxy'i silmek istediğinizden emin misiniz?"
     }
   },
   "reports": {

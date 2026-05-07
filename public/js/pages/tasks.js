@@ -342,7 +342,9 @@ class TasksManager {
             const data = await response.json();
 
             if (data.success) {
-                this.showBulkCheckResults(data.results, data.errors);
+                // Tasks created, start polling for status
+                window.showNotification(`${data.accountCount} hesap için task oluşturuldu`, 'success');
+                this.pollTaskStatus(data.taskIds);
             } else {
                 throw new Error(data.message);
             }
@@ -351,6 +353,86 @@ class TasksManager {
             window.showNotification('Toplu kontrol sırasında hata oluştu: ' + error.message, 'error');
             this.closeBulkCheckModal();
         }
+    }
+
+    async pollTaskStatus(taskIds) {
+        const pollInterval = 2000; // Poll every 2 seconds
+        const maxPolls = 300; // Max 10 minutes (300 * 2s = 600s)
+        let pollCount = 0;
+        
+        const poll = async () => {
+            pollCount++;
+            
+            if (pollCount > maxPolls) {
+                window.showNotification('Task kontrolü zaman aşımına uğradı', 'error');
+                this.closeBulkCheckModal();
+                return;
+            }
+            
+            try {
+                // Get all task statuses
+                const response = await fetch('/api/tasks/tasks', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message);
+                }
+                
+                // Filter tasks by our taskIds
+                const ourTasks = data.tasks.filter(task => taskIds.includes(task.id));
+                
+                // Count statuses
+                const pending = ourTasks.filter(t => t.status === 'pending').length;
+                const running = ourTasks.filter(t => t.status === 'running').length;
+                const completed = ourTasks.filter(t => t.status === 'completed').length;
+                const failed = ourTasks.filter(t => t.status === 'failed').length;
+                const timeout = ourTasks.filter(t => t.status === 'timeout').length;
+                
+                const total = ourTasks.length;
+                const finished = completed + failed + timeout;
+                
+                // Update progress display
+                const progressText = document.querySelector('#checkProgressStep p');
+                if (progressText) {
+                    progressText.textContent = `${finished} / ${total} hesap kontrol edildi (Bekleyen: ${pending}, İşleniyor: ${running})`;
+                }
+                
+                // Check if all tasks are finished
+                if (finished === total) {
+                    // All tasks completed, show results
+                    const results = ourTasks
+                        .filter(t => t.status === 'completed')
+                        .map(t => ({
+                            username: t.account_username,
+                            result: typeof t.result === 'string' ? JSON.parse(t.result) : t.result
+                        }));
+                    
+                    const errors = ourTasks
+                        .filter(t => t.status === 'failed' || t.status === 'timeout')
+                        .map(t => ({
+                            username: t.account_username,
+                            error: t.error || 'Bilinmeyen hata'
+                        }));
+                    
+                    this.showBulkCheckResults(results, errors);
+                } else {
+                    // Continue polling
+                    setTimeout(poll, pollInterval);
+                }
+            } catch (error) {
+                console.error('Error polling task status:', error);
+                window.showNotification('Task durumu kontrol edilirken hata oluştu', 'error');
+                this.closeBulkCheckModal();
+            }
+        };
+        
+        // Start polling
+        poll();
     }
 
     showBulkCheckResults(results, errors) {

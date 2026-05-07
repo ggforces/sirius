@@ -34,6 +34,21 @@ router.get('/accounts', (req, res) => {
 });
 
 /**
+ * Proxies page
+ */
+router.get('/proxies', (req, res) => {
+    try {
+        const html = viewRenderer.render('proxies', {
+            EXTRA_SCRIPTS: '<script src="/js/pages/proxies.js"></script>'
+        }, req.translations, req.lang);
+        res.send(html);
+    } catch (error) {
+        console.error('Proxies render error:', error);
+        res.status(500).send(req.t('common.error'));
+    }
+});
+
+/**
  * Tasks page
  */
 router.get('/tasks', (req, res) => {

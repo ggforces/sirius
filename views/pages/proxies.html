@@ -1,0 +1,267 @@
+<!-- Proxy Method Selection -->
+<div class="section">
+    <div class="section-header">
+        <h2 class="section-title">{{t:proxies.title}}</h2>
+        <div class="proxy-method-selector">
+            <button class="method-btn" id="manualMethodBtn" data-method="manual">
+                <i class="ph-bold ph-pencil-simple"></i>
+                {{t:proxies.method.manual}}
+            </button>
+            <button class="method-btn" id="webshareMethodBtn" data-method="webshare">
+                <i class="ph-bold ph-cloud"></i>
+                {{t:proxies.method.webshare}}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Proxy Statistics -->
+<div class="section">
+    <div class="stats-grid stats-grid-proxies">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+                <div class="stat-label">{{t:proxies.stats.total}}</div>
+                <div class="stat-value"><span id="statTotalProxies">0</span></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+                <div class="stat-label">{{t:proxies.stats.available}}</div>
+                <div class="stat-value"><span id="statAvailableProxies">0</span></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🔒</div>
+            <div class="stat-info">
+                <div class="stat-label">{{t:proxies.stats.locked}}</div>
+                <div class="stat-value"><span id="statLockedProxies">0</span></div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-info">
+                <div class="stat-label">{{t:proxies.stats.cooldown}}</div>
+                <div class="stat-value"><span id="statCooldownProxies">0</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Proxy Section -->
+<div class="section" id="manualProxySection">
+    <div class="section-header">
+        <h3 class="section-subtitle">{{t:proxies.manual.title}}</h3>
+        <button class="btn btn-primary" id="addProxyBtn">
+            <span class="btn-icon">
+                <i class="ph-bold ph-plus"></i>
+            </span>
+            {{t:proxies.manual.addProxy}}
+        </button>
+    </div>
+    
+    <!-- Proxy List -->
+    <div class="proxies-table-container">
+        <table class="proxies-table" id="proxiesTable">
+            <thead>
+                <tr>
+                    <th>{{t:proxies.table.ip}}</th>
+                    <th>{{t:proxies.table.port}}</th>
+                    <th>{{t:proxies.table.username}}</th>
+                    <th>{{t:proxies.table.status}}</th>
+                    <th>{{t:proxies.table.health}}</th>
+                    <th>{{t:proxies.table.lastUsed}}</th>
+                    <th>{{t:proxies.table.actions}}</th>
+                </tr>
+            </thead>
+            <tbody id="proxiesTableBody">
+                <tr class="loading-row">
+                    <td colspan="7" class="text-center">
+                        <i class="ph-bold ph-circle-notch ph-spin"></i>
+                        {{t:common.loading}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyProxiesState" style="display: none;">
+            <div class="empty-icon">
+                <i class="ph-bold ph-globe"></i>
+            </div>
+            <h3>{{t:proxies.manual.noProxies}}</h3>
+            <p>{{t:proxies.manual.noProxiesDesc}}</p>
+            <button class="btn btn-primary" id="addFirstProxyBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-plus"></i>
+                </span>
+                {{t:proxies.manual.addFirstProxy}}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Webshare Section -->
+<div class="section" id="webshareSection" style="display: none;">
+    <h3 class="section-subtitle">{{t:proxies.webshare.title}}</h3>
+    
+    <!-- Info Box -->
+    <div class="settings-info-box info-box-primary">
+        <div class="info-box-icon">
+            <i class="ph-bold ph-info"></i>
+        </div>
+        <div class="info-box-content">
+            <h4 class="info-box-title">{{t:proxies.webshare.infoBox.title}}</h4>
+            <p class="info-box-text">{{t:proxies.webshare.infoBox.description}}</p>
+            <a href="https://www.webshare.io/?referral_code=your_code" target="_blank" rel="noopener" class="info-box-link">
+                <i class="ph-bold ph-arrow-square-out"></i>
+                {{t:proxies.webshare.infoBox.linkText}}
+            </a>
+        </div>
+    </div>
+    
+    <!-- API Key Form -->
+    <div class="settings-card">
+        <form id="webshareApiKeyForm">
+            <div class="form-group-settings">
+                <label for="webshareApiKey">
+                    <span class="label-icon">
+                        <i class="ph-bold ph-key"></i>
+                    </span>
+                    {{t:proxies.webshare.apiKeyLabel}}
+                </label>
+                <input 
+                    type="password" 
+                    id="webshareApiKey" 
+                    placeholder="{{t:proxies.webshare.apiKeyPlaceholder}}" 
+                    autocomplete="off"
+                >
+                <small class="form-hint-settings" id="webshareApiKeyStatus">
+                    {{t:proxies.webshare.apiKeyStatusNotSaved}}
+                </small>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-icon">
+                        <i class="ph-bold ph-floppy-disk"></i>
+                    </span>
+                    {{t:proxies.webshare.saveBtn}}
+                </button>
+            </div>
+        </form>
+        
+        <div class="settings-divider"></div>
+        
+        <div class="form-actions">
+            <button type="button" class="btn btn-success" id="syncWebshareBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-arrows-clockwise"></i>
+                </span>
+                {{t:proxies.webshare.syncBtn}}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Proxy Modal -->
+<div class="modal" id="proxyModal">
+    <div class="modal-overlay" id="proxyModalOverlay"></div>
+    <div class="modal-content modal-compact">
+        <div class="modal-header">
+            <h3 class="modal-title">{{t:proxies.modal.title}}</h3>
+        </div>
+        <div class="modal-body">
+            <form id="proxyForm" class="compact-form">
+                <div class="form-row">
+                    <label for="proxyIp">
+                        <i class="ph-bold ph-globe"></i>
+                        {{t:proxies.modal.ip}}
+                    </label>
+                    <input 
+                        type="text" 
+                        id="proxyIp" 
+                        placeholder="{{t:proxies.modal.ipPlaceholder}}"
+                        required
+                        pattern="^(\d{1,3}\.){3}\d{1,3}$"
+                    >
+                </div>
+                
+                <div class="form-row">
+                    <label for="proxyPort">
+                        <i class="ph-bold ph-plug"></i>
+                        {{t:proxies.modal.port}}
+                    </label>
+                    <input 
+                        type="number" 
+                        id="proxyPort" 
+                        placeholder="{{t:proxies.modal.portPlaceholder}}"
+                        required
+                        min="1"
+                        max="65535"
+                    >
+                </div>
+                
+                <div class="form-row">
+                    <label for="proxyUsername">
+                        <i class="ph-bold ph-user"></i>
+                        {{t:proxies.modal.username}}
+                    </label>
+                    <input 
+                        type="text" 
+                        id="proxyUsername" 
+                        placeholder="{{t:proxies.modal.usernamePlaceholder}}"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+                
+                <div class="form-row">
+                    <label for="proxyPassword">
+                        <i class="ph-bold ph-lock"></i>
+                        {{t:proxies.modal.password}}
+                    </label>
+                    <input 
+                        type="text" 
+                        id="proxyPassword" 
+                        placeholder="{{t:proxies.modal.passwordPlaceholder}}"
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save" id="submitProxyBtn">
+                        <i class="ph-bold ph-floppy-disk"></i>
+                        <span>{{t:common.save}}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteProxyModal">
+    <div class="modal-overlay" id="deleteProxyModalOverlay"></div>
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h3 class="modal-title">{{t:proxies.deleteConfirm.title}}</h3>
+        </div>
+        <div class="modal-body">
+            <p>{{t:proxies.deleteConfirm.message}}</p>
+            <div class="delete-proxy-info" id="deleteProxyInfo"></div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelDeleteProxyBtn">
+                {{t:common.cancel}}
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteProxyBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-trash"></i>
+                </span>
+                {{t:common.delete}}
+            </button>
+        </div>
+    </div>
+</div>

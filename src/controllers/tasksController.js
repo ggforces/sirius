@@ -1,5 +1,6 @@
 const db = require('../config/database');
-const { checkAccount } = require('../services/accountChecker');
+const taskQueueService = require('../services/taskQueueService');
+const proxyService = require('../services/proxyService');
 
 // Get all Steam accounts for the user
 const getUserAccounts = (req, res) => {
@@ -21,7 +22,7 @@ const getUserAccounts = (req, res) => {
     }
 };
 
-// Check single account
+// Check single account (with proxy and task queue)
 const checkSingleAccount = async (req, res) => {
     try {
         const { accountId } = req.params;
@@ -36,14 +37,40 @@ const checkSingleAccount = async (req, res) => {
         if (!account) {
             return res.status(404).json({ success: false, message: 'Hesap bulunamadı' });
         }
-
-        // Check the account
-        const result = await checkAccount(account);
         
+        // Check if user has any proxies
+        const proxyCount = db.prepare(`
+            SELECT COUNT(*) as count FROM proxies WHERE user_id = ?
+        `).get(userId);
+        
+        if (proxyCount.count === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Proxy bulunamadı. Lütfen önce proxy ekleyin.' 
+            });
+        }
+
+        // Create task
+        const taskId = taskQueueService.createTask(userId, accountId, 'check_account');
+        
+        // Try to start task immediately
+        const started = await taskQueueService.tryStartTask(taskId);
+        
+        if (!started) {
+            return res.json({ 
+                success: true, 
+                message: 'Task oluşturuldu, proxy bekliyor...',
+                taskId,
+                status: 'pending'
+            });
+        }
+        
+        // Task started successfully, worker will execute it
         res.json({ 
             success: true, 
-            message: 'Hesap başarıyla kontrol edildi',
-            result 
+            message: 'Task başlatıldı, işleniyor...',
+            taskId,
+            status: 'running'
         });
     } catch (error) {
         console.error('Error checking account:', error);
@@ -54,7 +81,7 @@ const checkSingleAccount = async (req, res) => {
     }
 };
 
-// Check multiple accounts (bulk check)
+// Check multiple accounts (bulk check with proxy and task queue)
 const checkMultipleAccounts = async (req, res) => {
     try {
         const { accountIds } = req.body;
@@ -63,52 +90,57 @@ const checkMultipleAccounts = async (req, res) => {
         if (!Array.isArray(accountIds) || accountIds.length === 0) {
             return res.status(400).json({ success: false, message: 'Geçerli hesap ID\'leri gerekli' });
         }
+        
+        // Validate all accountIds are integers
+        const validAccountIds = accountIds.filter(id => Number.isInteger(id) && id > 0);
+        
+        if (validAccountIds.length === 0) {
+            return res.status(400).json({ success: false, message: 'Geçerli hesap ID\'leri gerekli' });
+        }
+        
+        if (validAccountIds.length !== accountIds.length) {
+            console.warn(`⚠️ Filtered out ${accountIds.length - validAccountIds.length} invalid account IDs`);
+        }
+        
+        // Check if user has any proxies
+        const proxyCount = db.prepare(`
+            SELECT COUNT(*) as count FROM proxies WHERE user_id = ?
+        `).get(userId);
+        
+        if (proxyCount.count === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Proxy bulunamadı. Lütfen önce proxy ekleyin.' 
+            });
+        }
 
         // Get accounts
-        const placeholders = accountIds.map(() => '?').join(',');
+        const placeholders = validAccountIds.map(() => '?').join(',');
         const accounts = db.prepare(`
             SELECT * FROM steam_accounts 
             WHERE id IN (${placeholders}) AND user_id = ?
-        `).all(...accountIds, userId);
+        `).all(...validAccountIds, userId);
 
         if (accounts.length === 0) {
             return res.status(404).json({ success: false, message: 'Hesap bulunamadı' });
         }
 
-        const results = [];
-        const errors = [];
-
-        // Check accounts sequentially to avoid rate limiting
+        // Create tasks for all accounts
+        const taskIds = [];
         for (const account of accounts) {
-            try {
-                const result = await checkAccount(account);
-                results.push({
-                    accountId: account.id,
-                    username: account.username,
-                    success: true,
-                    result
-                });
-            } catch (error) {
-                errors.push({
-                    accountId: account.id,
-                    username: account.username,
-                    success: false,
-                    error: error.message
-                });
-            }
-            
-            // Wait 2 seconds between checks to avoid rate limiting
-            if (accounts.indexOf(account) < accounts.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
+            const taskId = taskQueueService.createTask(userId, account.id, 'check_account');
+            taskIds.push(taskId);
         }
 
+        // Return immediately - tasks will be processed by queue
         res.json({
             success: true,
-            message: `${results.length} hesap başarıyla kontrol edildi, ${errors.length} hata`,
-            results,
-            errors
+            message: `${accounts.length} hesap için task oluşturuldu`,
+            taskIds,
+            accountCount: accounts.length
         });
+
+        // Tasks will be processed automatically by the task queue processor
     } catch (error) {
         console.error('Error in bulk check:', error);
         res.status(500).json({ 
@@ -149,9 +181,78 @@ const getAccountInventory = (req, res) => {
     }
 };
 
+// Get task status
+const getTaskStatus = (req, res) => {
+    try {
+        const { taskId } = req.params;
+        const userId = req.user.id;
+
+        const task = db.prepare(`
+            SELECT * FROM tasks 
+            WHERE id = ? AND user_id = ?
+        `).get(taskId, userId);
+
+        if (!task) {
+            return res.status(404).json({ success: false, message: 'Task bulunamadı' });
+        }
+
+        res.json({ success: true, task });
+    } catch (error) {
+        console.error('Error fetching task status:', error);
+        res.status(500).json({ success: false, message: 'Task durumu alınırken hata oluştu' });
+    }
+};
+
+// Get user's tasks
+const getUserTasks = (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { status } = req.query;
+
+        let query = `
+            SELECT t.*, a.username as account_username
+            FROM tasks t
+            LEFT JOIN steam_accounts a ON t.account_id = a.id
+            WHERE t.user_id = ?
+        `;
+        
+        const params = [userId];
+        
+        if (status) {
+            query += ` AND t.status = ?`;
+            params.push(status);
+        }
+        
+        query += ` ORDER BY t.created_at DESC LIMIT 100`;
+
+        const tasks = db.prepare(query).all(...params);
+
+        res.json({ success: true, tasks });
+    } catch (error) {
+        console.error('Error fetching user tasks:', error);
+        res.status(500).json({ success: false, message: 'Task\'ler alınırken hata oluştu' });
+    }
+};
+
+// Get task statistics
+const getTaskStatistics = (req, res) => {
+    try {
+        const userId = req.user.id;
+        const stats = taskQueueService.getTaskStats(userId);
+        
+        res.json({ success: true, stats });
+    } catch (error) {
+        console.error('Error fetching task statistics:', error);
+        res.status(500).json({ success: false, message: 'İstatistikler alınırken hata oluştu' });
+    }
+};
+
 module.exports = {
     getUserAccounts,
     checkSingleAccount,
     checkMultipleAccounts,
-    getAccountInventory
+    getAccountInventory,
+    getTaskStatus,
+    getUserTasks,
+    getTaskStatistics
 };

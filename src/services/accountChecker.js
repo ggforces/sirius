@@ -3,27 +3,10 @@ const SteamCommunity = require('steamcommunity');
 const SteamTotp = require('steam-totp');
 const Request = require('request');
 const db = require('../config/database');
-const crypto = require('crypto');
+const { decrypt } = require('../utils/encryption');
 
 const PRIME_APP_ID = 624820;
 const FREE_PAYMENT_METHODS = new Set([0, 128]);
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
-
-// Decrypt function
-function decrypt(text) {
-    if (!text) return text;
-    try {
-        const parts = text.split(':');
-        const iv = Buffer.from(parts.shift(), 'hex');
-        const encrypted = Buffer.from(parts.join(':'), 'hex');
-        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
-        let decrypted = decipher.update(encrypted);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
-        return decrypted.toString();
-    } catch (error) {
-        return text; // Return original if decryption fails
-    }
-}
 
 function parseTradeUnlockDate(descriptions) {
     for (const desc of descriptions || []) {
@@ -61,7 +44,7 @@ function fetchContext16(community, steamID) {
     });
 }
 
-async function checkAccount(account) {
+async function checkAccount(account, proxy = null) {
     // Decrypt account data
     const decryptedAccount = {
         ...account,
@@ -75,8 +58,21 @@ async function checkAccount(account) {
     }
 
     return new Promise((resolve, reject) => {
-        const client = new SteamUser({ enablePicsCache: true });
+        // Configure proxy if provided
+        const clientOptions = { enablePicsCache: true };
+        
+        if (proxy) {
+            clientOptions.httpProxy = `http://${proxy.username}:${proxy.password}@${proxy.ip}:${proxy.port}`;
+        }
+        
+        const client = new SteamUser(clientOptions);
         const community = new SteamCommunity();
+        
+        // Configure community proxy if provided
+        if (proxy) {
+            const proxyUrl = `http://${proxy.username}:${proxy.password}@${proxy.ip}:${proxy.port}`;
+            community.request = Request.defaults({ proxy: proxyUrl });
+        }
 
         let accountFlags = 0;
         let limitedValue = null;
