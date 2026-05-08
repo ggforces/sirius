@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polling Service Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #00d4ff;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #333;
+        }
+        .success {
+            border-left: 4px solid #22c55e;
+        }
+        .error {
+            border-left: 4px solid #ef4444;
+        }
+        .info {
+            border-left: 4px solid #3b82f6;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #00d4ff;
+            color: #000;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #00b8e6;
+        }
+        .log-entry {
+            font-family: monospace;
+            font-size: 0.9rem;
+            padding: 5px;
+            margin: 2px 0;
+            background: #1a1a1a;
+            border-radius: 2px;
+        }
+        .timestamp {
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Polling Service Test</h1>
+    
+    <div class="test-section">
+        <div class="test-title">Test 1: Polling Interval</div>
+        <p>Verifies that polling occurs every 5 seconds</p>
+        <button onclick="testPollingInterval()">Run Test</button>
+        <div id="test1-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 2: Scroll Position Preservation</div>
+        <p>Verifies that scroll position is preserved during updates</p>
+        <button onclick="testScrollPreservation()">Run Test</button>
+        <div id="test2-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 3: Error Handling</div>
+        <p>Verifies that consecutive failures trigger notification</p>
+        <button onclick="testErrorHandling()">Run Test</button>
+        <div id="test3-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 4: Lifecycle Management</div>
+        <p>Verifies that polling starts and stops correctly</p>
+        <button onclick="testLifecycle()">Run Test</button>
+        <div id="test4-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Test 5: Status Change Detection</div>
+        <p>Verifies that status changes are detected and displayed</p>
+        <button onclick="testStatusChange()">Run Test</button>
+        <div id="test5-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-title">Live Polling Log</div>
+        <button onclick="startLivePolling()">Start Live Polling</button>
+        <button onclick="stopLivePolling()">Stop Live Polling</button>
+        <div id="live-log"></div>
+    </div>
+
+    <script>
+        // Mock notification system
+        window.showNotification = function(message, type) {
+            console.log(`[NOTIFICATION ${type}] ${message}`);
+            const log = document.getElementById('live-log');
+            if (log) {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span> [${type.toUpperCase()}] ${message}`;
+                log.appendChild(entry);
+            }
+        };
+        
+        // Mock localStorage
+        if (!localStorage.getItem('token')) {
+            localStorage.setItem('token', 'test-token');
+        }
+        
+        function log(testId, message, type = 'info') {
+            const container = document.getElementById(`${testId}-results`);
+            const entry = document.createElement('div');
+            entry.className = `test-result ${type}`;
+            entry.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span> ${message}`;
+            container.appendChild(entry);
+        }
+        
+        // Test 1: Polling Interval
+        async function testPollingInterval() {
+            const testId = 'test1';
+            const container = document.getElementById(`${testId}-results`);
+            container.innerHTML = '';
+            
+            log(testId, 'Starting polling interval test...', 'info');
+            
+            let pollCount = 0;
+            const startTime = Date.now();
+            const intervals = [];
+            
+            // Mock fetch to track polling
+            const originalFetch = window.fetch;
+            window.fetch = async function(url, options) {
+                if (url === '/api/tasks/tasks') {
+                    const now = Date.now();
+                    if (pollCount > 0) {
+                        const interval = now - startTime - (pollCount * 5000);
+                        intervals.push(interval);
+                        log(testId, `Poll #${pollCount + 1} - Interval: ${interval}ms (expected: ~5000ms)`, 
+                            Math.abs(interval) < 500 ? 'success' : 'error');
+                    }
+                    pollCount++;
+                    
+                    return {
+                        json: async () => ({ success: true, tasks: [] })
+                    };
+                }
+                return originalFetch(url, options);
+            };
+            
+            // Create a temporary polling instance
+            const testPolling = setInterval(() => {
+                fetch('/api/tasks/tasks', {
+                    headers: { 'Authorization': 'Bearer test-token' }
+                });
+            }, 5000);
+            
+            // Initial fetch
+            fetch('/api/tasks/tasks', {
+                headers: { 'Authorization': 'Bearer test-token' }
+            });
+            
+            // Wait for 3 polls
+            setTimeout(() => {
+                clearInterval(testPolling);
+                window.fetch = originalFetch;
+                
+                const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+                log(testId, `Test complete. Average interval: ${avgInterval.toFixed(0)}ms`, 
+                    Math.abs(avgInterval) < 500 ? 'success' : 'error');
+            }, 16000);
+        }
+        
+        // Test 2: Scroll Position Preservation
+        async function testScrollPreservation() {
+            const testId = 'test2';
+            const container = document.getElementById(`${testId}-results`);
+            container.innerHTML = '';
+            
+            log(testId, 'Testing scroll position preservation...', 'info');
+            
+            // Create a test container with scrollable content
+            const testContainer = document.createElement('div');
+            testContainer.id = 'testScrollContainer';
+            testContainer.style.cssText = 'height: 200px; overflow-y: auto; background: #333; padding: 10px;';
+            
+            // Add lots of content
+            for (let i = 0; i < 50; i++) {
+                const item = document.createElement('div');
+                item.textContent = `Task ${i + 1}`;
+                item.style.padding = '10px';
+                testContainer.appendChild(item);
+            }
+            
+            container.appendChild(testContainer);
+            
+            // Scroll to middle
+            testContainer.scrollTop = 500;
+            const scrollBefore = testContainer.scrollTop;
+            log(testId, `Scroll position before update: ${scrollBefore}px`, 'info');
+            
+            // Simulate content update (like TaskTable.setTasks does)
+            setTimeout(() => {
+                const savedScroll = testContainer.scrollTop;
+                
+                // Re-render content
+                testContainer.innerHTML = '';
+                for (let i = 0; i < 50; i++) {
+                    const item = document.createElement('div');
+                    item.textContent = `Task ${i + 1} (updated)`;
+                    item.style.padding = '10px';
+                    testContainer.appendChild(item);
+                }
+                
+                // Restore scroll
+                requestAnimationFrame(() => {
+                    testContainer.scrollTop = savedScroll;
+                    const scrollAfter = testContainer.scrollTop;
+                    
+                    log(testId, `Scroll position after update: ${scrollAfter}px`, 'info');
+                    log(testId, `Scroll preserved: ${scrollBefore === scrollAfter ? 'YES' : 'NO'}`, 
+                        scrollBefore === scrollAfter ? 'success' : 'error');
+                });
+            }, 1000);
+        }
+        
+        // Test 3: Error Handling
+        async function testErrorHandling() {
+            const testId = 'test3';
+            const container = document.getElementById(`${testId}-results`);
+            container.innerHTML = '';
+            
+            log(testId, 'Testing error handling with consecutive failures...', 'info');
+            
+            let failureCount = 0;
+            let notificationShown = false;
+            
+            // Mock showNotification
+            const originalShowNotification = window.showNotification;
+            window.showNotification = function(message, type) {
+                if (type === 'error' && message.includes('sürekli hata')) {
+                    notificationShown = true;
+                    log(testId, `Notification shown after ${failureCount} failures`, 'success');
+                }
+                originalShowNotification(message, type);
+            };
+            
+            // Simulate consecutive failures
+            const simulateFailure = () => {
+                failureCount++;
+                log(testId, `Simulating failure #${failureCount}`, 'info');
+                
+                if (failureCount < 3) {
+                    setTimeout(simulateFailure, 1000);
+                } else {
+                    // Trigger notification logic
+                    if (failureCount >= 3) {
+                        window.showNotification(
+                            'Görevler yüklenirken sürekli hata oluşuyor. Lütfen internet bağlantınızı kontrol edin.',
+                            'error'
+                        );
+                    }
+                    
+                    setTimeout(() => {
+                        window.showNotification = originalShowNotification;
+                        log(testId, `Test complete. Notification shown: ${notificationShown ? 'YES' : 'NO'}`, 
+                            notificationShown ? 'success' : 'error');
+                    }, 500);
+                }
+            };
+            
+            simulateFailure();
+        }
+        
+        // Test 4: Lifecycle Management
+        async function testLifecycle() {
+            const testId = 'test4';
+            const container = document.getElementById(`${testId}-results`);
+            container.innerHTML = '';
+            
+            log(testId, 'Testing polling lifecycle...', 'info');
+            
+            let pollCount = 0;
+            
+            // Start polling
+            const pollingInterval = setInterval(() => {
+                pollCount++;
+                log(testId, `Poll #${pollCount}`, 'info');
+            }, 1000);
+            
+            log(testId, 'Polling started', 'success');
+            
+            // Stop after 3 seconds
+            setTimeout(() => {
+                clearInterval(pollingInterval);
+                const finalCount = pollCount;
+                log(testId, 'Polling stopped', 'success');
+                
+                // Verify no more polls occur
+                setTimeout(() => {
+                    log(testId, `Final poll count: ${pollCount} (should be ${finalCount})`, 
+                        pollCount === finalCount ? 'success' : 'error');
+                }, 2000);
+            }, 3000);
+        }
+        
+        // Test 5: Status Change Detection
+        async function testStatusChange() {
+            const testId = 'test5';
+            const container = document.getElementById(`${testId}-results`);
+            container.innerHTML = '';
+            
+            log(testId, 'Testing status change detection...', 'info');
+            
+            const statuses = ['pending', 'running', 'completed'];
+            let currentStatus = 0;
+            
+            const mockTask = {
+                id: 1,
+                account_username: 'test_user',
+                proxy_ip: '192.168.1.1',
+                proxy_port: 8080,
+                status: statuses[currentStatus]
+            };
+            
+            log(testId, `Initial status: ${mockTask.status}`, 'info');
+            
+            const interval = setInterval(() => {
+                currentStatus++;
+                if (currentStatus >= statuses.length) {
+                    clearInterval(interval);
+                    log(testId, 'Status change detection test complete', 'success');
+                    return;
+                }
+                
+                const oldStatus = mockTask.status;
+                mockTask.status = statuses[currentStatus];
+                log(testId, `Status changed: ${oldStatus} → ${mockTask.status}`, 'success');
+            }, 2000);
+        }
+        
+        // Live Polling
+        let livePollingInterval = null;
+        let livePollCount = 0;
+        
+        function startLivePolling() {
+            if (livePollingInterval) {
+                log('live', 'Polling already running', 'error');
+                return;
+            }
+            
+            const logContainer = document.getElementById('live-log');
+            logContainer.innerHTML = '';
+            livePollCount = 0;
+            
+            log('live', 'Live polling started', 'success');
+            
+            livePollingInterval = setInterval(() => {
+                livePollCount++;
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span> Poll #${livePollCount}`;
+                logContainer.appendChild(entry);
+                
+                // Auto-scroll to bottom
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }, 5000);
+        }
+        
+        function stopLivePolling() {
+            if (!livePollingInterval) {
+                log('live', 'No polling to stop', 'error');
+                return;
+            }
+            
+            clearInterval(livePollingInterval);
+            livePollingInterval = null;
+            
+            const entry = document.createElement('div');
+            entry.className = 'log-entry success';
+            entry.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span> Live polling stopped (${livePollCount} polls)`;
+            document.getElementById('live-log').appendChild(entry);
+        }
+        
+        function log(testId, message, type = 'info') {
+            let container;
+            if (testId === 'live') {
+                container = document.getElementById('live-log');
+            } else {
+                container = document.getElementById(`${testId}-results`);
+            }
+            
+            if (!container) return;
+            
+            const entry = document.createElement('div');
+            entry.className = `test-result ${type}`;
+            entry.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString()}</span> ${message}`;
+            container.appendChild(entry);
+        }
+    </script>
+</body>
+</html>

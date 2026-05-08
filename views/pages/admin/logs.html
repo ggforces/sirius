@@ -53,19 +53,19 @@
                 <option value="200">Last 200</option>
                 <option value="500">Last 500</option>
             </select>
-            <button onclick="loadLogs()" class="btn btn-primary">
+            <button id="refreshLogsBtn" class="btn btn-primary">
                 <i class="ph-bold ph-arrow-clockwise"></i>
                 Refresh
             </button>
-            <button onclick="toggleAutoRefresh()" class="btn btn-secondary" id="autoRefreshBtn">
+            <button id="autoRefreshBtn" class="btn btn-secondary">
                 <i class="ph-bold ph-play"></i>
                 Auto Refresh
             </button>
-            <button onclick="clearLogsDisplay()" class="btn btn-secondary">
+            <button id="clearLogsBtn" class="btn btn-secondary">
                 <i class="ph-bold ph-trash"></i>
                 Clear Display
             </button>
-            <button onclick="exportLogs()" class="btn btn-secondary">
+            <button id="exportLogsBtn" class="btn btn-secondary">
                 <i class="ph-bold ph-download"></i>
                 Export
             </button>

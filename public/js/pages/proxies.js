@@ -2,28 +2,9 @@
 
 let proxies = [];
 let proxyStats = {};
-let currentProxyMethod = 'manual';
 let deletingProxyId = null;
 
 // ==================== LOAD DATA ====================
-
-async function loadProxyMethod() {
-    try {
-        const response = await fetch('/api/auth/me', {
-            credentials: 'include'
-        });
-        
-        const data = await response.json();
-        
-        if (data.success && data.user) {
-            currentProxyMethod = data.user.proxy_method || 'manual';
-            updateMethodButtons();
-            showMethodSection();
-        }
-    } catch (error) {
-        console.error('Load proxy method error:', error);
-    }
-}
 
 async function loadProxies() {
     try {
@@ -141,27 +122,6 @@ function getProxyHealth(proxy) {
     return Math.round((proxy.success_count / total) * 100);
 }
 
-function updateMethodButtons() {
-    const manualBtn = document.getElementById('manualMethodBtn');
-    const webshareBtn = document.getElementById('webshareMethodBtn');
-    
-    manualBtn.classList.toggle('active', currentProxyMethod === 'manual');
-    webshareBtn.classList.toggle('active', currentProxyMethod === 'webshare');
-}
-
-function showMethodSection() {
-    const manualSection = document.getElementById('manualProxySection');
-    const webshareSection = document.getElementById('webshareSection');
-    
-    if (currentProxyMethod === 'manual') {
-        manualSection.style.display = 'block';
-        webshareSection.style.display = 'none';
-    } else {
-        manualSection.style.display = 'none';
-        webshareSection.style.display = 'block';
-    }
-}
-
 // ==================== MODAL FUNCTIONS ====================
 
 function openAddProxyModal() {
@@ -186,6 +146,16 @@ function openDeleteProxyModal(proxyId) {
 function closeDeleteProxyModal() {
     document.getElementById('deleteProxyModal').classList.remove('active');
     deletingProxyId = null;
+}
+
+function openWebshareImportModal() {
+    document.getElementById('webshareImportForm').reset();
+    document.getElementById('webshareImportModal').classList.add('active');
+}
+
+function closeWebshareImportModal() {
+    document.getElementById('webshareImportModal').classList.remove('active');
+    document.getElementById('webshareImportForm').reset();
 }
 
 // ==================== API CALLS ====================
@@ -269,45 +239,19 @@ async function handleDeleteProxy() {
     }
 }
 
-async function handleMethodChange(method) {
-    try {
-        const response = await fetch('/api/proxies/method', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({ method })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            currentProxyMethod = method;
-            updateMethodButtons();
-            showMethodSection();
-            showNotification(data.message, 'success');
-        } else {
-            showNotification(data.message || 'İşlem başarısız', 'error');
-        }
-    } catch (error) {
-        console.error('Method change error:', error);
-        showNotification('Bir hata oluştu', 'error');
-    }
-}
-
-async function handleWebshareApiKeySubmit(e) {
+async function handleWebshareImport(e) {
     e.preventDefault();
     
-    const apiKey = document.getElementById('webshareApiKey').value.trim();
+    const submitBtn = document.getElementById('submitWebshareImportBtn');
+    const originalHTML = submitBtn.innerHTML;
     
-    if (!apiKey) {
-        showNotification('API key gereklidir', 'error');
-        return;
-    }
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="ph-bold ph-circle-notch ph-spin"></i>';
+    
+    const apiKey = document.getElementById('webshareApiKeyInput').value.trim();
     
     try {
-        const response = await fetch('/api/proxies/webshare/api-key', {
+        const response = await fetch('/api/proxies/webshare/sync', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -319,46 +263,19 @@ async function handleWebshareApiKeySubmit(e) {
         const data = await response.json();
         
         if (data.success) {
-            showNotification(data.message, 'success');
-            document.getElementById('webshareApiKeyStatus').textContent = 'API key kaydedildi';
-            document.getElementById('webshareApiKey').value = '';
-        } else {
-            showNotification(data.message || 'İşlem başarısız', 'error');
-        }
-    } catch (error) {
-        console.error('API key save error:', error);
-        showNotification('Bir hata oluştu', 'error');
-    }
-}
-
-async function handleWebshareSync() {
-    const syncBtn = document.getElementById('syncWebshareBtn');
-    const originalHTML = syncBtn.innerHTML;
-    
-    syncBtn.disabled = true;
-    syncBtn.innerHTML = '<i class="ph-bold ph-circle-notch ph-spin"></i> Senkronize ediliyor...';
-    
-    try {
-        const response = await fetch('/api/proxies/webshare/sync', {
-            method: 'POST',
-            credentials: 'include'
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showNotification(data.message, 'success');
+            showNotification(`${data.count} proxy başarıyla içe aktarıldı`, 'success');
+            closeWebshareImportModal();
             await loadProxies();
             await loadProxyStats();
         } else {
-            showNotification(data.message || 'Senkronizasyon başarısız', 'error');
+            showNotification(data.message || 'İçe aktarma başarısız', 'error');
         }
     } catch (error) {
-        console.error('Webshare sync error:', error);
+        console.error('Webshare import error:', error);
         showNotification('Bir hata oluştu', 'error');
     } finally {
-        syncBtn.disabled = false;
-        syncBtn.innerHTML = originalHTML;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHTML;
     }
 }
 
@@ -373,33 +290,26 @@ function attachTableEventListeners() {
     });
 }
 
-// Method buttons
-document.getElementById('manualMethodBtn').addEventListener('click', () => {
-    handleMethodChange('manual');
-});
-
-document.getElementById('webshareMethodBtn').addEventListener('click', () => {
-    handleMethodChange('webshare');
-});
-
 // Add proxy buttons
 document.getElementById('addProxyBtn').addEventListener('click', openAddProxyModal);
 document.getElementById('addFirstProxyBtn').addEventListener('click', openAddProxyModal);
+
+// Import from Webshare button
+document.getElementById('importWebshareBtn').addEventListener('click', openWebshareImportModal);
 
 // Modal close
 document.getElementById('proxyModalOverlay').addEventListener('click', closeProxyModal);
 document.getElementById('deleteProxyModalOverlay').addEventListener('click', closeDeleteProxyModal);
 document.getElementById('cancelDeleteProxyBtn').addEventListener('click', closeDeleteProxyModal);
+document.getElementById('webshareImportModalOverlay').addEventListener('click', closeWebshareImportModal);
+document.getElementById('cancelWebshareImportBtn').addEventListener('click', closeWebshareImportModal);
 
 // Form submits
 document.getElementById('proxyForm').addEventListener('submit', handleProxyFormSubmit);
-document.getElementById('webshareApiKeyForm').addEventListener('submit', handleWebshareApiKeySubmit);
+document.getElementById('webshareImportForm').addEventListener('submit', handleWebshareImport);
 
 // Delete confirm
 document.getElementById('confirmDeleteProxyBtn').addEventListener('click', handleDeleteProxy);
-
-// Webshare sync
-document.getElementById('syncWebshareBtn').addEventListener('click', handleWebshareSync);
 
 // ==================== UTILITY ====================
 
@@ -411,7 +321,6 @@ function escapeHtml(text) {
 
 // ==================== INITIALIZE ====================
 
-loadProxyMethod();
 loadProxies();
 loadProxyStats();
 

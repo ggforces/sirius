@@ -1,5 +1,47 @@
 // ==================== CHECK AUTHENTICATION ====================
 
+// ==================== TRANSLATION HELPER ====================
+
+/**
+ * Get translation by key path (e.g., 'tasks.table.taskId')
+ * @param {string} keyPath - Dot-separated key path
+ * @param {object} params - Optional parameters for string interpolation
+ * @returns {string} - Translated string or key path if not found
+ */
+function t(keyPath, params = {}) {
+    if (!window.APP_TRANSLATIONS) {
+        console.warn('Translations not loaded');
+        return keyPath;
+    }
+    
+    const keys = keyPath.split('.');
+    let value = window.APP_TRANSLATIONS;
+    
+    // Navigate through nested object
+    for (const key of keys) {
+        if (value && typeof value === 'object' && key in value) {
+            value = value[key];
+        } else {
+            console.warn(`Translation not found: ${keyPath}`);
+            return keyPath;
+        }
+    }
+    
+    // Handle string interpolation
+    if (typeof value === 'string' && Object.keys(params).length > 0) {
+        Object.keys(params).forEach(param => {
+            value = value.replace(new RegExp(`{{${param}}}`, 'g'), params[param]);
+        });
+    }
+    
+    return typeof value === 'string' ? value : keyPath;
+}
+
+// Make translation function globally available
+window.t = t;
+
+// ==================== CHECK AUTHENTICATION ====================
+
 async function checkAuth() {
     try {
         const response = await fetch('/api/auth/me', {
@@ -146,6 +188,9 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// Make showNotification globally available
+window.showNotification = showNotification;
+
 // ==================== UTILITY FUNCTIONS ====================
 
 /**
@@ -223,6 +268,9 @@ document.querySelectorAll('.sidebar-lang-btn').forEach(btn => {
             const data = await response.json();
             
             if (data.success) {
+                // Save current scroll position
+                sessionStorage.setItem('scrollPosition', window.scrollY);
+                
                 // Reload page to apply new language
                 window.location.reload();
             } else {
@@ -288,3 +336,12 @@ createMobileToggle();
 
 // Handle window resize
 window.addEventListener('resize', createMobileToggle);
+
+// Restore scroll position after language change
+window.addEventListener('load', () => {
+    const savedScrollPosition = sessionStorage.getItem('scrollPosition');
+    if (savedScrollPosition) {
+        window.scrollTo(0, parseInt(savedScrollPosition));
+        sessionStorage.removeItem('scrollPosition');
+    }
+});

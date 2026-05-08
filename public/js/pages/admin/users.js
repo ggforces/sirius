@@ -81,19 +81,42 @@ function renderUsersTable() {
             <td>${user.last_login ? formatDate(user.last_login) : '<span style="color: var(--text-secondary);">Never</span>'}</td>
             <td>
                 <div class="action-buttons">
-                    <button onclick="viewUserDetails(${user.id})" class="btn btn-sm btn-primary" title="View Details">
+                    <button data-action="view" data-user-id="${user.id}" class="btn btn-sm btn-primary" title="View Details">
                         <i class="ph-bold ph-eye"></i>
                     </button>
-                    <button onclick="editUser(${user.id})" class="btn btn-sm btn-secondary" title="Edit">
+                    <button data-action="edit" data-user-id="${user.id}" class="btn btn-sm btn-secondary" title="Edit">
                         <i class="ph-bold ph-pencil"></i>
                     </button>
-                    <button onclick="deleteUser(${user.id}, '${escapeHtml(user.email)}')" class="btn btn-sm btn-danger" title="Delete">
+                    <button data-action="delete" data-user-id="${user.id}" data-user-email="${escapeHtml(user.email)}" class="btn btn-sm btn-danger" title="Delete">
                         <i class="ph-bold ph-trash"></i>
                     </button>
                 </div>
             </td>
         </tr>
     `).join('');
+    
+    // Attach event listeners to action buttons
+    tbody.querySelectorAll('[data-action="view"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = parseInt(e.currentTarget.dataset.userId);
+            viewUserDetails(userId);
+        });
+    });
+    
+    tbody.querySelectorAll('[data-action="edit"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = parseInt(e.currentTarget.dataset.userId);
+            editUser(userId);
+        });
+    });
+    
+    tbody.querySelectorAll('[data-action="delete"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = parseInt(e.currentTarget.dataset.userId);
+            const email = e.currentTarget.dataset.userEmail;
+            deleteUser(userId, email);
+        });
+    });
 }
 
 // Apply filters
@@ -274,4 +297,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Search on input
     document.getElementById('searchInput').addEventListener('input', applyFilters);
+    
+    // Filter buttons
+    document.getElementById('applyFiltersBtn')?.addEventListener('click', applyFilters);
+    document.getElementById('resetFiltersBtn')?.addEventListener('click', resetFilters);
+    
+    // User details modal close buttons
+    document.getElementById('closeUserDetailsBtn')?.addEventListener('click', closeUserDetailsModal);
+    document.getElementById('userDetailsModalOverlay')?.addEventListener('click', closeUserDetailsModal);
+    
+    // Edit user modal close buttons
+    document.getElementById('closeEditUserBtn')?.addEventListener('click', closeEditUserModal);
+    document.getElementById('editUserModalOverlay')?.addEventListener('click', closeEditUserModal);
+    document.getElementById('cancelEditUserBtn')?.addEventListener('click', closeEditUserModal);
+    
+    // Save user changes button
+    document.getElementById('saveUserChangesBtn')?.addEventListener('click', saveUserChanges);
 });

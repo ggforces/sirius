@@ -149,22 +149,70 @@ function initializeDatabase() {
         }
     });
 
-    // Migration: Add proxy columns to users table
-    const userProxyColumns = [
-        'proxy_method TEXT DEFAULT "manual"',
-        'webshare_api_key TEXT DEFAULT NULL'
-    ];
+    // Migration: Remove proxy method columns from users table
+    // This migration removes proxy_method and webshare_api_key columns
+    // as part of the proxy system simplification
+    try {
+        // Check if columns exist
+        const userTableInfo = db.prepare(`PRAGMA table_info(users)`).all();
+        const hasProxyMethod = userTableInfo.some(col => col.name === 'proxy_method');
+        const hasWebshareApiKey = userTableInfo.some(col => col.name === 'webshare_api_key');
 
-    userProxyColumns.forEach(column => {
-        try {
-            db.exec(`ALTER TABLE users ADD COLUMN ${column}`);
-            logger.info(`Migration: ${column.split(' ')[0]} column added to users table`);
-        } catch (error) {
-            if (!error.message.includes('duplicate column name')) {
-                logger.error('Migration error', { error: error.message });
+        if (hasProxyMethod || hasWebshareApiKey) {
+            logger.info('Starting proxy method column removal migration');
+            
+            // Begin transaction for atomicity
+            db.exec('BEGIN TRANSACTION');
+
+            try {
+                // Get list of columns to keep (exclude proxy_method and webshare_api_key)
+                const columnsToKeep = userTableInfo
+                    .filter(col => col.name !== 'proxy_method' && col.name !== 'webshare_api_key')
+                    .map(col => col.name)
+                    .join(', ');
+
+                // Create new users table without proxy columns
+                db.exec(`
+                    CREATE TABLE users_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        email TEXT UNIQUE NOT NULL,
+                        password TEXT NOT NULL,
+                        balance REAL DEFAULT 0.00,
+                        role TEXT DEFAULT 'user',
+                        is_active INTEGER DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        last_login DATETIME
+                    )
+                `);
+
+                // Copy data from old table to new table
+                db.exec(`INSERT INTO users_new (${columnsToKeep}) SELECT ${columnsToKeep} FROM users`);
+
+                // Drop old table
+                db.exec(`DROP TABLE users`);
+
+                // Rename new table to users
+                db.exec(`ALTER TABLE users_new RENAME TO users`);
+
+                // Recreate index
+                db.exec(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
+
+                // Commit transaction
+                db.exec('COMMIT');
+
+                logger.info('Migration completed: proxy_method and webshare_api_key columns removed from users table');
+            } catch (error) {
+                // Rollback on error
+                db.exec('ROLLBACK');
+                logger.error('Migration failed, rolled back', { error: error.message });
+                throw error;
             }
+        } else {
+            logger.info('Migration skipped: proxy method columns do not exist');
         }
-    });
+    } catch (error) {
+        logger.error('Migration error', { error: error.message });
+    }
 
     // Migration: Add role and is_active columns to users table
     const userAdminColumns = [

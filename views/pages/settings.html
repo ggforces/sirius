@@ -1,85 +1,110 @@
-<!-- Profile Information -->
-<div class="section">
-    <h2 class="section-title">{{t:settings.profile.title}}</h2>
-    <div class="settings-card">
-        <div class="settings-row">
-            <div class="settings-label">
-                <span class="label-icon">
-                    <i class="ph-bold ph-envelope"></i>
-                </span>
-                <span class="label-text">{{t:settings.profile.email}}</span>
+<!-- Profile Information & Security -->
+<div class="settings-grid">
+    <!-- Profile Information -->
+    <div class="section">
+        <h2 class="section-title">{{t:settings.profile.title}}</h2>
+        <div class="settings-card">
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span class="label-icon">
+                        <i class="ph-bold ph-envelope"></i>
+                    </span>
+                    <span class="label-text">{{t:settings.profile.email}}</span>
+                </div>
+                <div class="settings-value">
+                    <span id="settingsEmail">{{t:settings.profile.loading}}</span>
+                </div>
             </div>
-            <div class="settings-value">
-                <span id="settingsEmail">{{t:settings.profile.loading}}</span>
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span class="label-icon">
+                        <i class="ph-bold ph-calendar-blank"></i>
+                    </span>
+                    <span class="label-text">{{t:settings.profile.createdAt}}</span>
+                </div>
+                <div class="settings-value">
+                    <span id="settingsCreatedAt">{{t:settings.profile.loading}}</span>
+                </div>
             </div>
-        </div>
-        <div class="settings-row">
-            <div class="settings-label">
-                <span class="label-icon">
-                    <i class="ph-bold ph-calendar-blank"></i>
-                </span>
-                <span class="label-text">{{t:settings.profile.createdAt}}</span>
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span class="label-icon">
+                        <i class="ph-bold ph-clock"></i>
+                    </span>
+                    <span class="label-text">{{t:settings.profile.lastLogin}}</span>
+                </div>
+                <div class="settings-value">
+                    <span id="settingsLastLogin">{{t:settings.profile.loading}}</span>
+                </div>
             </div>
-            <div class="settings-value">
-                <span id="settingsCreatedAt">{{t:settings.profile.loading}}</span>
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span class="label-icon">
+                        <i class="ph-bold ph-wallet"></i>
+                    </span>
+                    <span class="label-text">{{t:settings.profile.wallet}}</span>
+                </div>
+                <div class="settings-value">
+                    <span id="settingsWallet">$0.00</span>
+                </div>
             </div>
-        </div>
-        <div class="settings-row">
-            <div class="settings-label">
-                <span class="label-icon">
-                    <i class="ph-bold ph-clock"></i>
-                </span>
-                <span class="label-text">{{t:settings.profile.lastLogin}}</span>
-            </div>
-            <div class="settings-value">
-                <span id="settingsLastLogin">{{t:settings.profile.loading}}</span>
+            <div class="settings-row">
+                <div class="settings-label">
+                    <span class="label-icon">
+                        <i class="ph-bold ph-crown"></i>
+                    </span>
+                    <span class="label-text">{{t:settings.profile.membership}}</span>
+                </div>
+                <div class="settings-value">
+                    <span class="badge badge-secondary" id="settingsMembership">{{t:settings.profile.membershipComingSoon}}</span>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Security -->
-<div class="section">
-    <h2 class="section-title">{{t:settings.security.title}}</h2>
-    <div class="settings-card">
-        <form id="changePasswordForm">
-            <div class="form-group-settings">
-                <label for="currentPassword">
-                    <span class="label-icon">
-                        <i class="ph-bold ph-lock"></i>
-                    </span>
-                    {{t:settings.security.currentPassword}}
-                </label>
-                <input type="password" id="currentPassword" placeholder="{{t:settings.security.currentPasswordPlaceholder}}" required>
-            </div>
-            <div class="form-group-settings">
-                <label for="newPassword">
-                    <span class="label-icon">
-                        <i class="ph-bold ph-key"></i>
-                    </span>
-                    {{t:settings.security.newPassword}}
-                </label>
-                <input type="password" id="newPassword" placeholder="{{t:settings.security.newPasswordPlaceholder}}" required minlength="8">
-                <small class="form-hint-settings">{{t:settings.security.newPasswordHint}}</small>
-            </div>
-            <div class="form-group-settings">
-                <label for="confirmNewPassword">
-                    <span class="label-icon">
-                        <i class="ph-bold ph-key"></i>
-                    </span>
-                    {{t:settings.security.confirmPassword}}
-                </label>
-                <input type="password" id="confirmNewPassword" placeholder="{{t:settings.security.confirmPasswordPlaceholder}}" required>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <span class="btn-icon">
-                        <i class="ph-bold ph-floppy-disk"></i>
-                    </span>
-                    {{t:settings.security.changePasswordBtn}}
-                </button>
-            </div>
-        </form>
+    <!-- Security -->
+    <div class="section">
+        <h2 class="section-title">{{t:settings.security.title}}</h2>
+        <div class="settings-card">
+            <form id="changePasswordForm">
+                <div class="form-group-settings">
+                    <label for="currentPassword">
+                        <span class="label-icon">
+                            <i class="ph-bold ph-lock"></i>
+                        </span>
+                        {{t:settings.security.currentPassword}}
+                    </label>
+                    <input type="password" id="currentPassword" placeholder="{{t:settings.security.currentPasswordPlaceholder}}" required>
+                </div>
+                <div class="form-group-settings">
+                    <label for="newPassword">
+                        <span class="label-icon">
+                            <i class="ph-bold ph-key"></i>
+                        </span>
+                        {{t:settings.security.newPassword}}
+                    </label>
+                    <input type="password" id="newPassword" placeholder="{{t:settings.security.newPasswordPlaceholder}}" required minlength="8">
+                    <small class="form-hint-settings">{{t:settings.security.newPasswordHint}}</small>
+                </div>
+                <div class="form-group-settings">
+                    <label for="confirmNewPassword">
+                        <span class="label-icon">
+                            <i class="ph-bold ph-key"></i>
+                        </span>
+                        {{t:settings.security.confirmPassword}}
+                    </label>
+                    <input type="password" id="confirmNewPassword" placeholder="{{t:settings.security.confirmPasswordPlaceholder}}" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-icon">
+                            <i class="ph-bold ph-floppy-disk"></i>
+                        </span>
+                        {{t:settings.security.changePasswordBtn}}
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

@@ -5,8 +5,6 @@ const {
     addProxy, 
     deleteProxy, 
     getProxyStats,
-    updateProxyMethod,
-    saveWebshareApiKey,
     syncWebshareProxies
 } = require('../controllers/proxiesController');
 const { authenticateToken } = require('../middleware/auth');
@@ -25,12 +23,6 @@ router.delete('/:proxyId', deleteProxy);
 
 // Get proxy statistics
 router.get('/stats', getProxyStats);
-
-// Update proxy method (manual or webshare)
-router.put('/method', updateProxyMethod);
-
-// Save Webshare API key
-router.post('/webshare/api-key', saveWebshareApiKey);
 
 // Sync proxies from Webshare
 router.post('/webshare/sync', syncWebshareProxies);

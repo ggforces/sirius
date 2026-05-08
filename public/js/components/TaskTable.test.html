@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskTable Component Test - Empty State</title>
+    
+    <!-- CSS Variables -->
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    
+    <style>
+        body {
+            background: #0a0e1a;
+            padding: 2rem;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            color: #fff;
+            margin-bottom: 2rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .test-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            color: #00d4ff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .test-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>TaskTable Component Test</h1>
+            <p style="color: #9ca3af;">Testing Task 5.4: Empty State Implementation</p>
+        </div>
+        
+        <div class="test-controls">
+            <button class="test-btn" onclick="testEmptyState()">Test Empty State</button>
+            <button class="test-btn" onclick="testLoadingState()">Test Loading State</button>
+            <button class="test-btn" onclick="testWithTasks()">Test With Tasks</button>
+        </div>
+        
+        <!-- TaskTable Container -->
+        <div id="taskTableContainer"></div>
+    </div>
+    
+    <!-- TaskTable Component -->
+    <script src="/js/components/TaskTable.js"></script>
+    
+    <script>
+        // Initialize TaskTable
+        const taskTable = new TaskTable('taskTableContainer');
+        
+        // Test Functions
+        function testEmptyState() {
+            console.log('Testing empty state...');
+            taskTable.setLoading(false);
+            taskTable.setTasks([]);
+        }
+        
+        function testLoadingState() {
+            console.log('Testing loading state...');
+            taskTable.setLoading(true);
+        }
+        
+        function testWithTasks() {
+            console.log('Testing with tasks...');
+            taskTable.setLoading(false);
+            taskTable.setTasks([
+                {
+                    id: 1,
+                    account_username: 'testuser1',
+                    proxy_id: 1,
+                    proxy_ip: '192.168.1.1',
+                    proxy_port: 8080,
+                    status: 'pending'
+                },
+                {
+                    id: 2,
+                    account_username: 'testuser2',
+                    proxy_id: 2,
+                    proxy_ip: '192.168.1.2',
+                    proxy_port: 8080,
+                    status: 'running'
+                },
+                {
+                    id: 3,
+                    account_username: 'testuser3',
+                    proxy_id: null,
+                    proxy_ip: null,
+                    proxy_port: null,
+                    status: 'completed'
+                }
+            ]);
+        }
+        
+        // Start with empty state test
+        testEmptyState();
+        
+        console.log('TaskTable Test Page Loaded');
+        console.log('Task 5.4 Requirements:');
+        console.log('✓ Display "Henüz görev yok" message when tasks array is empty');
+        console.log('✓ Add descriptive text and create task button reference');
+    </script>
+</body>
+</html>

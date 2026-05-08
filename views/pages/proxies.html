@@ -1,22 +1,20 @@
-<!-- Proxy Method Selection -->
+<!-- Unified Proxy Management -->
 <div class="section">
     <div class="section-header">
         <h2 class="section-title">{{t:proxies.title}}</h2>
-        <div class="proxy-method-selector">
-            <button class="method-btn" id="manualMethodBtn" data-method="manual">
-                <i class="ph-bold ph-pencil-simple"></i>
-                {{t:proxies.method.manual}}
+        <div class="section-actions">
+            <button class="btn btn-primary" id="addProxyBtn">
+                <i class="ph-bold ph-plus"></i>
+                {{t:proxies.actions.addProxy}}
             </button>
-            <button class="method-btn" id="webshareMethodBtn" data-method="webshare">
-                <i class="ph-bold ph-cloud"></i>
-                {{t:proxies.method.webshare}}
+            <button class="btn btn-secondary" id="importWebshareBtn">
+                <i class="ph-bold ph-cloud-arrow-down"></i>
+                {{t:proxies.actions.importWebshare}}
             </button>
         </div>
     </div>
-</div>
 
-<!-- Proxy Statistics -->
-<div class="section">
+    <!-- Proxy Statistics -->
     <div class="stats-grid stats-grid-proxies">
         <div class="stat-card">
             <div class="stat-icon">
@@ -61,12 +59,6 @@
 <div class="section" id="manualProxySection">
     <div class="section-header">
         <h3 class="section-subtitle">{{t:proxies.manual.title}}</h3>
-        <button class="btn btn-primary" id="addProxyBtn">
-            <span class="btn-icon">
-                <i class="ph-bold ph-plus"></i>
-            </span>
-            {{t:proxies.manual.addProxy}}
-        </button>
     </div>
     
     <!-- Proxy List -->
@@ -110,59 +102,7 @@
     </div>
 </div>
 
-<!-- Webshare Section -->
-<div class="section" id="webshareSection" style="display: none;">
-    <h3 class="section-subtitle">{{t:proxies.webshare.title}}</h3>
-    
-    <!-- Info Box -->
-    <div class="webshare-info-box">
-        <div class="info-box-header">
-            <div class="info-box-icon">
-                <i class="ph-bold ph-info"></i>
-            </div>
-            <h4 class="info-box-title">{{t:proxies.webshare.infoBox.title}}</h4>
-        </div>
-        <p class="info-box-text">{{t:proxies.webshare.infoBox.description}}</p>
-        <a href="https://www.webshare.io/?referral_code=your_code" target="_blank" rel="noopener" class="info-box-link">
-            <i class="ph-bold ph-arrow-square-out"></i>
-            {{t:proxies.webshare.infoBox.linkText}}
-        </a>
-    </div>
-    
-    <!-- API Key Form -->
-    <div class="webshare-card">
-        <form id="webshareApiKeyForm">
-            <div class="webshare-form-group">
-                <label for="webshareApiKey" class="webshare-label">
-                    <i class="ph-bold ph-key"></i>
-                    {{t:proxies.webshare.apiKeyLabel}}
-                </label>
-                <div class="webshare-input-wrapper">
-                    <input 
-                        type="password" 
-                        id="webshareApiKey" 
-                        class="webshare-input"
-                        placeholder="{{t:proxies.webshare.apiKeyPlaceholder}}" 
-                        autocomplete="off"
-                    >
-                </div>
-                <small class="webshare-hint" id="webshareApiKeyStatus">
-                    {{t:proxies.webshare.apiKeyStatusNotSaved}}
-                </small>
-            </div>
-            <div class="webshare-actions">
-                <button type="submit" class="btn btn-primary btn-webshare">
-                    <i class="ph-bold ph-floppy-disk"></i>
-                    <span>{{t:proxies.webshare.saveBtn}}</span>
-                </button>
-                <button type="button" class="btn btn-success btn-webshare" id="syncWebshareBtn">
-                    <i class="ph-bold ph-arrows-clockwise"></i>
-                    <span>{{t:proxies.webshare.syncBtn}}</span>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+
 
 <!-- Add/Edit Proxy Modal -->
 <div class="modal" id="proxyModal">
@@ -234,6 +174,46 @@
                     <button type="submit" class="btn btn-save" id="submitProxyBtn">
                         <i class="ph-bold ph-floppy-disk"></i>
                         <span>{{t:common.save}}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Webshare Import Modal -->
+<div class="modal" id="webshareImportModal">
+    <div class="modal-overlay" id="webshareImportModalOverlay"></div>
+    <div class="modal-content modal-compact">
+        <div class="modal-header">
+            <h3 class="modal-title">{{t:proxies.webshareImport.title}}</h3>
+        </div>
+        <div class="modal-body">
+            <form id="webshareImportForm" class="compact-form">
+                <div class="form-row">
+                    <label for="webshareApiKeyInput">
+                        <i class="ph-bold ph-key"></i>
+                        {{t:proxies.webshareImport.apiKeyLabel}}
+                    </label>
+                    <input 
+                        type="password" 
+                        id="webshareApiKeyInput" 
+                        placeholder="{{t:proxies.webshareImport.apiKeyPlaceholder}}"
+                        required
+                        minlength="20"
+                        autocomplete="off"
+                    >
+                    <small class="form-hint">
+                        {{t:proxies.webshareImport.hint}}
+                    </small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelWebshareImportBtn">
+                        {{t:common.cancel}}
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitWebshareImportBtn">
+                        <i class="ph-bold ph-cloud-arrow-down"></i>
+                        {{t:proxies.webshareImport.importBtn}}
                     </button>
                 </div>
             </form>

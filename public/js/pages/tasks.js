@@ -2,69 +2,208 @@
 class TasksManager {
     constructor() {
         this.accounts = [];
-        this.selectedAccounts = new Set();
-        this.isChecking = false;
+        this.taskCreationModal = null;
+        this.logViewerModal = null;
+        this.taskTable = null;
+        this.pollingInterval = null;
+        this.pollingFailureCount = 0;
+        this.maxPollingFailures = 3;
         this.init();
     }
 
     init() {
+        this.initializeTaskCreationModal();
+        this.initializeLogViewerModal();
+        this.initializeTaskTable();
         this.bindEvents();
         this.loadAccounts();
     }
 
-    bindEvents() {
-        // Bulk check button
-        document.getElementById('bulkCheckBtn')?.addEventListener('click', () => {
-            this.openBulkCheckModal();
-        });
-
-        // Refresh accounts button
-        document.getElementById('refreshAccountsBtn')?.addEventListener('click', () => {
+    initializeTaskCreationModal() {
+        // Initialize TaskCreationModal component
+        this.taskCreationModal = new TaskCreationModal('taskCreationModal');
+        
+        // Set callback for when task is created
+        this.taskCreationModal.onTaskCreated = (data) => {
+            console.log('Task created:', data);
+            // Refresh task table to show the new task
+            if (this.taskTable) {
+                this.loadTasks();
+            }
+            // Also refresh accounts list to show updated status
             this.loadAccounts();
+        };
+    }
+
+    initializeLogViewerModal() {
+        // Initialize LogViewerModal component
+        this.logViewerModal = new LogViewerModal('logViewerModal');
+    }
+
+    initializeTaskTable() {
+        // Initialize TaskTable component if container exists
+        const taskTableContainer = document.getElementById('taskTableContainer');
+        if (taskTableContainer) {
+            this.taskTable = new TaskTable('taskTableContainer');
+            
+            // Wire log button click handler to open LogViewerModal
+            this.taskTable.onViewLogs = (taskId) => {
+                console.log('Opening log viewer for task:', taskId);
+                this.logViewerModal.open(taskId);
+            };
+            
+            // Load initial tasks
+            this.loadTasks();
+            
+            // Start polling for task updates every 5 seconds
+            this.startTaskPolling();
+        }
+    }
+    
+    async loadTasks() {
+        if (!this.taskTable) return;
+        
+        this.taskTable.setLoading(true);
+        
+        try {
+            const response = await fetch('/api/tasks/tasks', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            // Handle HTTP errors
+            if (!response.ok) {
+                let errorMessage = window.t('tasks.notifications.tasksLoadError');
+                
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (parseError) {
+                    errorMessage = `${window.t('tasks.notifications.serverError')}: ${response.status}`;
+                }
+                
+                throw new Error(errorMessage);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.taskTable.setTasks(data.tasks || []);
+                // Reset failure count on success
+                this.pollingFailureCount = 0;
+            } else {
+                throw new Error(data.message || 'Failed to load tasks');
+            }
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+            
+            // Increment failure count
+            this.pollingFailureCount++;
+            
+            // Show notification after 3 consecutive failures
+            if (this.pollingFailureCount >= this.maxPollingFailures) {
+                // Determine error type for better messaging
+                let errorMessage = window.t('tasks.notifications.tasksLoadError');
+                
+                if (error instanceof TypeError && error.message.includes('fetch')) {
+                    errorMessage = window.t('tasks.notifications.connectionError');
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                // Show notification with retry option
+                this.showPollingErrorNotification(errorMessage);
+                
+                // Reset counter to avoid spamming notifications
+                this.pollingFailureCount = 0;
+            }
+            
+            // Don't clear tasks on error - keep showing last successful data
+            // this.taskTable.setTasks([]);
+        } finally {
+            this.taskTable.setLoading(false);
+        }
+    }
+    
+    /**
+     * Show polling error notification with manual retry option
+     * @param {string} errorMessage - Error message to display
+     */
+    showPollingErrorNotification(errorMessage) {
+        // Remove existing notification if any
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        // Create notification element with retry button
+        const notification = document.createElement('div');
+        notification.className = 'notification notification-error notification-with-action';
+        
+        const messageSpan = document.createElement('span');
+        messageSpan.textContent = errorMessage;
+        
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'notification-retry-btn';
+        retryBtn.textContent = window.t('tasks.notifications.retryNow');
+        retryBtn.onclick = () => {
+            notification.remove();
+            this.loadTasks();
+        };
+        
+        notification.appendChild(messageSpan);
+        notification.appendChild(retryBtn);
+        
+        // Add to body
+        document.body.appendChild(notification);
+        
+        // Trigger animation
+        setTimeout(() => notification.classList.add('show'), 10);
+        
+        // Remove after 7 seconds (longer for error notifications)
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 7000);
+    }
+    
+    startTaskPolling() {
+        // Poll every 5 seconds for task updates
+        this.pollingInterval = setInterval(() => {
+            this.loadTasks();
+        }, 5000);
+    }
+    
+    stopTaskPolling() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+        }
+    }
+
+    bindEvents() {
+        // Create task button
+        document.getElementById('createTaskBtn')?.addEventListener('click', () => {
+            this.openTaskCreationModal();
         });
 
-        // Modal events
-        document.getElementById('closeBulkCheckModal')?.addEventListener('click', () => {
-            this.closeBulkCheckModal();
-        });
-
-        document.getElementById('cancelBulkCheck')?.addEventListener('click', () => {
-            this.closeBulkCheckModal();
-        });
-
-        document.getElementById('startBulkCheck')?.addEventListener('click', () => {
-            this.startBulkCheck();
-        });
-
-        // Select all checkbox
-        document.getElementById('selectAllAccounts')?.addEventListener('change', (e) => {
-            this.toggleSelectAll(e.target.checked);
-        });
-
-        // Close modal on outside click
-        document.getElementById('bulkCheckModal')?.addEventListener('click', (e) => {
-            if (e.target.id === 'bulkCheckModal') {
-                this.closeBulkCheckModal();
+        // Refresh tasks button
+        document.getElementById('refreshTasksBtn')?.addEventListener('click', () => {
+            if (this.taskTable) {
+                this.loadTasks();
             }
         });
 
-        // Close modal on overlay click
-        document.getElementById('bulkCheckModalOverlay')?.addEventListener('click', () => {
-            this.closeBulkCheckModal();
+        // Refresh accounts button (legacy)
+        document.getElementById('refreshAccountsBtn')?.addEventListener('click', () => {
+            this.loadAccounts();
         });
     }
 
     async loadAccounts() {
-        const container = document.getElementById('accountsContainer');
-        const loading = document.getElementById('accountsLoading');
-        const empty = document.getElementById('accountsEmpty');
-        const grid = document.getElementById('accountsGrid');
-
-        // Show loading state
-        loading.style.display = 'flex';
-        empty.style.display = 'none';
-        grid.style.display = 'none';
-
+        // Simply load accounts data without rendering
+        // This is kept for backward compatibility with account check buttons if they exist
         try {
             const response = await fetch('/api/tasks/accounts', {
                 headers: {
@@ -72,88 +211,66 @@ class TasksManager {
                 }
             });
 
+            // Handle HTTP errors
+            if (!response.ok) {
+                let errorMessage = window.t('tasks.notifications.accountsLoadFailed');
+                
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (parseError) {
+                    errorMessage = `${window.t('tasks.notifications.serverError')}: ${response.status}`;
+                }
+                
+                throw new Error(errorMessage);
+            }
+
             const data = await response.json();
 
             if (data.success) {
-                this.accounts = data.accounts;
-                
-                if (this.accounts.length === 0) {
-                    loading.style.display = 'none';
-                    empty.style.display = 'flex';
-                } else {
-                    loading.style.display = 'none';
-                    grid.style.display = 'grid';
-                    this.renderAccounts();
-                }
+                this.accounts = data.accounts || [];
             } else {
                 throw new Error(data.message);
             }
         } catch (error) {
             console.error('Error loading accounts:', error);
-            window.showNotification('Hesaplar yüklenirken hata oluştu: ' + error.message, 'error');
-            loading.style.display = 'none';
-            empty.style.display = 'flex';
+            
+            let errorMessage = window.t('tasks.notifications.accountsLoadFailed');
+            
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                errorMessage = window.t('tasks.notifications.connectionError');
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            // Don't show notification for account loading errors in new design
+            // Accounts are loaded in TaskCreationModal when needed
+            console.warn('Account loading failed:', errorMessage);
         }
     }
 
     renderAccounts() {
-        const grid = document.getElementById('accountsGrid');
-        
-        grid.innerHTML = this.accounts.map(account => `
-            <div class="account-card" data-account-id="${account.id}">
-                <div class="account-card-header">
-                    <div class="account-username">${account.username}</div>
-                    <div class="account-status ${account.last_checked_at ? 'checked' : 'unchecked'}">
-                        ${account.last_checked_at ? 'Kontrol Edildi' : 'Kontrol Edilmedi'}
-                    </div>
-                </div>
-                <div class="account-info">
-                    <div class="account-info-item">
-                        <div class="account-info-label">Steam ID</div>
-                        <div class="account-info-value">${account.steamid || 'Bilinmiyor'}</div>
-                    </div>
-                    <div class="account-info-item">
-                        <div class="account-info-label">Prime Status</div>
-                        <div class="account-info-value">${account.is_prime ? 'Prime' : 'Non-Prime'}</div>
-                    </div>
-                    <div class="account-info-item">
-                        <div class="account-info-label">Limited</div>
-                        <div class="account-info-value">${this.getLimitedText(account.limited)}</div>
-                    </div>
-                    <div class="account-info-item">
-                        <div class="account-info-label">Cüzdan</div>
-                        <div class="account-info-value">${account.wallet_balance || 0} ${account.wallet_currency || 'USD'}</div>
-                    </div>
-                </div>
-                <div class="account-actions">
-                    <button class="account-check-btn" onclick="tasksManager.checkSingleAccount(${account.id})">
-                        <span class="btn-icon">🔍</span>
-                        Kontrol Et
-                    </button>
-                    <button class="account-inventory-btn" onclick="tasksManager.viewInventory(${account.id})">
-                        <span class="btn-icon">📦</span>
-                        Envanter
-                    </button>
-                </div>
-            </div>
-        `).join('');
+        // Legacy function - no longer used in new task-centric design
+        // Accounts are now loaded in TaskCreationModal when needed
+        console.log('renderAccounts called (legacy function, no-op in new design)');
     }
 
     getLimitedText(limited) {
-        if (limited === null) return 'Bilinmiyor';
-        if (limited === 0) return 'Unlimited';
-        if (limited === 1) return 'Limited';
-        if (limited === 2) return 'Limited (Wallet)';
-        return 'Bilinmiyor';
+        if (limited === null) return window.t('tasks.card.unknown');
+        if (limited === 0) return window.t('tasks.card.unlimited');
+        if (limited === 1) return window.t('tasks.card.limited');
+        if (limited === 2) return window.t('tasks.card.limitedWallet');
+        return window.t('tasks.card.unknown');
+    }
+
+    openTaskCreationModal() {
+        if (this.taskCreationModal) {
+            this.taskCreationModal.open();
+        }
     }
 
     async checkSingleAccount(accountId) {
-        const button = document.querySelector(`[data-account-id="${accountId}"] .account-check-btn`);
-        const originalText = button.innerHTML;
-        
-        button.disabled = true;
-        button.innerHTML = '<span class="btn-icon">⏳</span> Kontrol Ediliyor...';
-
+        // Legacy function - kept for backward compatibility if account cards exist
         try {
             const response = await fetch(`/api/tasks/check/${accountId}`, {
                 method: 'POST',
@@ -163,17 +280,45 @@ class TasksManager {
                 }
             });
 
+            // Handle HTTP errors
+            if (!response.ok) {
+                let errorMessage = window.t('tasks.notifications.accountCheckFailed');
+                
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (parseError) {
+                    errorMessage = `${window.t('tasks.notifications.serverError')}: ${response.status}`;
+                }
+                
+                throw new Error(errorMessage);
+            }
+
             const data = await response.json();
 
             if (data.success) {
-                window.showNotification('Hesap başarıyla kontrol edildi', 'success');
+                window.showNotification(window.t('tasks.notifications.accountCheckSuccess'), 'success');
                 this.loadAccounts(); // Refresh the accounts list
+                
+                // Also refresh task table if it exists
+                if (this.taskTable) {
+                    this.loadTasks();
+                }
             } else {
                 throw new Error(data.message);
             }
         } catch (error) {
             console.error('Error checking account:', error);
-            window.showNotification('Hesap kontrol edilirken hata oluştu: ' + error.message, 'error');
+            
+            let errorMessage = window.t('tasks.notifications.accountCheckFailed');
+            
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                errorMessage = window.t('tasks.notifications.connectionError');
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            window.showNotification(errorMessage, 'error');
         } finally {
             button.disabled = false;
             button.innerHTML = originalText;
@@ -188,6 +333,70 @@ class TasksManager {
                 }
             });
 
+            // Handle HTTP errors
+            if (!response.ok) {
+                let errorMessage = window.t('tasks.notifications.inventoryLoadFailed');
+                
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (parseError) {
+                    errorMessage = `${window.t('tasks.notifications.serverError')}: ${response.status}`;
+                }
+                
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.showNotification(window.t('tasks.notifications.accountCheckSuccess'), 'success');
+                
+                // Refresh task table if it exists
+                if (this.taskTable) {
+                    this.loadTasks();
+                }
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (error) {
+            console.error('Error checking account:', error);
+            
+            let errorMessage = window.t('tasks.notifications.accountCheckFailed');
+            
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                errorMessage = window.t('tasks.notifications.connectionError');
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            window.showNotification(errorMessage, 'error');
+        }
+    }
+
+    async viewInventory(accountId) {
+        // Legacy function - kept for backward compatibility
+        try {
+            const response = await fetch(`/api/tasks/inventory/${accountId}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            // Handle HTTP errors
+            if (!response.ok) {
+                let errorMessage = window.t('tasks.notifications.inventoryLoadFailed');
+                
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch (parseError) {
+                    errorMessage = `${window.t('tasks.notifications.serverError')}: ${response.status}`;
+                }
+                
+                throw new Error(errorMessage);
+            }
+
             const data = await response.json();
 
             if (data.success) {
@@ -197,303 +406,26 @@ class TasksManager {
             }
         } catch (error) {
             console.error('Error loading inventory:', error);
-            window.showNotification('Envanter yüklenirken hata oluştu: ' + error.message, 'error');
+            
+            let errorMessage = window.t('tasks.notifications.inventoryLoadFailed');
+            
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                errorMessage = window.t('tasks.notifications.connectionError');
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            window.showNotification(errorMessage, 'error');
         }
     }
 
     showInventoryModal(inventory) {
         // Create a simple inventory display
         const inventoryText = inventory.length > 0 
-            ? inventory.map(item => `${item.market_hash_name || 'Unknown Item'} (Context: ${item.context})`).join('\n')
-            : 'Envanter boş';
+            ? inventory.map(item => `${item.market_hash_name || window.t('tasks.inventory.unknownItem')} (Context: ${item.context})`).join('\n')
+            : window.t('tasks.inventory.empty');
         
-        alert(`Envanter:\n\n${inventoryText}`);
-    }
-
-    openBulkCheckModal() {
-        if (this.accounts.length === 0) {
-            window.showNotification('Kontrol edilecek hesap bulunamadı', 'warning');
-            return;
-        }
-
-        this.selectedAccounts.clear();
-        this.renderBulkAccountsList();
-        this.updateSelectedCount();
-        this.resetBulkCheckModal();
-        
-        document.getElementById('bulkCheckModal').style.display = 'block';
-    }
-
-    closeBulkCheckModal() {
-        document.getElementById('bulkCheckModal').style.display = 'none';
-        this.selectedAccounts.clear();
-        this.isChecking = false;
-    }
-
-    resetBulkCheckModal() {
-        // Show account selection step
-        document.getElementById('selectAccountsStep').style.display = 'block';
-        document.getElementById('checkProgressStep').style.display = 'none';
-        document.getElementById('checkResultsStep').style.display = 'none';
-        
-        // Reset buttons
-        document.getElementById('cancelBulkCheck').style.display = 'inline-block';
-        document.getElementById('startBulkCheck').style.display = 'inline-block';
-        document.getElementById('startBulkCheck').textContent = 'Kontrolü Başlat';
-    }
-
-    renderBulkAccountsList() {
-        const list = document.getElementById('bulkAccountsList');
-        
-        list.innerHTML = this.accounts.map(account => `
-            <div class="bulk-account-item" onclick="tasksManager.toggleAccountSelection(${account.id})">
-                <label class="checkbox-container">
-                    <input type="checkbox" data-account-id="${account.id}">
-                    <span class="checkmark"></span>
-                </label>
-                <div class="bulk-account-info">
-                    <div class="bulk-account-username">${account.username}</div>
-                    <div class="bulk-account-details">
-                        ${account.steamid || 'Steam ID bilinmiyor'} • 
-                        ${account.last_checked_at ? 'Son kontrol: ' + new Date(account.last_checked_at).toLocaleDateString('tr-TR') : 'Hiç kontrol edilmedi'}
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    toggleAccountSelection(accountId) {
-        const checkbox = document.querySelector(`input[data-account-id="${accountId}"]`);
-        
-        if (this.selectedAccounts.has(accountId)) {
-            this.selectedAccounts.delete(accountId);
-            checkbox.checked = false;
-        } else {
-            this.selectedAccounts.add(accountId);
-            checkbox.checked = true;
-        }
-        
-        this.updateSelectedCount();
-        this.updateSelectAllCheckbox();
-    }
-
-    toggleSelectAll(selectAll) {
-        this.selectedAccounts.clear();
-        
-        if (selectAll) {
-            this.accounts.forEach(account => {
-                this.selectedAccounts.add(account.id);
-            });
-        }
-        
-        // Update all checkboxes
-        document.querySelectorAll('#bulkAccountsList input[type="checkbox"]').forEach(checkbox => {
-            checkbox.checked = selectAll;
-        });
-        
-        this.updateSelectedCount();
-    }
-
-    updateSelectAllCheckbox() {
-        const selectAllCheckbox = document.getElementById('selectAllAccounts');
-        const totalAccounts = this.accounts.length;
-        const selectedCount = this.selectedAccounts.size;
-        
-        selectAllCheckbox.checked = selectedCount === totalAccounts && totalAccounts > 0;
-        selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalAccounts;
-    }
-
-    updateSelectedCount() {
-        document.getElementById('selectedCount').textContent = `${this.selectedAccounts.size} hesap seçildi`;
-        
-        // Enable/disable start button
-        const startButton = document.getElementById('startBulkCheck');
-        startButton.disabled = this.selectedAccounts.size === 0;
-    }
-
-    async startBulkCheck() {
-        if (this.selectedAccounts.size === 0) {
-            window.showNotification('Lütfen kontrol edilecek hesapları seçin', 'warning');
-            return;
-        }
-
-        this.isChecking = true;
-        
-        // Switch to progress step
-        document.getElementById('selectAccountsStep').style.display = 'none';
-        document.getElementById('checkProgressStep').style.display = 'block';
-        document.getElementById('cancelBulkCheck').style.display = 'none';
-        document.getElementById('startBulkCheck').style.display = 'none';
-
-        const selectedAccountIds = Array.from(this.selectedAccounts);
-        
-        try {
-            const response = await fetch('/api/tasks/check-bulk', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    accountIds: selectedAccountIds
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                // Tasks created, start polling for status
-                window.showNotification(`${data.accountCount} hesap için task oluşturuldu`, 'success');
-                this.pollTaskStatus(data.taskIds);
-            } else {
-                throw new Error(data.message);
-            }
-        } catch (error) {
-            console.error('Error in bulk check:', error);
-            window.showNotification('Toplu kontrol sırasında hata oluştu: ' + error.message, 'error');
-            this.closeBulkCheckModal();
-        }
-    }
-
-    async pollTaskStatus(taskIds) {
-        const pollInterval = 2000; // Poll every 2 seconds
-        const maxPolls = 300; // Max 10 minutes (300 * 2s = 600s)
-        let pollCount = 0;
-        
-        const poll = async () => {
-            pollCount++;
-            
-            if (pollCount > maxPolls) {
-                window.showNotification('Task kontrolü zaman aşımına uğradı', 'error');
-                this.closeBulkCheckModal();
-                return;
-            }
-            
-            try {
-                // Get all task statuses
-                const response = await fetch('/api/tasks/tasks', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.message);
-                }
-                
-                // Filter tasks by our taskIds
-                const ourTasks = data.tasks.filter(task => taskIds.includes(task.id));
-                
-                // Count statuses
-                const pending = ourTasks.filter(t => t.status === 'pending').length;
-                const running = ourTasks.filter(t => t.status === 'running').length;
-                const completed = ourTasks.filter(t => t.status === 'completed').length;
-                const failed = ourTasks.filter(t => t.status === 'failed').length;
-                const timeout = ourTasks.filter(t => t.status === 'timeout').length;
-                
-                const total = ourTasks.length;
-                const finished = completed + failed + timeout;
-                
-                // Update progress display
-                const progressText = document.querySelector('#checkProgressStep p');
-                if (progressText) {
-                    progressText.textContent = `${finished} / ${total} hesap kontrol edildi (Bekleyen: ${pending}, İşleniyor: ${running})`;
-                }
-                
-                // Check if all tasks are finished
-                if (finished === total) {
-                    // All tasks completed, show results
-                    const results = ourTasks
-                        .filter(t => t.status === 'completed')
-                        .map(t => ({
-                            username: t.account_username,
-                            result: typeof t.result === 'string' ? JSON.parse(t.result) : t.result
-                        }));
-                    
-                    const errors = ourTasks
-                        .filter(t => t.status === 'failed' || t.status === 'timeout')
-                        .map(t => ({
-                            username: t.account_username,
-                            error: t.error || 'Bilinmeyen hata'
-                        }));
-                    
-                    this.showBulkCheckResults(results, errors);
-                } else {
-                    // Continue polling
-                    setTimeout(poll, pollInterval);
-                }
-            } catch (error) {
-                console.error('Error polling task status:', error);
-                window.showNotification('Task durumu kontrol edilirken hata oluştu', 'error');
-                this.closeBulkCheckModal();
-            }
-        };
-        
-        // Start polling
-        poll();
-    }
-
-    showBulkCheckResults(results, errors) {
-        // Switch to results step
-        document.getElementById('checkProgressStep').style.display = 'none';
-        document.getElementById('checkResultsStep').style.display = 'block';
-        
-        // Show close button
-        document.getElementById('cancelBulkCheck').style.display = 'inline-block';
-        document.getElementById('cancelBulkCheck').textContent = 'Kapat';
-
-        // Render results summary
-        const summary = document.getElementById('resultsSummary');
-        const totalChecked = results.length;
-        const totalErrors = errors.length;
-        
-        summary.innerHTML = `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-                <div style="text-align: center;">
-                    <div style="font-size: 1.5rem; color: #22c55e; font-weight: bold;">${totalChecked}</div>
-                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Başarılı</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 1.5rem; color: #ef4444; font-weight: bold;">${totalErrors}</div>
-                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Hatalı</div>
-                </div>
-            </div>
-            
-            ${results.length > 0 ? `
-                <h5 style="color: var(--text-primary); margin: 1rem 0 0.5rem 0;">Başarılı Kontroller:</h5>
-                ${results.map(result => `
-                    <div class="result-item">
-                        <div class="result-info">
-                            <div class="result-username">${result.username}</div>
-                            <div class="result-details">
-                                Prime: ${result.result.isPrime ? 'Evet' : 'Hayır'} • 
-                                Limited: ${this.getLimitedText(result.result.limited)} • 
-                                Cüzdan: ${result.result.walletBalance || 0} ${result.result.walletCurrency || 'USD'}
-                            </div>
-                        </div>
-                        <div class="result-status success">Başarılı</div>
-                    </div>
-                `).join('')}
-            ` : ''}
-            
-            ${errors.length > 0 ? `
-                <h5 style="color: var(--text-primary); margin: 1rem 0 0.5rem 0;">Hatalar:</h5>
-                ${errors.map(error => `
-                    <div class="result-item">
-                        <div class="result-info">
-                            <div class="result-username">${error.username}</div>
-                            <div class="result-details">${error.error}</div>
-                        </div>
-                        <div class="result-status error">Hata</div>
-                    </div>
-                `).join('')}
-            ` : ''}
-        `;
-
-        // Refresh accounts list
-        this.loadAccounts();
+        alert(`${window.t('tasks.inventory.title')}:\n\n${inventoryText}`);
     }
 }
 
@@ -508,3 +440,10 @@ if (document.readyState === 'loading') {
 } else {
     tasksManager = new TasksManager();
 }
+
+// Cleanup when page is unloaded
+window.addEventListener('beforeunload', () => {
+    if (tasksManager) {
+        tasksManager.stopTaskPolling();
+    }
+});

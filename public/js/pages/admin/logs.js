@@ -149,4 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reload on filter change
     document.getElementById('logLevel').addEventListener('change', loadLogs);
     document.getElementById('logLimit').addEventListener('change', loadLogs);
+    
+    // Button event listeners
+    document.getElementById('refreshLogsBtn')?.addEventListener('click', loadLogs);
+    document.getElementById('autoRefreshBtn')?.addEventListener('click', toggleAutoRefresh);
+    document.getElementById('clearLogsBtn')?.addEventListener('click', clearLogsDisplay);
+    document.getElementById('exportLogsBtn')?.addEventListener('click', exportLogs);
 });

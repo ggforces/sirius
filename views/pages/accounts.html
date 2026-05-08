@@ -2,11 +2,21 @@
 <div class="section">
     <div class="section-header">
         <h2 class="section-title">{{t:accounts.title}}</h2>
-        <button class="btn btn-primary" id="addAccountBtn">
-            <span class="btn-icon">
-                <i class="ph-bold ph-plus"></i>
-            </span>
-            {{t:accounts.addAccount}}
+        <div class="section-actions">
+            <button class="btn btn-secondary" id="bulkAddAccountBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-upload-simple"></i>
+                </span>
+                {{t:accounts.bulkAdd}}
+            </button>
+            <button class="btn btn-primary" id="addAccountBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-plus"></i>
+                </span>
+                {{t:accounts.addAccount}}
+            </button>
+        </div>
+    </div>
         </button>
     </div>
 
@@ -16,16 +26,17 @@
             <thead>
                 <tr>
                     <th>{{t:accounts.table.username}}</th>
-                    <th>{{t:accounts.table.password}}</th>
-                    <th>{{t:accounts.table.sharedSecret}}</th>
-                    <th>{{t:accounts.table.identitySecret}}</th>
+                    <th>{{t:accounts.table.prime}}</th>
+                    <th>{{t:accounts.table.accountType}}</th>
+                    <th>{{t:accounts.table.wallet}}</th>
+                    <th>{{t:accounts.table.tradeBan}}</th>
                     <th>{{t:accounts.table.actions}}</th>
                 </tr>
             </thead>
             <tbody id="accountsTableBody">
                 <!-- Accounts will be loaded here -->
                 <tr class="loading-row">
-                    <td colspan="5" class="text-center">
+                    <td colspan="6" class="text-center">
                         <i class="ph-bold ph-circle-notch ph-spin"></i>
                         {{t:common.loading}}
                     </td>
@@ -146,6 +157,38 @@
                 </span>
                 {{t:common.delete}}
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Add Modal -->
+<div class="modal" id="bulkAddModal">
+    <div class="modal-overlay" id="bulkAddModalOverlay"></div>
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3 class="modal-title">{{t:accounts.bulkAdd}}</h3>
+        </div>
+        <div class="modal-body">
+            <form id="bulkAddForm">
+                <div class="form-row">
+                    <label for="bulkAccountsJson">
+                        <i class="ph-bold ph-file-text"></i>
+                        {{t:accounts.bulkAddLabel}}
+                    </label>
+                    <textarea 
+                        id="bulkAccountsJson" 
+                        rows="15"
+                        placeholder="{{t:accounts.bulkAddPlaceholder}}"
+                        required
+                    ></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBulkAddBtn">
+                        <i class="ph-bold ph-upload-simple"></i>
+                        <span id="submitBulkAddBtnText">{{t:accounts.bulkAddSubmit}}</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

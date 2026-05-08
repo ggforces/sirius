@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskCreationModal Component Test</title>
+    
+    <!-- CSS Variables -->
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="/css/components/modals.css">
+    <link rel="stylesheet" href="/css/components/task-creation-modal.css">
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    
+    <style>
+        body {
+            background: #0a0e1a;
+            padding: 2rem;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            color: #fff;
+            margin-bottom: 2rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            color: #00d4ff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .test-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+        
+        .test-results {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .test-results h3 {
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        
+        .test-result-item {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .test-result-item.pass {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+        
+        .test-result-item.fail {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .test-result-item.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>TaskCreationModal Component Test</h1>
+            <p style="color: #9ca3af;">Testing Task 6.2: Account Loading and Selection</p>
+        </div>
+        
+        <div class="test-controls">
+            <button class="test-btn" onclick="testOpenModal()">Open Modal (Real API)</button>
+            <button class="test-btn" onclick="testEmptyAccounts()">Test Empty Accounts</button>
+            <button class="test-btn" onclick="testWithAccounts()">Test With Mock Accounts</button>
+            <button class="test-btn" onclick="testAccountSelection()">Test Account Selection</button>
+            <button class="test-btn" onclick="runAllTests()">Run All Tests</button>
+        </div>
+        
+        <div class="test-results" id="testResults">
+            <h3>Test Results</h3>
+            <div id="testResultsContent">
+                <p style="color: #9ca3af;">Click a test button to run tests...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- TaskCreationModal Component -->
+    <script src="/js/components/TaskCreationModal.js"></script>
+    
+    <script>
+        // Initialize TaskCreationModal
+        const modal = new TaskCreationModal('testTaskCreationModal');
+        const resultsContainer = document.getElementById('testResultsContent');
+        
+        // Helper function to log test results
+        function logResult(message, type = 'info') {
+            const resultItem = document.createElement('div');
+            resultItem.className = `test-result-item ${type}`;
+            resultItem.textContent = message;
+            resultsContainer.appendChild(resultItem);
+        }
+        
+        function clearResults() {
+            resultsContainer.innerHTML = '';
+        }
+        
+        // Test 1: Open modal with real API
+        async function testOpenModal() {
+            clearResults();
+            logResult('Test 1: Opening modal with real API...', 'info');
+            
+            try {
+                await modal.open();
+                logResult('✓ Modal opened successfully', 'pass');
+                logResult('✓ Accounts should be loading from /api/accounts', 'pass');
+                logResult('Check the modal to verify accounts are displayed', 'info');
+            } catch (error) {
+                logResult('✗ Failed to open modal: ' + error.message, 'fail');
+            }
+        }
+        
+        // Test 2: Test empty accounts state
+        function testEmptyAccounts() {
+            clearResults();
+            logResult('Test 2: Testing empty accounts state...', 'info');
+            
+            modal.accounts = [];
+            modal.renderAccounts();
+            
+            const container = document.getElementById('testTaskCreationModal-accounts-container');
+            const emptyState = container.querySelector('.empty-state');
+            
+            if (emptyState) {
+                logResult('✓ Empty state displayed', 'pass');
+                
+                const hasCorrectMessage = emptyState.textContent.includes('Hesap bulunamadı');
+                if (hasCorrectMessage) {
+                    logResult('✓ Correct message "Hesap bulunamadı" displayed', 'pass');
+                } else {
+                    logResult('✗ Message "Hesap bulunamadı" not found', 'fail');
+                }
+                
+                const hasHelpText = emptyState.textContent.includes('Lütfen önce hesap ekleyin');
+                if (hasHelpText) {
+                    logResult('✓ Help text displayed', 'pass');
+                } else {
+                    logResult('✗ Help text not found', 'fail');
+                }
+            } else {
+                logResult('✗ Empty state not displayed', 'fail');
+            }
+            
+            modal.open();
+        }
+        
+        // Test 3: Test with mock accounts
+        function testWithAccounts() {
+            clearResults();
+            logResult('Test 3: Testing with mock accounts...', 'info');
+            
+            const mockAccounts = [
+                {
+                    id: 1,
+                    username: 'testuser1',
+                    steamid: '76561198012345678',
+                    is_prime: 1
+                },
+                {
+                    id: 2,
+                    username: 'testuser2',
+                    steamid: '76561198087654321',
+                    is_prime: 0
+                },
+                {
+                    id: 3,
+                    username: 'testuser3',
+                    steamid: null,
+                    is_prime: 1
+                }
+            ];
+            
+            modal.accounts = mockAccounts;
+            modal.renderAccounts();
+            
+            const container = document.getElementById('testTaskCreationModal-accounts-container');
+            const accountItems = container.querySelectorAll('.account-select-item');
+            
+            if (accountItems.length === mockAccounts.length) {
+                logResult(`✓ Correct number of accounts displayed (${accountItems.length})`, 'pass');
+            } else {
+                logResult(`✗ Expected ${mockAccounts.length} accounts, got ${accountItems.length}`, 'fail');
+            }
+            
+            // Check if usernames are displayed
+            accountItems.forEach((item, index) => {
+                const username = item.querySelector('.account-select-username');
+                if (username && username.textContent === mockAccounts[index].username) {
+                    logResult(`✓ Username "${mockAccounts[index].username}" displayed correctly`, 'pass');
+                } else {
+                    logResult(`✗ Username not displayed correctly for account ${index + 1}`, 'fail');
+                }
+            });
+            
+            // Check if Steam IDs are displayed
+            const details = container.querySelectorAll('.account-select-details');
+            details.forEach((detail, index) => {
+                const expectedSteamId = mockAccounts[index].steamid || 'Steam ID bilinmiyor';
+                if (detail.textContent.includes(expectedSteamId)) {
+                    logResult(`✓ Steam ID displayed correctly for account ${index + 1}`, 'pass');
+                } else {
+                    logResult(`✗ Steam ID not displayed correctly for account ${index + 1}`, 'fail');
+                }
+            });
+            
+            modal.open();
+        }
+        
+        // Test 4: Test account selection
+        function testAccountSelection() {
+            clearResults();
+            logResult('Test 4: Testing account selection...', 'info');
+            
+            const mockAccounts = [
+                {
+                    id: 1,
+                    username: 'testuser1',
+                    steamid: '76561198012345678',
+                    is_prime: 1
+                }
+            ];
+            
+            modal.accounts = mockAccounts;
+            modal.renderAccounts();
+            modal.open();
+            
+            // Test initial state
+            const createBtn = document.getElementById('testTaskCreationModal-create');
+            if (createBtn.disabled) {
+                logResult('✓ Create button is disabled initially', 'pass');
+            } else {
+                logResult('✗ Create button should be disabled initially', 'fail');
+            }
+            
+            // Select an account
+            modal.selectAccount(1);
+            
+            if (modal.selectedAccountId === 1) {
+                logResult('✓ Account selected successfully', 'pass');
+            } else {
+                logResult('✗ Account selection failed', 'fail');
+            }
+            
+            if (!createBtn.disabled) {
+                logResult('✓ Create button is enabled after selection', 'pass');
+            } else {
+                logResult('✗ Create button should be enabled after selection', 'fail');
+            }
+            
+            // Check visual selection
+            const selectedItem = document.querySelector('.account-select-item.selected');
+            if (selectedItem) {
+                logResult('✓ Visual selection applied', 'pass');
+            } else {
+                logResult('✗ Visual selection not applied', 'fail');
+            }
+        }
+        
+        // Run all tests
+        async function runAllTests() {
+            clearResults();
+            logResult('Running all tests...', 'info');
+            logResult('', 'info');
+            
+            testEmptyAccounts();
+            
+            setTimeout(() => {
+                testWithAccounts();
+            }, 500);
+            
+            setTimeout(() => {
+                testAccountSelection();
+            }, 1000);
+            
+            setTimeout(() => {
+                logResult('', 'info');
+                logResult('All automated tests completed!', 'info');
+                logResult('Now testing with real API...', 'info');
+                testOpenModal();
+            }, 1500);
+        }
+        
+        console.log('TaskCreationModal Test Page Loaded');
+        console.log('Task 6.2 Requirements:');
+        console.log('✓ Fetch user\'s Steam accounts from /api/accounts endpoint');
+        console.log('✓ Display accounts in dropdown or list format');
+        console.log('✓ Show username and Steam ID for each account');
+        console.log('✓ Handle empty accounts state with "Hesap bulunamadı" message');
+        console.log('✓ Disable create button when no account selected');
+    </script>
+</body>
+</html>

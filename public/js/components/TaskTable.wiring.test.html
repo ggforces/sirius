@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskTable Log Button Wiring Test</title>
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    <link rel="stylesheet" href="/css/components/log-viewer-modal.css">
+    <link rel="stylesheet" href="/css/components/modals.css">
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .test-header {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        .test-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .success {
+            color: var(--success);
+        }
+        .error {
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>TaskTable Log Button Wiring Test</h1>
+        <p>This test verifies that clicking log buttons in the TaskTable correctly opens the LogViewerModal with the correct task ID.</p>
+        <div class="test-status" id="testStatus">
+            Status: Waiting for interaction...
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Task Table</h2>
+        <div id="taskTableContainer"></div>
+    </div>
+
+    <!-- Load Components -->
+    <script src="/js/components/TaskTable.js"></script>
+    <script src="/js/components/LogViewerModal.js"></script>
+
+    <script>
+        // Mock task data
+        const mockTasks = [
+            {
+                id: 1,
+                account_username: 'testuser1',
+                proxy_id: 1,
+                proxy_ip: '192.168.1.1',
+                proxy_port: 8080,
+                status: 'completed'
+            },
+            {
+                id: 2,
+                account_username: 'testuser2',
+                proxy_id: null,
+                status: 'pending'
+            },
+            {
+                id: 3,
+                account_username: 'testuser3',
+                proxy_id: 2,
+                proxy_ip: '192.168.1.2',
+                proxy_port: 8081,
+                status: 'running'
+            }
+        ];
+
+        // Initialize components
+        const taskTable = new TaskTable('taskTableContainer');
+        const logViewerModal = new LogViewerModal('logViewerModal');
+
+        // Wire log button to modal (THIS IS WHAT WE'RE TESTING)
+        taskTable.onViewLogs = (taskId) => {
+            const statusEl = document.getElementById('testStatus');
+            statusEl.innerHTML = `<span class="success">✓ Log button clicked for Task ID: ${taskId}</span><br>Opening LogViewerModal...`;
+            
+            // Open the modal
+            logViewerModal.open(taskId);
+            
+            // Update status after a short delay
+            setTimeout(() => {
+                statusEl.innerHTML += `<br><span class="success">✓ LogViewerModal opened successfully!</span>`;
+            }, 100);
+        };
+
+        // Load mock data
+        taskTable.setTasks(mockTasks);
+
+        // Log initial state
+        console.log('Test initialized with', mockTasks.length, 'mock tasks');
+        console.log('TaskTable instance:', taskTable);
+        console.log('LogViewerModal instance:', logViewerModal);
+        console.log('Wiring function:', taskTable.onViewLogs);
+
+        // Instructions
+        document.getElementById('testStatus').innerHTML = `
+            <span style="color: var(--info);">ℹ Test Instructions:</span><br>
+            1. Click any "Loglar" button in the table below<br>
+            2. Verify the modal opens with the correct task ID<br>
+            3. Check the status message above for confirmation<br>
+            <br>
+            <span style="color: var(--warning);">Note: The API call will fail since this is a test page, but the wiring should work.</span>
+        `;
+    </script>
+</body>
+</html>

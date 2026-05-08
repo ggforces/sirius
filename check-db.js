@@ -9,8 +9,8 @@ console.log('\n=== SESSIONS ===');
 const sessions = db.prepare('SELECT user_id, expires_at FROM sessions').all();
 console.log(sessions);
 
-console.log('\n=== ACCOUNTS ===');
-const accounts = db.prepare('SELECT id, username FROM accounts').all();
+console.log('\n=== STEAM ACCOUNTS ===');
+const accounts = db.prepare('SELECT * FROM steam_accounts').all();
 console.log(accounts);
 
 db.close();

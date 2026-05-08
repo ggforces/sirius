@@ -239,9 +239,13 @@ const getUserTasks = (req, res) => {
         const { status } = req.query;
 
         let query = `
-            SELECT t.*, a.username as account_username
+            SELECT t.*, 
+                   a.username as account_username,
+                   p.ip as proxy_ip,
+                   p.port as proxy_port
             FROM tasks t
             LEFT JOIN steam_accounts a ON t.account_id = a.id
+            LEFT JOIN proxies p ON t.proxy_id = p.id
             WHERE t.user_id = ?
         `;
         
@@ -284,6 +288,48 @@ const getTaskStatistics = (req, res) => {
     }
 };
 
+// Get task logs
+const getTaskLogs = (req, res) => {
+    try {
+        const { taskId } = req.params;
+        const userId = req.user.id;
+
+        // Verify task exists and belongs to authenticated user
+        const task = db.prepare(`
+            SELECT id FROM tasks 
+            WHERE id = ? AND user_id = ?
+        `).get(taskId, userId);
+
+        if (!task) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Task bulunamadı' 
+            });
+        }
+
+        // Retrieve logs in chronological order (oldest first)
+        const logs = db.prepare(`
+            SELECT id, task_id, level, message, created_at
+            FROM task_logs 
+            WHERE task_id = ?
+            ORDER BY created_at ASC
+        `).all(taskId);
+
+        res.json({ success: true, logs });
+    } catch (error) {
+        logger.error('Error fetching task logs', { 
+            error: error.message, 
+            taskId: req.params.taskId, 
+            userId: req.user?.id 
+        });
+        captureException(error, { taskId: req.params.taskId, userId: req.user?.id });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Loglar alınırken hata oluştu' 
+        });
+    }
+};
+
 module.exports = {
     getUserAccounts,
     checkSingleAccount,
@@ -291,5 +337,6 @@ module.exports = {
     getAccountInventory,
     getTaskStatus,
     getUserTasks,
-    getTaskStatistics
+    getTaskStatistics,
+    getTaskLogs
 };

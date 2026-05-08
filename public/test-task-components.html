@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Components Test</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Components -->
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link rel="stylesheet" href="/css/components/forms.css">
+    <link rel="stylesheet" href="/css/components/modals.css">
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    <link rel="stylesheet" href="/css/components/task-creation-modal.css">
+    <link rel="stylesheet" href="/css/components/log-viewer-modal.css">
+    <link rel="stylesheet" href="/css/components/notifications.css">
+    
+    <style>
+        body {
+            background: #0a0e1a;
+            color: #fff;
+            padding: 2rem;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .test-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(23, 26, 34, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 12px;
+        }
+        
+        .test-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .test-info h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .test-info ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+        
+        .test-info li {
+            margin-bottom: 0.5rem;
+            color: var(--gray-light);
+        }
+        
+        .test-info li::before {
+            content: "✓ ";
+            color: var(--primary);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: var(--primary); margin-bottom: 2rem; font-size: 2rem;">Task Management Components Test</h1>
+    
+    <!-- Test Section 1: Task Table -->
+    <div class="test-section">
+        <h2>1. Task Table Component</h2>
+        
+        <div class="test-info">
+            <h3>Test Checklist:</h3>
+            <ul>
+                <li>Empty state displays correctly</li>
+                <li>Loading state displays correctly</li>
+                <li>Task rows render with correct data</li>
+                <li>Status badges have correct colors</li>
+                <li>Proxy info formats correctly (IP:Port, Bekliyor, Proxy Silinmiş)</li>
+                <li>Log buttons are clickable</li>
+                <li>Responsive design (resize window to test mobile view)</li>
+            </ul>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn btn-primary" onclick="testTaskTable('empty')">Test Empty State</button>
+            <button class="btn btn-primary" onclick="testTaskTable('loading')">Test Loading State</button>
+            <button class="btn btn-primary" onclick="testTaskTable('withData')">Test With Data</button>
+            <button class="btn btn-secondary" onclick="testTaskTable('realData')">Load Real Data</button>
+        </div>
+        
+        <div id="taskTableContainer"></div>
+    </div>
+    
+    <!-- Test Section 2: Task Creation Modal -->
+    <div class="test-section">
+        <h2>2. Task Creation Modal</h2>
+        
+        <div class="test-info">
+            <h3>Test Checklist:</h3>
+            <ul>
+                <li>Modal opens and closes correctly</li>
+                <li>Accounts load from API</li>
+                <li>Account selection works</li>
+                <li>Create button is disabled when no account selected</li>
+                <li>Create button is enabled when account selected</li>
+                <li>Task creation API call works</li>
+                <li>Success notification displays</li>
+                <li>Error handling works</li>
+            </ul>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn btn-primary" onclick="openTaskCreationModal()">Open Task Creation Modal</button>
+        </div>
+    </div>
+    
+    <!-- Test Section 3: Log Viewer Modal -->
+    <div class="test-section">
+        <h2>3. Log Viewer Modal</h2>
+        
+        <div class="test-info">
+            <h3>Test Checklist:</h3>
+            <ul>
+                <li>Modal opens with task ID</li>
+                <li>Logs load from API</li>
+                <li>Logs display in chronological order</li>
+                <li>Log levels have correct colors (info: blue, warning: yellow, error: red)</li>
+                <li>Timestamps format correctly</li>
+                <li>Empty state displays when no logs</li>
+                <li>Modal closes correctly</li>
+            </ul>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn btn-primary" onclick="openLogViewerModal(1)">Open Log Viewer (Task ID: 1)</button>
+            <button class="btn btn-secondary" onclick="openLogViewerModal(999)">Test Non-existent Task</button>
+        </div>
+    </div>
+    
+    <!-- Test Section 4: Responsive Design -->
+    <div class="test-section">
+        <h2>4. Responsive Design Test</h2>
+        
+        <div class="test-info">
+            <h3>Test Instructions:</h3>
+            <ul>
+                <li>Resize browser window to < 768px width</li>
+                <li>Task table should switch to card layout</li>
+                <li>Modals should remain centered and scrollable</li>
+                <li>Buttons should be touch-friendly (minimum 44x44px)</li>
+            </ul>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn btn-primary" onclick="simulateMobile()">Simulate Mobile (768px)</button>
+            <button class="btn btn-primary" onclick="simulateTablet()">Simulate Tablet (1024px)</button>
+            <button class="btn btn-secondary" onclick="resetViewport()">Reset Viewport</button>
+        </div>
+    </div>
+    
+    <!-- Component Scripts -->
+    <script src="/js/components/TaskTable.js"></script>
+    <script src="/js/components/TaskCreationModal.js"></script>
+    <script src="/js/components/LogViewerModal.js"></script>
+    <script src="/js/common.js"></script>
+    
+    <script>
+        // Initialize components
+        let taskTable = null;
+        let taskCreationModal = null;
+        let logViewerModal = null;
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize TaskTable
+            taskTable = new TaskTable('taskTableContainer');
+            
+            // Initialize TaskCreationModal
+            taskCreationModal = new TaskCreationModal('taskCreationModal');
+            taskCreationModal.onTaskCreated = (data) => {
+                console.log('Task created:', data);
+                window.showNotification('Görev başarıyla oluşturuldu!', 'success');
+                // Reload real data
+                testTaskTable('realData');
+            };
+            
+            // Initialize LogViewerModal
+            logViewerModal = new LogViewerModal('logViewerModal');
+            
+            // Wire log button handler
+            taskTable.onViewLogs = (taskId) => {
+                console.log('Opening log viewer for task:', taskId);
+                logViewerModal.open(taskId);
+            };
+            
+            // Start with empty state
+            testTaskTable('empty');
+        });
+        
+        // Test functions
+        function testTaskTable(mode) {
+            if (!taskTable) return;
+            
+            switch(mode) {
+                case 'empty':
+                    taskTable.setLoading(false);
+                    taskTable.setTasks([]);
+                    break;
+                    
+                case 'loading':
+                    taskTable.setLoading(true);
+                    break;
+                    
+                case 'withData':
+                    taskTable.setLoading(false);
+                    taskTable.setTasks([
+                        {
+                            id: 1,
+                            account_username: 'testuser1',
+                            proxy_id: 1,
+                            proxy_ip: '192.168.1.1',
+                            proxy_port: 8080,
+                            status: 'pending'
+                        },
+                        {
+                            id: 2,
+                            account_username: 'testuser2',
+                            proxy_id: 2,
+                            proxy_ip: '192.168.1.2',
+                            proxy_port: 8081,
+                            status: 'running'
+                        },
+                        {
+                            id: 3,
+                            account_username: 'testuser3',
+                            proxy_id: 3,
+                            proxy_ip: '192.168.1.3',
+                            proxy_port: 8082,
+                            status: 'completed'
+                        },
+                        {
+                            id: 4,
+                            account_username: 'testuser4',
+                            proxy_id: 4,
+                            proxy_ip: '192.168.1.4',
+                            proxy_port: 8083,
+                            status: 'failed'
+                        },
+                        {
+                            id: 5,
+                            account_username: 'testuser5',
+                            proxy_id: null,
+                            status: 'pending'
+                        },
+                        {
+                            id: 6,
+                            account_username: 'testuser6',
+                            proxy_id: 999,
+                            status: 'timeout'
+                        }
+                    ]);
+                    break;
+                    
+                case 'realData':
+                    taskTable.setLoading(true);
+                    fetch('/api/tasks/tasks', {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            taskTable.setTasks(data.tasks || []);
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading tasks:', error);
+                        window.showNotification('Görevler yüklenirken hata oluştu: ' + error.message, 'error');
+                        taskTable.setTasks([]);
+                    })
+                    .finally(() => {
+                        taskTable.setLoading(false);
+                    });
+                    break;
+            }
+        }
+        
+        function openTaskCreationModal() {
+            if (taskCreationModal) {
+                taskCreationModal.open();
+            }
+        }
+        
+        function openLogViewerModal(taskId) {
+            if (logViewerModal) {
+                logViewerModal.open(taskId);
+            }
+        }
+        
+        // Responsive testing functions
+        function simulateMobile() {
+            document.body.style.maxWidth = '768px';
+            document.body.style.margin = '0 auto';
+            window.showNotification('Viewport set to 768px (mobile)', 'info');
+        }
+        
+        function simulateTablet() {
+            document.body.style.maxWidth = '1024px';
+            document.body.style.margin = '0 auto';
+            window.showNotification('Viewport set to 1024px (tablet)', 'info');
+        }
+        
+        function resetViewport() {
+            document.body.style.maxWidth = '';
+            document.body.style.margin = '';
+            window.showNotification('Viewport reset', 'info');
+        }
+    </script>
+</body>
+</html>

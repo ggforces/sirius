@@ -50,15 +50,33 @@
     "title": "Steam Hesapları",
     "comingSoon": "Bu özellik yakında eklenecek...",
     "addAccount": "Hesap Ekle",
+    "bulkAdd": "Toplu Ekle",
     "editAccount": "Hesap Düzenle",
     "noAccounts": "Henüz Steam hesabı eklenmemiş",
     "addFirstAccount": "İlk Hesabı Ekle",
+    "bulkAddInfo": "JSON formatında hesapları yapıştırın. Tek hesap veya array olarak birden fazla hesap ekleyebilirsiniz.",
+    "bulkAddExample": "",
+    "bulkAddLabel": "JSON Verisi",
+    "bulkAddPlaceholder": "[\n  {\n    'steamUsername': 'user1',\n    'steamPassword': 'pass1',\n    'sharedSecret': 'secret1',\n    'identitySecret': 'identity1'\n  },\n  {\n    'steamUsername': 'user2',\n    'steamPassword': 'pass2',\n    'sharedSecret': 'secret2',\n    'identitySecret': 'identity2'\n  }\n]",
+    "bulkAddSubmit": "Hesapları Ekle",
+    "bulkAddSuccess": "hesap başarıyla eklendi",
+    "bulkAddPartial": "hesap eklendi",
+    "bulkAddFailed": "hesap eklenemedi",
+    "bulkAddError": "JSON formatı hatalı",
     "table": {
       "username": "Kullanıcı Adı",
-      "password": "Şifre",
-      "sharedSecret": "Shared Secret",
-      "identitySecret": "Identity Secret",
-      "actions": "İşlemler"
+      "prime": "Prime",
+      "accountType": "Hesap Tipi",
+      "wallet": "Bakiye",
+      "tradeBan": "Trade Ban",
+      "actions": "İşlemler",
+      "primeYes": "Prime",
+      "primeNo": "Non-Prime",
+      "limited": "Limited",
+      "unlimited": "Unlimited",
+      "noBan": "Yok",
+      "banned": "Banlı",
+      "notChecked": "Kontrol Edilmedi"
     },
     "form": {
       "username": "Steam Kullanıcı Adı",
@@ -80,7 +98,8 @@
     "header": {
       "title": "Steam Hesap Kontrol Görevleri",
       "bulkCheck": "Toplu Kontrol",
-      "refresh": "Yenile"
+      "refresh": "Yenile",
+      "createTask": "Görev Oluştur"
     },
     "accounts": {
       "title": "Steam Hesapları",
@@ -116,10 +135,94 @@
       "wallet": "Cüzdan",
       "checkBtn": "Kontrol Et",
       "inventoryBtn": "Envanter"
+    },
+    "table": {
+      "taskId": "Görev ID",
+      "account": "Hesap",
+      "proxy": "Proxy",
+      "status": "Durum",
+      "logs": "Loglar",
+      "noTasks": "Henüz görev yok",
+      "noTasksDesc": "Yeni bir görev oluşturmak için yukarıdaki \"Görev Oluştur\" butonuna tıklayın",
+      "loading": "Görevler yükleniyor...",
+      "viewLogs": "Loglar",
+      "viewLogsCard": "Logları Görüntüle"
+    },
+    "status": {
+      "pending": "Bekliyor",
+      "running": "İşleniyor",
+      "completed": "Tamamlandı",
+      "failed": "Başarısız",
+      "timeout": "Zaman Aşımı"
+    },
+    "proxy": {
+      "waiting": "Bekliyor",
+      "deleted": "Proxy Silinmiş",
+      "notAssigned": "N/A"
+    },
+    "createModal": {
+      "title": "Yeni Görev Oluştur",
+      "selectAccount": "Hesap Seçin",
+      "searchPlaceholder": "Hesap ara...",
+      "noResults": "Sonuç bulunamadı",
+      "selectAll": "Tümünü Seç",
+      "selectPrime": "Prime Seç",
+      "selectNonPrime": "Non-Prime Seç",
+      "clearSelection": "Seçimi Temizle",
+      "accountsSelected": "hesap seçildi",
+      "createTasks": "Görev Oluştur",
+      "noSelection": "Lütfen en az bir hesap seçin",
+      "tasksCreatedSuccess": "görev başarıyla oluşturuldu",
+      "tasksCreatedPartial": "görev oluşturuldu",
+      "tasksFailed": "görev başarısız",
+      "allTasksFailed": "Tüm görevler başarısız oldu",
+      "noAccounts": "Hesap bulunamadı. Lütfen önce hesap ekleyin.",
+      "loading": "Hesaplar yükleniyor...",
+      "loadError": "Hesaplar yüklenirken hata oluştu",
+      "create": "Oluştur",
+      "creating": "Oluşturuluyor...",
+      "cancel": "İptal",
+      "steamIdUnknown": "Steam ID bilinmiyor"
+    },
+    "logModal": {
+      "title": "Görev Logları",
+      "noLogs": "Bu görev için log bulunamadı",
+      "noLogsDesc": "Görev henüz çalıştırılmamış olabilir.",
+      "loading": "Loglar yükleniyor...",
+      "loadError": "Loglar yüklenirken hata oluştu",
+      "close": "Kapat",
+      "retryLimitReached": "Maksimum deneme sayısına ulaşıldı. Lütfen daha sonra tekrar deneyin."
+    },
+    "notifications": {
+      "taskCreated": "Görev başarıyla oluşturuldu",
+      "taskCreationFailed": "Görev oluşturulamadı",
+      "noProxies": "Proxy bulunamadı. Lütfen önce proxy ekleyin.",
+      "logsLoadFailed": "Loglar yüklenirken hata oluştu",
+      "accountCheckSuccess": "Hesap başarıyla kontrol edildi",
+      "accountCheckFailed": "Hesap kontrol edilirken hata oluştu",
+      "accountsLoadFailed": "Hesaplar yüklenirken hata oluştu",
+      "inventoryLoadFailed": "Envanter yüklenirken hata oluştu",
+      "tasksLoadError": "Görevler yüklenirken sürekli hata oluşuyor. Lütfen internet bağlantınızı kontrol edin.",
+      "connectionError": "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.",
+      "serverError": "Sunucu hatası",
+      "retry": "Tekrar Dene",
+      "retryNow": "Şimdi Tekrar Dene"
+    },
+    "inventory": {
+      "title": "Envanter",
+      "empty": "Envanter boş",
+      "unknownItem": "Bilinmeyen Öğe"
+    },
+    "accountCard": {
+      "checking": "Kontrol Ediliyor..."
     }
   },
   "proxies": {
     "title": "Proxy Yönetimi",
+    "actions": {
+      "addProxy": "Proxy Ekle",
+      "importWebshare": "Webshare'den İçe Aktar"
+    },
     "method": {
       "manual": "Manuel",
       "webshare": "Webshare"
@@ -150,6 +253,13 @@
       "apiKeyStatusSaved": "API key kaydedildi",
       "saveBtn": "Kaydet",
       "syncBtn": "Proxy'leri Senkronize Et"
+    },
+    "webshareImport": {
+      "title": "Webshare'den Proxy İçe Aktar",
+      "apiKeyLabel": "Webshare API Key",
+      "apiKeyPlaceholder": "WebShare API key'inizi giriniz",
+      "hint": "API key'iniz saklanmaz, sadece içe aktarma için kullanılır",
+      "importBtn": "Proxy'leri İçe Aktar"
     },
     "table": {
       "ip": "IP Adresi",
@@ -187,6 +297,11 @@
       "email": "E-posta",
       "createdAt": "Kayıt Tarihi",
       "lastLogin": "Son Giriş",
+      "wallet": "Cüzdan",
+      "membership": "Üyelik Türü",
+      "membershipFree": "Ücretsiz",
+      "membershipPremium": "Premium",
+      "membershipComingSoon": "Yakında",
       "loading": "Yükleniyor..."
     },
     "security": {

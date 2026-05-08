@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Tasks Test</title>
+    
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link rel="stylesheet" href="/css/components/modals.css">
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    <link rel="stylesheet" href="/css/components/task-creation-modal.css">
+    <link rel="stylesheet" href="/css/components/log-viewer-modal.css">
+    
+    <style>
+        body {
+            background: #0a0e1a;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .test-header h1 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            color: var(--light);
+        }
+        
+        .test-info p {
+            margin: 0.5rem 0;
+        }
+        
+        .viewport-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 212, 255, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="viewport-indicator" id="viewportIndicator"></div>
+    
+    <div class="test-container">
+        <div class="test-header">
+            <h1>📱 Responsive Tasks Table Test</h1>
+            <p style="color: var(--gray-light);">Resize your browser window to test responsive behavior</p>
+        </div>
+        
+        <div class="test-info">
+            <p><strong>Test Instructions:</strong></p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Desktop (> 768px): Table layout should be visible</li>
+                <li>Tablet/Mobile (≤ 768px): Card layout should be visible</li>
+                <li>All buttons should be at least 44x44px on mobile</li>
+                <li>Modals should be responsive and centered</li>
+            </ul>
+        </div>
+        
+        <!-- Task Table Container -->
+        <div id="taskTableContainer"></div>
+        
+        <!-- Test Buttons -->
+        <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="testCreateBtn">
+                <span class="btn-icon">➕</span>
+                Test Create Modal
+            </button>
+            <button class="btn btn-secondary" id="testLogBtn">
+                <span class="btn-icon">📄</span>
+                Test Log Modal
+            </button>
+            <button class="btn btn-success" id="addTaskBtn">
+                <span class="btn-icon">✅</span>
+                Add Sample Task
+            </button>
+        </div>
+    </div>
+    
+    <!-- Task Creation Modal -->
+    <div id="taskCreationModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Yeni Görev Oluştur</h2>
+            </div>
+            <div class="modal-body">
+                <div class="account-select-list">
+                    <div class="account-select-item">
+                        <div class="account-select-info">
+                            <div class="account-select-username">test_account_1</div>
+                            <div class="account-select-details">Steam ID: 76561198012345678</div>
+                        </div>
+                        <div class="account-select-radio">
+                            <input type="radio" name="account" id="acc1">
+                        </div>
+                    </div>
+                    <div class="account-select-item">
+                        <div class="account-select-info">
+                            <div class="account-select-username">test_account_2</div>
+                            <div class="account-select-details">Steam ID: 76561198087654321</div>
+                        </div>
+                        <div class="account-select-radio">
+                            <input type="radio" name="account" id="acc2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('taskCreationModal')">İptal</button>
+                <button class="btn btn-primary">Oluştur</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Log Viewer Modal -->
+    <div id="logViewerModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 class="modal-title">Görev Logları</h2>
+            </div>
+            <div class="modal-body">
+                <div class="log-list">
+                    <div class="log-entry log-entry-info">
+                        <div class="log-header">
+                            <div class="log-level">
+                                <i>ℹ️</i>
+                                INFO
+                            </div>
+                            <div class="log-timestamp">2026-05-08 10:30:00</div>
+                        </div>
+                        <div class="log-message">Task started with proxy 192.168.1.1:8080</div>
+                    </div>
+                    <div class="log-entry log-entry-warning">
+                        <div class="log-header">
+                            <div class="log-level">
+                                <i>⚠️</i>
+                                WARNING
+                            </div>
+                            <div class="log-timestamp">2026-05-08 10:30:15</div>
+                        </div>
+                        <div class="log-message">Proxy connection slow, retrying...</div>
+                    </div>
+                    <div class="log-entry log-entry-error">
+                        <div class="log-header">
+                            <div class="log-level">
+                                <i>❌</i>
+                                ERROR
+                            </div>
+                            <div class="log-timestamp">2026-05-08 10:30:30</div>
+                        </div>
+                        <div class="log-message">Proxy connection timeout after 3 retries</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary btn-full" onclick="closeModal('logViewerModal')">Kapat</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="/js/common.js"></script>
+    <script src="/js/components/TaskTable.js"></script>
+    
+    <script>
+        // Mock translation function
+        window.t = function(key) {
+            const translations = {
+                'tasks.table.taskId': 'Görev ID',
+                'tasks.table.account': 'Hesap',
+                'tasks.table.proxy': 'Proxy',
+                'tasks.table.status': 'Durum',
+                'tasks.table.logs': 'Loglar',
+                'tasks.table.viewLogs': 'Logları Gör',
+                'tasks.table.viewLogsCard': 'Logları Görüntüle',
+                'tasks.table.loading': 'Yükleniyor...',
+                'tasks.table.noTasks': 'Henüz görev yok',
+                'tasks.table.noTasksDesc': 'Yeni bir görev oluşturmak için yukarıdaki butona tıklayın',
+                'tasks.status.pending': 'Bekliyor',
+                'tasks.status.running': 'İşleniyor',
+                'tasks.status.completed': 'Tamamlandı',
+                'tasks.status.failed': 'Başarısız',
+                'tasks.status.timeout': 'Zaman Aşımı',
+                'tasks.proxy.waiting': 'Bekliyor',
+                'tasks.proxy.deleted': 'Proxy Silinmiş',
+                'tasks.card.unknown': 'Bilinmiyor'
+            };
+            return translations[key] || key;
+        };
+        
+        // Sample tasks data
+        const sampleTasks = [
+            {
+                id: 1,
+                account_username: 'test_account_1',
+                proxy_id: 1,
+                proxy_ip: '192.168.1.1',
+                proxy_port: 8080,
+                status: 'completed'
+            },
+            {
+                id: 2,
+                account_username: 'test_account_2',
+                proxy_id: null,
+                status: 'pending'
+            },
+            {
+                id: 3,
+                account_username: 'test_account_3',
+                proxy_id: 2,
+                proxy_ip: '10.0.0.1',
+                proxy_port: 3128,
+                status: 'running'
+            },
+            {
+                id: 4,
+                account_username: 'test_account_4',
+                proxy_id: 999,
+                status: 'failed'
+            },
+            {
+                id: 5,
+                account_username: 'test_account_5',
+                proxy_id: 3,
+                proxy_ip: '172.16.0.1',
+                proxy_port: 8888,
+                status: 'timeout'
+            }
+        ];
+        
+        // Initialize TaskTable
+        const taskTable = new TaskTable('taskTableContainer');
+        taskTable.setTasks(sampleTasks);
+        
+        // Mock log viewer
+        taskTable.onViewLogs = (taskId) => {
+            console.log('Opening logs for task:', taskId);
+            openModal('logViewerModal');
+        };
+        
+        // Modal functions
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+        
+        // Test buttons
+        document.getElementById('testCreateBtn').addEventListener('click', () => {
+            openModal('taskCreationModal');
+        });
+        
+        document.getElementById('testLogBtn').addEventListener('click', () => {
+            openModal('logViewerModal');
+        });
+        
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            const newTask = {
+                id: sampleTasks.length + 1,
+                account_username: `test_account_${sampleTasks.length + 1}`,
+                proxy_id: Math.random() > 0.5 ? Math.floor(Math.random() * 10) : null,
+                proxy_ip: Math.random() > 0.5 ? `192.168.1.${Math.floor(Math.random() * 255)}` : null,
+                proxy_port: Math.random() > 0.5 ? 8080 : null,
+                status: ['pending', 'running', 'completed', 'failed', 'timeout'][Math.floor(Math.random() * 5)]
+            };
+            sampleTasks.push(newTask);
+            taskTable.setTasks(sampleTasks);
+        });
+        
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                const modal = e.target.closest('.modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+        
+        // Viewport indicator
+        function updateViewportIndicator() {
+            const width = window.innerWidth;
+            const indicator = document.getElementById('viewportIndicator');
+            
+            if (width <= 480) {
+                indicator.textContent = `📱 Mobile: ${width}px`;
+                indicator.style.background = '#ef4444';
+            } else if (width <= 768) {
+                indicator.textContent = `📱 Tablet: ${width}px`;
+                indicator.style.background = '#f97316';
+            } else {
+                indicator.textContent = `💻 Desktop: ${width}px`;
+                indicator.style.background = '#22c55e';
+            }
+        }
+        
+        updateViewportIndicator();
+        window.addEventListener('resize', updateViewportIndicator);
+    </script>
+</body>
+</html>

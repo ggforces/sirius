@@ -50,15 +50,33 @@
     "title": "Steam Accounts",
     "comingSoon": "This feature is coming soon...",
     "addAccount": "Add Account",
+    "bulkAdd": "Bulk Add",
     "editAccount": "Edit Account",
     "noAccounts": "No Steam accounts added yet",
     "addFirstAccount": "Add First Account",
+    "bulkAddInfo": "Paste accounts in JSON format. You can add a single account or multiple accounts as an array.",
+    "bulkAddExample": "",
+    "bulkAddLabel": "JSON Data",
+    "bulkAddPlaceholder": "[\n  {\n    'steamUsername': 'user1',\n    'steamPassword': 'pass1',\n    'sharedSecret': 'secret1',\n    'identitySecret': 'identity1'\n  },\n  {\n    'steamUsername': 'user2',\n    'steamPassword': 'pass2',\n    'sharedSecret': 'secret2',\n    'identitySecret': 'identity2'\n  }\n]",
+    "bulkAddSubmit": "Add Accounts",
+    "bulkAddSuccess": "accounts added successfully",
+    "bulkAddPartial": "accounts added",
+    "bulkAddFailed": "accounts failed",
+    "bulkAddError": "Invalid JSON format",
     "table": {
       "username": "Username",
-      "password": "Password",
-      "sharedSecret": "Shared Secret",
-      "identitySecret": "Identity Secret",
-      "actions": "Actions"
+      "prime": "Prime",
+      "accountType": "Account Type",
+      "wallet": "Wallet",
+      "tradeBan": "Trade Ban",
+      "actions": "Actions",
+      "primeYes": "Prime",
+      "primeNo": "Non-Prime",
+      "limited": "Limited",
+      "unlimited": "Unlimited",
+      "noBan": "None",
+      "banned": "Banned",
+      "notChecked": "Not Checked"
     },
     "form": {
       "username": "Steam Username",
@@ -80,7 +98,8 @@
     "header": {
       "title": "Steam Account Check Tasks",
       "bulkCheck": "Bulk Check",
-      "refresh": "Refresh"
+      "refresh": "Refresh",
+      "createTask": "Create Task"
     },
     "accounts": {
       "title": "Steam Accounts",
@@ -116,10 +135,94 @@
       "wallet": "Wallet",
       "checkBtn": "Check",
       "inventoryBtn": "Inventory"
+    },
+    "table": {
+      "taskId": "Task ID",
+      "account": "Account",
+      "proxy": "Proxy",
+      "status": "Status",
+      "logs": "Logs",
+      "noTasks": "No tasks yet",
+      "noTasksDesc": "Click the \"Create Task\" button above to create a new task",
+      "loading": "Loading tasks...",
+      "viewLogs": "Logs",
+      "viewLogsCard": "View Logs"
+    },
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed",
+      "timeout": "Timeout"
+    },
+    "proxy": {
+      "waiting": "Waiting",
+      "deleted": "Proxy Deleted",
+      "notAssigned": "N/A"
+    },
+    "createModal": {
+      "title": "Create New Task",
+      "selectAccount": "Select Account",
+      "searchPlaceholder": "Search accounts...",
+      "noResults": "No results found",
+      "selectAll": "Select All",
+      "selectPrime": "Select Prime",
+      "selectNonPrime": "Select Non-Prime",
+      "clearSelection": "Clear Selection",
+      "accountsSelected": "accounts selected",
+      "createTasks": "Create Tasks",
+      "noSelection": "Please select at least one account",
+      "tasksCreatedSuccess": "tasks created successfully",
+      "tasksCreatedPartial": "tasks created",
+      "tasksFailed": "tasks failed",
+      "allTasksFailed": "All tasks failed",
+      "noAccounts": "No accounts found. Please add an account first.",
+      "loading": "Loading accounts...",
+      "loadError": "Error loading accounts",
+      "create": "Create",
+      "creating": "Creating...",
+      "cancel": "Cancel",
+      "steamIdUnknown": "Steam ID unknown"
+    },
+    "logModal": {
+      "title": "Task Logs",
+      "noLogs": "No logs found for this task",
+      "noLogsDesc": "The task may not have been executed yet.",
+      "loading": "Loading logs...",
+      "loadError": "Error loading logs",
+      "close": "Close",
+      "retryLimitReached": "Maximum retry attempts reached. Please try again later."
+    },
+    "notifications": {
+      "taskCreated": "Task created successfully",
+      "taskCreationFailed": "Failed to create task",
+      "noProxies": "No proxies found. Please add a proxy first.",
+      "logsLoadFailed": "Error loading logs",
+      "accountCheckSuccess": "Account checked successfully",
+      "accountCheckFailed": "Error checking account",
+      "accountsLoadFailed": "Error loading accounts",
+      "inventoryLoadFailed": "Error loading inventory",
+      "tasksLoadError": "Continuous error loading tasks. Please check your internet connection.",
+      "connectionError": "Connection error. Please check your internet connection.",
+      "serverError": "Server error",
+      "retry": "Retry",
+      "retryNow": "Retry Now"
+    },
+    "inventory": {
+      "title": "Inventory",
+      "empty": "Inventory is empty",
+      "unknownItem": "Unknown Item"
+    },
+    "accountCard": {
+      "checking": "Checking..."
     }
   },
   "proxies": {
     "title": "Proxy Management",
+    "actions": {
+      "addProxy": "Add Proxy",
+      "importWebshare": "Import from Webshare"
+    },
     "method": {
       "manual": "Manual",
       "webshare": "Webshare"
@@ -150,6 +253,13 @@
       "apiKeyStatusSaved": "API key saved",
       "saveBtn": "Save",
       "syncBtn": "Synchronize Proxies"
+    },
+    "webshareImport": {
+      "title": "Import Proxies from Webshare",
+      "apiKeyLabel": "Webshare API Key",
+      "apiKeyPlaceholder": "ws_xxxxxxxxxxxxxxxxxxxxxxxx",
+      "hint": "Your API key is not stored, only used for import",
+      "importBtn": "Import Proxies"
     },
     "table": {
       "ip": "IP Address",
@@ -187,6 +297,11 @@
       "email": "Email",
       "createdAt": "Registration Date",
       "lastLogin": "Last Login",
+      "wallet": "Wallet",
+      "membership": "Membership Type",
+      "membershipFree": "Free",
+      "membershipPremium": "Premium",
+      "membershipComingSoon": "Coming Soon",
       "loading": "Loading..."
     },
     "security": {

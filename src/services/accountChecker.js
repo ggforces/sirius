@@ -62,7 +62,23 @@ async function checkAccount(account, proxy = null) {
         const clientOptions = { enablePicsCache: true };
         
         if (proxy) {
-            clientOptions.httpProxy = `http://${proxy.username}:${proxy.password}@${proxy.ip}:${proxy.port}`;
+            // Decrypt proxy password if it exists
+            const proxyUsername = proxy.username;
+            const proxyPassword = proxy.password ? decrypt(proxy.password) : null;
+            
+            // Build proxy URL with proper authentication
+            let proxyUrl;
+            if (proxyUsername && proxyPassword) {
+                // Encode username and password to handle special characters
+                const encodedUsername = encodeURIComponent(proxyUsername);
+                const encodedPassword = encodeURIComponent(proxyPassword);
+                proxyUrl = `http://${encodedUsername}:${encodedPassword}@${proxy.ip}:${proxy.port}`;
+            } else {
+                // No authentication required
+                proxyUrl = `http://${proxy.ip}:${proxy.port}`;
+            }
+            
+            clientOptions.httpProxy = proxyUrl;
         }
         
         const client = new SteamUser(clientOptions);
@@ -70,7 +86,19 @@ async function checkAccount(account, proxy = null) {
         
         // Configure community proxy if provided
         if (proxy) {
-            const proxyUrl = `http://${proxy.username}:${proxy.password}@${proxy.ip}:${proxy.port}`;
+            // Decrypt proxy password if it exists
+            const proxyUsername = proxy.username;
+            const proxyPassword = proxy.password ? decrypt(proxy.password) : null;
+            
+            let proxyUrl;
+            if (proxyUsername && proxyPassword) {
+                const encodedUsername = encodeURIComponent(proxyUsername);
+                const encodedPassword = encodeURIComponent(proxyPassword);
+                proxyUrl = `http://${encodedUsername}:${encodedPassword}@${proxy.ip}:${proxy.port}`;
+            } else {
+                proxyUrl = `http://${proxy.ip}:${proxy.port}`;
+            }
+            
             community.request = Request.defaults({ proxy: proxyUrl });
         }
 
@@ -109,7 +137,26 @@ async function checkAccount(account, proxy = null) {
             const steamID64 = client.steamID.getSteamID64();
 
             const tradeLinkPromise = new Promise(res => {
-                community.getTradeURL((err, url) => res(err ? null : url));
+                // Try to get trade URL from Steam Community
+                community.getTradeURL((err, url) => {
+                    if (!err && url) {
+                        return res(url);
+                    }
+                    
+                    // Fallback: Try to fetch from trade offer preferences page
+                    community.httpRequest({
+                        uri: 'https://steamcommunity.com/profiles/' + steamID64 + '/tradeoffers/privacy',
+                        method: 'GET'
+                    }, (err2, response, body) => {
+                        if (err2 || !body) {
+                            return res(null);
+                        }
+                        
+                        // Extract trade URL from page HTML
+                        const match = body.match(/https:\/\/steamcommunity\.com\/tradeoffer\/new\/\?partner=\d+&token=[a-zA-Z0-9_-]+/);
+                        res(match ? match[0] : null);
+                    });
+                });
             });
 
             const ownershipPromise = new Promise(res => {

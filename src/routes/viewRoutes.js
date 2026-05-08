@@ -58,7 +58,18 @@ router.get('/proxies', authenticateToken, (req, res) => {
 router.get('/tasks', authenticateToken, (req, res) => {
     try {
         const html = viewRenderer.render('tasks', {
-            EXTRA_SCRIPTS: '<script src="/js/pages/tasks.js"></script>'
+            EXTRA_HEAD: `
+                <link rel="stylesheet" href="/css/components/task-table.css">
+                <link rel="stylesheet" href="/css/components/task-creation-modal.css">
+                <link rel="stylesheet" href="/css/components/log-viewer-modal.css">
+            `,
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/components/TaskTable.js"></script>
+                <script src="/js/components/TaskCreationModal.js"></script>
+                <script src="/js/components/LogViewerModal.js"></script>
+                <script src="/js/pages/tasks.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {

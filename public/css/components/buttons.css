@@ -131,3 +131,50 @@
     border-color: #ef4444;
     color: #ef4444;
 }
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Ensure touch-friendly button sizes on mobile (minimum 44x44px) */
+@media (max-width: 768px) {
+    .btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+    
+    .btn-sm {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.95rem;
+        min-height: 44px;
+    }
+    
+    .btn-large {
+        padding: 1.125rem 2rem;
+        font-size: 1.15rem;
+        min-height: 48px;
+    }
+    
+    .btn-icon-small {
+        width: 44px;
+        height: 44px;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        min-height: 48px;
+    }
+    
+    .btn-sm {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.95rem;
+        min-height: 44px;
+    }
+    
+    .btn-full {
+        width: 100%;
+    }
+}

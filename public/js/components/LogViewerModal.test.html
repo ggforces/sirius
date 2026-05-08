@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogViewerModal Component Test</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="../../css/base/variables.css">
+    <link rel="stylesheet" href="../../css/base/reset.css">
+    <link rel="stylesheet" href="../../css/base/typography.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="../../css/components/modals.css">
+    <link rel="stylesheet" href="../../css/components/log-viewer-modal.css">
+    <link rel="stylesheet" href="../../css/components/buttons.css">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--dark);
+            color: var(--light);
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .test-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>LogViewerModal Component Test</h1>
+        
+        <div class="test-section">
+            <h2>Test Scenarios</h2>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testWithLogs()">
+                    Test with Logs
+                </button>
+                <button class="btn btn-secondary" onclick="testEmptyLogs()">
+                    Test Empty State
+                </button>
+                <button class="btn btn-secondary" onclick="testLoadingState()">
+                    Test Loading State
+                </button>
+                <button class="btn btn-danger" onclick="testErrorState()">
+                    Test Error State
+                </button>
+            </div>
+            
+            <div class="test-info">
+                <strong>Test Instructions:</strong>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                    <li>Click buttons to test different modal states</li>
+                    <li>Verify modal opens and closes correctly</li>
+                    <li>Check log level colors (info=blue, warning=yellow, error=red)</li>
+                    <li>Test close button and overlay click</li>
+                    <li>Test Escape key to close modal</li>
+                    <li>Verify responsive design on mobile viewport</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Component Features</h2>
+            <ul style="margin-left: 1.5rem;">
+                <li>✅ Modal HTML structure with header, body, and actions</li>
+                <li>✅ Open/close functionality</li>
+                <li>✅ Close button in modal actions</li>
+                <li>✅ Close on overlay click</li>
+                <li>✅ Close on Escape key</li>
+                <li>✅ Loading state display</li>
+                <li>✅ Empty state display</li>
+                <li>✅ Error state display</li>
+                <li>✅ Log level color coding (info, warning, error)</li>
+                <li>✅ Timestamp formatting</li>
+                <li>✅ Scrollable log list</li>
+                <li>✅ Responsive design</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Component Script -->
+    <script src="./LogViewerModal.js"></script>
+    
+    <script>
+        // Initialize the modal
+        const logModal = new LogViewerModal('logViewerModal');
+        
+        // Mock fetch for testing
+        const originalFetch = window.fetch;
+        let mockResponse = null;
+        
+        window.fetch = function(url, options) {
+            if (url.includes('/api/tasks/logs/')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve(mockResponse)
+                });
+            }
+            return originalFetch(url, options);
+        };
+        
+        // Test with sample logs
+        function testWithLogs() {
+            mockResponse = {
+                success: true,
+                logs: [
+                    {
+                        id: 1,
+                        task_id: 123,
+                        level: 'info',
+                        message: 'Task started with proxy 192.168.1.1:8080',
+                        created_at: new Date(Date.now() - 60000).toISOString()
+                    },
+                    {
+                        id: 2,
+                        task_id: 123,
+                        level: 'info',
+                        message: 'Connecting to Steam servers...',
+                        created_at: new Date(Date.now() - 50000).toISOString()
+                    },
+                    {
+                        id: 3,
+                        task_id: 123,
+                        level: 'warning',
+                        message: 'Connection attempt 1 failed, retrying...',
+                        created_at: new Date(Date.now() - 40000).toISOString()
+                    },
+                    {
+                        id: 4,
+                        task_id: 123,
+                        level: 'info',
+                        message: 'Successfully connected to Steam',
+                        created_at: new Date(Date.now() - 30000).toISOString()
+                    },
+                    {
+                        id: 5,
+                        task_id: 123,
+                        level: 'info',
+                        message: 'Checking account status...',
+                        created_at: new Date(Date.now() - 20000).toISOString()
+                    },
+                    {
+                        id: 6,
+                        task_id: 123,
+                        level: 'error',
+                        message: 'Account check failed: Invalid credentials',
+                        created_at: new Date(Date.now() - 10000).toISOString()
+                    },
+                    {
+                        id: 7,
+                        task_id: 123,
+                        level: 'info',
+                        message: 'Task completed with errors',
+                        created_at: new Date().toISOString()
+                    }
+                ]
+            };
+            
+            logModal.open(123);
+        }
+        
+        // Test empty state
+        function testEmptyLogs() {
+            mockResponse = {
+                success: true,
+                logs: []
+            };
+            
+            logModal.open(456);
+        }
+        
+        // Test loading state (keep modal open without resolving)
+        function testLoadingState() {
+            // Override fetch to delay response
+            const tempFetch = window.fetch;
+            window.fetch = function(url, options) {
+                if (url.includes('/api/tasks/logs/')) {
+                    return new Promise(() => {}); // Never resolves
+                }
+                return tempFetch(url, options);
+            };
+            
+            logModal.open(789);
+            
+            // Restore fetch after 3 seconds
+            setTimeout(() => {
+                window.fetch = tempFetch;
+            }, 3000);
+        }
+        
+        // Test error state
+        function testErrorState() {
+            mockResponse = {
+                success: false,
+                message: 'Task bulunamadı'
+            };
+            
+            logModal.open(999);
+        }
+        
+        console.log('LogViewerModal test page loaded');
+        console.log('Modal instance:', logModal);
+    </script>
+</body>
+</html>

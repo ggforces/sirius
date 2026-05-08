@@ -7,7 +7,8 @@ const {
     getAccountInventory,
     getTaskStatus,
     getUserTasks,
-    getTaskStatistics
+    getTaskStatistics,
+    getTaskLogs
 } = require('../controllers/tasksController');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -34,5 +35,8 @@ router.get('/tasks', getUserTasks);
 
 // Get task statistics
 router.get('/statistics', getTaskStatistics);
+
+// Get task logs
+router.get('/logs/:taskId', getTaskLogs);
 
 module.exports = router;

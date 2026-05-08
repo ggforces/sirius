@@ -43,7 +43,19 @@ const getAccounts = (req, res) => {
         const userId = req.user.id;
         
         const accounts = db.prepare(`
-            SELECT id, username, password, shared_secret, identity_secret, created_at
+            SELECT 
+                id, 
+                username, 
+                password, 
+                shared_secret, 
+                identity_secret, 
+                created_at,
+                steamid,
+                is_prime,
+                limited,
+                wallet_balance,
+                wallet_currency,
+                last_checked_at
             FROM steam_accounts
             WHERE user_id = ?
             ORDER BY created_at DESC
@@ -56,7 +68,13 @@ const getAccounts = (req, res) => {
             password: decrypt(account.password),
             shared_secret: decrypt(account.shared_secret),
             identity_secret: decrypt(account.identity_secret),
-            created_at: account.created_at
+            created_at: account.created_at,
+            steamid: account.steamid,
+            is_prime: account.is_prime,
+            limited: account.limited,
+            wallet_balance: account.wallet_balance,
+            wallet_currency: account.wallet_currency,
+            last_checked_at: account.last_checked_at
         }));
         
         res.json({

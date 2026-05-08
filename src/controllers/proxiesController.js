@@ -1,6 +1,6 @@
 const db = require('../config/database');
 const proxyService = require('../services/proxyService');
-const { encrypt, decrypt } = require('../utils/encryption');
+const { encrypt } = require('../utils/encryption');
 
 /**
  * Get all proxies for the user
@@ -129,70 +129,7 @@ const getProxyStats = (req, res) => {
     }
 };
 
-/**
- * Update proxy method (manual or webshare)
- */
-const updateProxyMethod = (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { method } = req.body;
-        
-        if (!['manual', 'webshare'].includes(method)) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Geçersiz proxy yöntemi' 
-            });
-        }
-        
-        db.prepare(`
-            UPDATE users 
-            SET proxy_method = ?
-            WHERE id = ?
-        `).run(method, userId);
-        
-        res.json({ 
-            success: true, 
-            message: 'Proxy yöntemi güncellendi' 
-        });
-    } catch (error) {
-        console.error('Error updating proxy method:', error);
-        res.status(500).json({ success: false, message: 'Proxy yöntemi güncellenirken hata oluştu' });
-    }
-};
 
-/**
- * Save Webshare API key
- */
-const saveWebshareApiKey = (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { apiKey } = req.body;
-        
-        if (!apiKey || !apiKey.startsWith('ws_')) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Geçersiz Webshare API key' 
-            });
-        }
-        
-        // Encrypt API key
-        const encryptedApiKey = encrypt(apiKey);
-        
-        db.prepare(`
-            UPDATE users 
-            SET webshare_api_key = ?
-            WHERE id = ?
-        `).run(encryptedApiKey, userId);
-        
-        res.json({ 
-            success: true, 
-            message: 'Webshare API key kaydedildi' 
-        });
-    } catch (error) {
-        console.error('Error saving Webshare API key:', error);
-        res.status(500).json({ success: false, message: 'API key kaydedilirken hata oluştu' });
-    }
-};
 
 /**
  * Sync proxies from Webshare
@@ -200,38 +137,36 @@ const saveWebshareApiKey = (req, res) => {
 const syncWebshareProxies = async (req, res) => {
     try {
         const userId = req.user.id;
+        const { apiKey } = req.body;
         
-        // Get user's Webshare API key
-        const user = db.prepare(`
-            SELECT webshare_api_key, proxy_method FROM users WHERE id = ?
-        `).get(userId);
-        
-        if (!user.webshare_api_key) {
+        // Validate API key parameter
+        if (!apiKey || typeof apiKey !== 'string') {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Webshare API key bulunamadı' 
+                message: 'API key gereklidir' 
             });
         }
         
-        if (user.proxy_method !== 'webshare') {
+        const trimmedKey = apiKey.trim();
+        if (trimmedKey.length < 20) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Proxy yöntemi Webshare olarak ayarlanmalı' 
+                message: 'Geçersiz API key' 
             });
         }
-        
-        // Decrypt API key
-        const apiKey = decrypt(user.webshare_api_key);
         
         // Fetch proxies from Webshare API
-        const response = await fetch('https://proxy.webshare.io/api/v2/proxy/list/', {
+        const response = await fetch('https://proxy.webshare.io/api/v2/proxy/list/?mode=direct&page=1&page_size=999999', {
             headers: {
-                'Authorization': `Token ${apiKey}`
+                'Authorization': `Token ${trimmedKey}`
             }
         });
         
         if (!response.ok) {
-            throw new Error('Webshare API hatası');
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Webshare API hatası' 
+            });
         }
         
         const data = await response.json();
@@ -254,6 +189,8 @@ const syncWebshareProxies = async (req, res) => {
             addedCount++;
         }
         
+        // API key is NOT stored - discarded after use
+        
         res.json({ 
             success: true, 
             message: `${addedCount} proxy senkronize edildi`,
@@ -273,7 +210,5 @@ module.exports = {
     addProxy,
     deleteProxy,
     getProxyStats,
-    updateProxyMethod,
-    saveWebshareApiKey,
     syncWebshareProxies
 };

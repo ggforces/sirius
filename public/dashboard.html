@@ -15,6 +15,9 @@
     <link rel="stylesheet" href="/css/components/buttons.css">
     <link rel="stylesheet" href="/css/components/forms.css">
     <link rel="stylesheet" href="/css/components/modals.css">
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    <link rel="stylesheet" href="/css/components/task-creation-modal.css">
+    <link rel="stylesheet" href="/css/components/log-viewer-modal.css">
     
     <!-- Layout -->
     <link rel="stylesheet" href="/css/layout/sidebar.css">
@@ -268,13 +271,13 @@
                 <!-- Tasks Header -->
                 <div class="section">
                     <div class="section-header">
-                        <h2 class="section-title">Steam Hesap Kontrol Görevleri</h2>
+                        <h2 class="section-title">Görevler</h2>
                         <div class="section-actions">
-                            <button class="btn btn-primary" id="bulkCheckBtn">
-                                <span class="btn-icon">🔍</span>
-                                Toplu Kontrol
+                            <button class="btn btn-primary" id="createTaskBtn">
+                                <span class="btn-icon">➕</span>
+                                Görev Oluştur
                             </button>
-                            <button class="btn btn-secondary" id="refreshAccountsBtn">
+                            <button class="btn btn-secondary" id="refreshTasksBtn">
                                 <span class="btn-icon">🔄</span>
                                 Yenile
                             </button>
@@ -282,34 +285,10 @@
                     </div>
                 </div>
 
-                <!-- Account Selection -->
+                <!-- Task Table -->
                 <div class="section">
-                    <h3 class="section-subtitle">Steam Hesapları</h3>
-                    <div class="accounts-container" id="accountsContainer">
-                        <div class="loading-state" id="accountsLoading">
-                            <div class="loading-spinner"></div>
-                            <span>Hesaplar yükleniyor...</span>
-                        </div>
-                        <div class="empty-state" id="accountsEmpty" style="display: none;">
-                            <div class="empty-icon">🎮</div>
-                            <h3>Henüz Steam hesabı eklenmemiş</h3>
-                            <p>Hesap kontrolü yapabilmek için önce Steam hesaplarınızı eklemelisiniz.</p>
-                            <button class="btn btn-primary" id="addAccountFromTasks">
-                                <span class="btn-icon">➕</span>
-                                Hesap Ekle
-                            </button>
-                        </div>
-                        <div class="accounts-grid" id="accountsGrid" style="display: none;">
-                            <!-- Accounts will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Check Results -->
-                <div class="section" id="resultsSection" style="display: none;">
-                    <h3 class="section-subtitle">Kontrol Sonuçları</h3>
-                    <div class="results-container" id="resultsContainer">
-                        <!-- Results will be displayed here -->
+                    <div id="taskTableContainer">
+                        <!-- TaskTable component will render here -->
                     </div>
                 </div>
             </div>
@@ -445,57 +424,6 @@
         </div>
     </main>
 
-    <!-- Bulk Check Modal -->
-    <div class="modal" id="bulkCheckModal">
-        <div class="modal-overlay" id="bulkCheckModalOverlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Toplu Hesap Kontrolü</h3>
-                <button class="modal-close" id="closeBulkCheckModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="bulk-check-step" id="selectAccountsStep">
-                    <h4>Kontrol edilecek hesapları seçin:</h4>
-                    <div class="account-selection">
-                        <div class="selection-header">
-                            <label class="checkbox-container">
-                                <input type="checkbox" id="selectAllAccounts">
-                                <span class="checkmark"></span>
-                                <span class="checkbox-label">Tümünü Seç</span>
-                            </label>
-                            <span class="selected-count" id="selectedCount">0 hesap seçildi</span>
-                        </div>
-                        <div class="accounts-list" id="bulkAccountsList">
-                            <!-- Accounts will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-                <div class="bulk-check-step" id="checkProgressStep" style="display: none;">
-                    <h4>Hesaplar kontrol ediliyor...</h4>
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill"></div>
-                        </div>
-                        <div class="progress-text" id="progressText">0 / 0</div>
-                    </div>
-                    <div class="current-check" id="currentCheck">
-                        Başlatılıyor...
-                    </div>
-                </div>
-                <div class="bulk-check-step" id="checkResultsStep" style="display: none;">
-                    <h4>Kontrol Tamamlandı</h4>
-                    <div class="results-summary" id="resultsSummary">
-                        <!-- Results summary will be shown here -->
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelBulkCheck">İptal</button>
-                <button class="btn btn-primary" id="startBulkCheck">Kontrolü Başlat</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Account Modal -->
     <div class="modal" id="accountModal">
         <div class="modal-overlay" id="modalOverlay"></div>
@@ -570,6 +498,12 @@
         </div>
     </div>
 
+    <!-- Component Scripts -->
+    <script src="/js/components/TaskTable.js"></script>
+    <script src="/js/components/TaskCreationModal.js"></script>
+    <script src="/js/components/LogViewerModal.js"></script>
+    
+    <!-- Page Scripts -->
     <script src="/js/dashboard.js"></script>
     <script src="/js/pages/accounts.js"></script>
     <script src="/js/pages/tasks.js"></script>
