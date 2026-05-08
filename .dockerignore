@@ -1,9 +1,12 @@
 # Node modules
 node_modules
 npm-debug.log
+package-lock.json
 
 # Database files (will be in volume)
 *.sqlite
+*.sqlite-shm
+*.sqlite-wal
 *.sqlite-journal
 *.db
 data
@@ -12,24 +15,29 @@ backups
 # Git
 .git
 .gitignore
+.gitattributes
 
-# Documentation
+# Documentation (keep only README.md and SETUP.md)
 *.md
 !README.md
+!SETUP.md
 
-# IDE
+# IDE and Kiro
 .vscode
 .idea
+.kiro
 *.swp
 *.swo
+*~
 
-# Logs
+# Logs (will be in volume)
 logs
 *.log
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Temporary files
 tmp
@@ -38,6 +46,27 @@ temp
 
 # Archive
 archive
+docs
 
-# Deploy script
+# Deploy and local scripts
 deploy.bat
+create-admin.js
+check-db.js
+
+# SF CLI (local development tool)
+SF CLI
+
+# Test files and reports
+tests
+test-results
+playwright-report
+playwright.config.js
+*.test.js
+*.spec.js
+
+# Environment files (except .env.example)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+

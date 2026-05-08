@@ -20,7 +20,7 @@ const authenticateToken = (req, res, next) => {
 
         // Check if session exists and is valid
         const session = db.prepare(`
-            SELECT s.*, u.email, u.balance 
+            SELECT s.*, u.email, u.balance, u.role, u.is_active 
             FROM sessions s
             JOIN users u ON s.user_id = u.id
             WHERE s.token = ? AND s.expires_at > datetime('now')
@@ -35,11 +35,22 @@ const authenticateToken = (req, res, next) => {
             });
         }
 
+        // Check if user is active
+        if (!session.is_active) {
+            res.clearCookie('token');
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Hesabınız devre dışı bırakılmış.' 
+            });
+        }
+
         // Attach user info to request
         req.user = {
             id: session.user_id,
             email: session.email,
-            balance: session.balance
+            balance: session.balance,
+            role: session.role || 'user',
+            is_active: session.is_active
         };
 
         next();

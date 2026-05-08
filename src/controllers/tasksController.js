@@ -1,6 +1,8 @@
 const db = require('../config/database');
 const taskQueueService = require('../services/taskQueueService');
 const proxyService = require('../services/proxyService');
+const logger = require('../utils/logger');
+const { captureException } = require('../utils/sentry');
 
 // Get all Steam accounts for the user
 const getUserAccounts = (req, res) => {
@@ -17,7 +19,11 @@ const getUserAccounts = (req, res) => {
 
         res.json({ success: true, accounts });
     } catch (error) {
-        console.error('Error fetching accounts:', error);
+        logger.error('Error fetching accounts', { 
+            error: error.message, 
+            userId: req.user?.id 
+        });
+        captureException(error, { userId: req.user?.id });
         res.status(500).json({ success: false, message: 'Hesaplar alınırken hata oluştu' });
     }
 };
@@ -73,7 +79,12 @@ const checkSingleAccount = async (req, res) => {
             status: 'running'
         });
     } catch (error) {
-        console.error('Error checking account:', error);
+        logger.error('Error checking account', { 
+            error: error.message, 
+            accountId, 
+            userId 
+        });
+        captureException(error, { accountId, userId });
         res.status(500).json({ 
             success: false, 
             message: error.message || 'Hesap kontrol edilirken hata oluştu' 
@@ -99,7 +110,11 @@ const checkMultipleAccounts = async (req, res) => {
         }
         
         if (validAccountIds.length !== accountIds.length) {
-            console.warn(`⚠️ Filtered out ${accountIds.length - validAccountIds.length} invalid account IDs`);
+            logger.warn('Filtered out invalid account IDs', {
+                total: accountIds.length,
+                valid: validAccountIds.length,
+                userId
+            });
         }
         
         // Check if user has any proxies
@@ -142,7 +157,11 @@ const checkMultipleAccounts = async (req, res) => {
 
         // Tasks will be processed automatically by the task queue processor
     } catch (error) {
-        console.error('Error in bulk check:', error);
+        logger.error('Error in bulk check', { 
+            error: error.message, 
+            userId: req.user?.id 
+        });
+        captureException(error, { userId: req.user?.id });
         res.status(500).json({ 
             success: false, 
             message: 'Toplu kontrol sırasında hata oluştu' 
@@ -176,7 +195,12 @@ const getAccountInventory = (req, res) => {
 
         res.json({ success: true, inventory });
     } catch (error) {
-        console.error('Error fetching inventory:', error);
+        logger.error('Error fetching inventory', { 
+            error: error.message, 
+            accountId: req.params.accountId, 
+            userId: req.user?.id 
+        });
+        captureException(error, { accountId: req.params.accountId, userId: req.user?.id });
         res.status(500).json({ success: false, message: 'Envanter alınırken hata oluştu' });
     }
 };
@@ -198,7 +222,12 @@ const getTaskStatus = (req, res) => {
 
         res.json({ success: true, task });
     } catch (error) {
-        console.error('Error fetching task status:', error);
+        logger.error('Error fetching task status', { 
+            error: error.message, 
+            taskId: req.params.taskId, 
+            userId: req.user?.id 
+        });
+        captureException(error, { taskId: req.params.taskId, userId: req.user?.id });
         res.status(500).json({ success: false, message: 'Task durumu alınırken hata oluştu' });
     }
 };
@@ -229,7 +258,11 @@ const getUserTasks = (req, res) => {
 
         res.json({ success: true, tasks });
     } catch (error) {
-        console.error('Error fetching user tasks:', error);
+        logger.error('Error fetching user tasks', { 
+            error: error.message, 
+            userId: req.user?.id 
+        });
+        captureException(error, { userId: req.user?.id });
         res.status(500).json({ success: false, message: 'Task\'ler alınırken hata oluştu' });
     }
 };
@@ -242,7 +275,11 @@ const getTaskStatistics = (req, res) => {
         
         res.json({ success: true, stats });
     } catch (error) {
-        console.error('Error fetching task statistics:', error);
+        logger.error('Error fetching task statistics', { 
+            error: error.message, 
+            userId: req.user?.id 
+        });
+        captureException(error, { userId: req.user?.id });
         res.status(500).json({ success: false, message: 'İstatistikler alınırken hata oluştu' });
     }
 };

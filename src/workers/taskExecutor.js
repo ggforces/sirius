@@ -2,6 +2,8 @@ const db = require('../config/database');
 const taskQueueService = require('../services/taskQueueService');
 const proxyService = require('../services/proxyService');
 const { checkAccount } = require('../services/accountChecker');
+const logger = require('../utils/logger');
+const { captureException } = require('../utils/sentry');
 
 // Track tasks currently being executed to avoid duplicate execution
 const executingTasks = new Set();
@@ -22,7 +24,7 @@ async function executeTask(taskId) {
         const task = taskQueueService.getTaskById(taskId);
         
         if (!task || task.status !== 'running') {
-            console.log(`⚠️ Task ${taskId} is not in running state, skipping`);
+            logger.warn('Task not in running state', { taskId, status: task?.status });
             executingTasks.delete(taskId);
             return;
         }
@@ -44,7 +46,12 @@ async function executeTask(taskId) {
             throw new Error('Proxy bulunamadı');
         }
         
-        console.log(`🔄 Executing task ${taskId} for account ${account.username} with proxy ${proxy.ip}:${proxy.port}`);
+        logger.info('Executing task', { 
+            taskId, 
+            accountUsername: account.username, 
+            proxyIp: proxy.ip, 
+            proxyPort: proxy.port 
+        });
         
         // Execute check with proxy
         const result = await checkAccount(account, proxy);
@@ -52,11 +59,17 @@ async function executeTask(taskId) {
         // Complete task successfully
         taskQueueService.completeTask(taskId, true, result);
         
-        console.log(`✅ Task ${taskId} completed successfully`);
+        logger.info('Task completed successfully', { taskId, accountUsername: account.username });
         
         return { success: true, result };
     } catch (error) {
-        console.error(`❌ Task ${taskId} failed:`, error.message);
+        logger.error('Task execution failed', { 
+            taskId, 
+            error: error.message,
+            stack: error.stack
+        });
+        
+        captureException(error, { taskId });
         
         // Complete task with failure
         taskQueueService.completeTask(taskId, false, null, error.message);
@@ -85,7 +98,11 @@ async function processRunningTasks() {
         
         // Execute task in background (don't await)
         executeTask(task.id).catch(error => {
-            console.error(`Error executing task ${task.id}:`, error);
+            logger.error('Error executing task', { 
+                taskId: task.id, 
+                error: error.message 
+            });
+            captureException(error, { taskId: task.id });
         });
     }
 }
@@ -94,7 +111,7 @@ async function processRunningTasks() {
  * Start the task executor worker
  */
 function startTaskExecutor() {
-    console.log('🚀 Task executor worker started');
+    logger.info('Task executor worker started');
     
     // Process running tasks every 2 seconds
     setInterval(() => {

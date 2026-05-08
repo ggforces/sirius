@@ -1,7 +1,7 @@
 # Dependencies
 node_modules/
 
-# Environment variables (Private repo - .env included)
+# Environment variables
 .env.local
 .env.development.local
 .env.test.local
@@ -9,6 +9,8 @@ node_modules/
 
 # Database
 *.sqlite
+*.sqlite-shm
+*.sqlite-wal
 *.sqlite-journal
 *.db
 data/
@@ -24,6 +26,7 @@ yarn-error.log*
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # IDE
 .vscode/
@@ -31,6 +34,7 @@ Thumbs.db
 *.swp
 *.swo
 *~
+.kiro/
 
 # Build
 dist/
@@ -46,3 +50,31 @@ deploy.bat
 
 # SF CLI (local development tool)
 SF CLI/
+
+# Test files and reports
+tests/
+test-results/
+playwright-report/
+playwright.config.js
+*.test.js
+*.spec.js
+
+# Archive and documentation
+archive/
+docs/
+*_REPORT.md
+*_SUMMARY.md
+*_CHECKLIST.md
+*_GUIDE.md
+*_IMPLEMENTATION.md
+*_IMPROVEMENTS.md
+*_FIXES.md
+*_UPDATE.md
+*_COMPLETE.md
+*_TEST.md
+CHANGELOG_*.md
+
+# Scripts
+create-admin.js
+check-db.js
+

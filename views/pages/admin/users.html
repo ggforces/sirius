@@ -1,0 +1,168 @@
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>👥 User Management</h1>
+        <p>View and manage all system users</p>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-icon" style="font-size: 2rem;">👥</div>
+            <div class="stat-content">
+                <h3 id="statsTotal" style="font-size: 1.5rem;">-</h3>
+                <p style="font-size: 0.85rem;">Total Users</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="font-size: 2rem;">✅</div>
+            <div class="stat-content">
+                <h3 id="statsActive" style="font-size: 1.5rem;">-</h3>
+                <p style="font-size: 0.85rem;">Active</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="font-size: 2rem;">🛡️</div>
+            <div class="stat-content">
+                <h3 id="statsAdmins" style="font-size: 1.5rem;">-</h3>
+                <p style="font-size: 0.85rem;">Admins</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="font-size: 2rem;">📅</div>
+            <div class="stat-content">
+                <h3 id="statsWeek" style="font-size: 1.5rem;">-</h3>
+                <p style="font-size: 0.85rem;">Active This Week</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card">
+        <div class="filter-group">
+            <input type="text" id="searchInput" placeholder="🔍 Search by email..." class="form-control">
+            <select id="roleFilter" class="form-control">
+                <option value="all">All Roles</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+            <select id="statusFilter" class="form-control">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+            <button onclick="applyFilters()" class="btn btn-primary">
+                <i class="ph-bold ph-funnel"></i>
+                Filter
+            </button>
+            <button onclick="resetFilters()" class="btn btn-secondary">
+                <i class="ph-bold ph-x"></i>
+                Clear
+            </button>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0;">User List</h3>
+            <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                Showing <span id="showingCount">0</span> of <span id="totalCount">0</span> users
+            </div>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Accounts</th>
+                    <th>Proxies</th>
+                    <th>Tasks</th>
+                    <th>Balance</th>
+                    <th>Registered</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                <tr>
+                    <td colspan="11" class="text-center" style="padding: 3rem;">
+                        <div class="loading-spinner" style="margin: 0 auto 1rem;"></div>
+                        <div>Loading users...</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- User Details Modal -->
+<div class="modal" id="userDetailsModal">
+    <div class="modal-overlay" onclick="closeUserDetailsModal()"></div>
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3 class="modal-title">👤 User Details</h3>
+            <button class="modal-close" onclick="closeUserDetailsModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="userDetailsContent">
+            <div class="text-center" style="padding: 2rem;">
+                <div class="loading-spinner" style="margin: 0 auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal" id="editUserModal">
+    <div class="modal-overlay" onclick="closeEditUserModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">✏️ Edit User</h3>
+            <button class="modal-close" onclick="closeEditUserModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editUserId">
+            
+            <div class="form-group">
+                <label for="editUserRole">Role</label>
+                <select id="editUserRole" class="form-control">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <small style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">
+                    ⚠️ Admins have full system access
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="editUserStatus">Status</label>
+                <select id="editUserStatus" class="form-control">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+                <small style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">
+                    Inactive users cannot login
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="editUserBalance">Balance ($)</label>
+                <input type="number" id="editUserBalance" class="form-control" step="0.01" min="0">
+                <small style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">
+                    User account balance
+                </small>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeEditUserModal()">
+                <i class="ph-bold ph-x"></i>
+                Cancel
+            </button>
+            <button class="btn btn-primary" onclick="saveUserChanges()">
+                <i class="ph-bold ph-check"></i>
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>

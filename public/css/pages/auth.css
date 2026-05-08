@@ -351,44 +351,7 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* ==================== NOTIFICATIONS ==================== */
-.notification {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 1rem 1.5rem;
-    background: rgba(10, 14, 39, 0.95);
-    border: 1px solid rgba(0, 212, 255, 0.3);
-    border-radius: var(--radius-sm);
-    color: var(--light);
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    box-shadow: var(--shadow-lg);
-    z-index: 3000;
-    opacity: 0;
-    transform: translateY(100px);
-    transition: all var(--transition-normal);
-}
-
-.notification.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.notification-success {
-    border-color: #00ff88;
-    background: rgba(0, 255, 136, 0.1);
-}
-
-.notification-error {
-    border-color: #ff006e;
-    background: rgba(255, 0, 110, 0.1);
-}
-
-.notification-info {
-    border-color: var(--primary);
-    background: rgba(0, 212, 255, 0.1);
-}
+/* Notification styles moved to components/notifications.css */
 
 /* ==================== USER DROPDOWN ==================== */
 
@@ -517,12 +480,6 @@
     
     .modal-content {
         padding: var(--spacing-md);
-    }
-    
-    .notification {
-        right: 10px;
-        left: 10px;
-        bottom: 10px;
     }
 }
 

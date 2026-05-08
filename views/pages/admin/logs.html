@@ -1,0 +1,91 @@
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>📋 System Logs</h1>
+        <p>Real-time system log monitoring and analysis</p>
+    </div>
+
+    <!-- Log Stats -->
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-icon" style="font-size: 1.5rem;">📊</div>
+            <div class="stat-content">
+                <h3 id="logCount" style="font-size: 1.25rem;">-</h3>
+                <p style="font-size: 0.85rem;">Total Logs</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="font-size: 1.5rem;">❌</div>
+            <div class="stat-content">
+                <h3 id="errorCount" style="font-size: 1.25rem;">-</h3>
+                <p style="font-size: 0.85rem;">Errors</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="font-size: 1.5rem;">⚠️</div>
+            <div class="stat-content">
+                <h3 id="warnCount" style="font-size: 1.25rem;">-</h3>
+                <p style="font-size: 0.85rem;">Warnings</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="font-size: 1.5rem;">ℹ️</div>
+            <div class="stat-content">
+                <h3 id="infoCount" style="font-size: 1.25rem;">-</h3>
+                <p style="font-size: 0.85rem;">Info</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-card">
+        <div class="filter-group">
+            <select id="logLevel" class="form-control">
+                <option value="all">All Levels</option>
+                <option value="error">❌ Error</option>
+                <option value="warn">⚠️ Warning</option>
+                <option value="info">ℹ️ Info</option>
+                <option value="http">🌐 HTTP</option>
+                <option value="debug">🐛 Debug</option>
+            </select>
+            <select id="logLimit" class="form-control">
+                <option value="50">Last 50</option>
+                <option value="100" selected>Last 100</option>
+                <option value="200">Last 200</option>
+                <option value="500">Last 500</option>
+            </select>
+            <button onclick="loadLogs()" class="btn btn-primary">
+                <i class="ph-bold ph-arrow-clockwise"></i>
+                Refresh
+            </button>
+            <button onclick="toggleAutoRefresh()" class="btn btn-secondary" id="autoRefreshBtn">
+                <i class="ph-bold ph-play"></i>
+                Auto Refresh
+            </button>
+            <button onclick="clearLogsDisplay()" class="btn btn-secondary">
+                <i class="ph-bold ph-trash"></i>
+                Clear Display
+            </button>
+            <button onclick="exportLogs()" class="btn btn-secondary">
+                <i class="ph-bold ph-download"></i>
+                Export
+            </button>
+        </div>
+    </div>
+
+    <!-- Logs Display -->
+    <div class="logs-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0;">Log Stream</h3>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span id="autoRefreshStatus" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
+                <span id="lastUpdate" style="color: var(--text-secondary); font-size: 0.875rem;"></span>
+            </div>
+        </div>
+        <div id="logsContainer" class="logs-container">
+            <div class="text-center" style="padding: 2rem;">
+                <div class="loading-spinner" style="margin: 0 auto 1rem;"></div>
+                <div style="color: var(--text-secondary);">Loading logs...</div>
+            </div>
+        </div>
+    </div>
+</div>

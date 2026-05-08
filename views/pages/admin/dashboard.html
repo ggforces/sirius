@@ -1,0 +1,148 @@
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Admin Dashboard</h1>
+        <p>System overview and real-time monitoring</p>
+    </div>
+
+    <!-- System Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ph-bold ph-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalUsers">-</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ph-bold ph-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="activeUsers">-</h3>
+                <p>Active Users</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ph-bold ph-game-controller"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalAccounts">-</h3>
+                <p>Steam Accounts</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ph-bold ph-globe"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalProxies">-</h3>
+                <p>Total Proxies</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ph-bold ph-list-checks"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="totalTasks">-</h3>
+                <p>Total Tasks</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ph-bold ph-hourglass"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="pendingTasks">-</h3>
+                <p>Pending Tasks</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ph-bold ph-database"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="dbSize">-</h3>
+                <p>Database Size</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="ph-bold ph-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <h3 id="successRate">-</h3>
+                <p>Success Rate</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3><i class="ph-bold ph-trend-up"></i> Last 7 Days - New Registrations</h3>
+            <canvas id="registrationsChart"></canvas>
+        </div>
+        
+        <div class="chart-card">
+            <h3><i class="ph-bold ph-lightning"></i> Last 24 Hours - Task Activity</h3>
+            <canvas id="tasksChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h3><i class="ph-bold ph-lightning"></i> Quick Actions</h3>
+        <div class="action-buttons">
+            <a href="/panel/admin/users" class="btn btn-primary">
+                <i class="ph-bold ph-users"></i>
+                Manage Users
+            </a>
+            <a href="/panel/admin/logs" class="btn btn-secondary">
+                <i class="ph-bold ph-file-text"></i>
+                View System Logs
+            </a>
+            <button id="refreshStatsBtn" class="btn btn-secondary">
+                <i class="ph-bold ph-arrow-clockwise"></i>
+                Refresh Stats
+            </button>
+            <button id="exportDataBtn" class="btn btn-secondary">
+                <i class="ph-bold ph-download"></i>
+                Export Data
+            </button>
+        </div>
+    </div>
+
+    <!-- System Health -->
+    <div class="quick-actions" style="margin-top: 1.5rem;">
+        <h3><i class="ph-bold ph-heartbeat"></i> System Health</h3>
+        <div class="detail-grid">
+            <div>
+                <strong>Server Status</strong>
+                <span id="serverStatus" class="badge badge-active">Online</span>
+            </div>
+            <div>
+                <strong>Last Backup</strong>
+                <span id="lastBackup">Never</span>
+            </div>
+            <div>
+                <strong>Uptime</strong>
+                <span id="systemUptime">-</span>
+            </div>
+            <div>
+                <strong>Memory Usage</strong>
+                <span id="memoryUsage">-</span>
+            </div>
+        </div>
+    </div>
+</div>

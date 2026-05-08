@@ -1,5 +1,7 @@
 const db = require('../config/database');
 const proxyService = require('./proxyService');
+const logger = require('../utils/logger');
+const { captureException } = require('../utils/sentry');
 
 const TASK_TIMEOUT = 120 * 1000; // 120 seconds
 const PENDING_CHECK_INTERVAL = 5000; // Check pending tasks every 5 seconds
@@ -213,7 +215,7 @@ function checkTimeouts() {
     `).all(now);
     
     timedOutTasks.forEach(task => {
-        console.log(`⏱️ Task ${task.id} timed out`);
+        logger.warn('Task timed out', { taskId: task.id });
         timeoutTask(task.id);
     });
     
@@ -238,10 +240,10 @@ async function processPendingQueue() {
             const started = await tryStartTask(task.id);
             
             if (started) {
-                console.log(`✅ Task ${task.id} started with proxy`);
+                logger.info('Task started with proxy', { taskId: task.id });
             } else {
                 // No proxy available, task stays pending
-                console.log(`⏳ Task ${task.id} waiting for available proxy`);
+                logger.debug('Task waiting for available proxy', { taskId: task.id });
                 break; // Don't try other tasks for this user
             }
         }
@@ -281,7 +283,7 @@ function resetRunningTasksOnStartup() {
             return;
         }
         
-        console.log(`🔄 Found ${runningTasks.length} interrupted tasks, resetting to pending...`);
+        logger.info('Resetting interrupted tasks', { count: runningTasks.length });
         
         // Reset tasks to pending and unlock their proxies
         db.transaction(() => {
@@ -309,9 +311,10 @@ function resetRunningTasksOnStartup() {
             }
         })();
         
-        console.log(`✅ Reset ${runningTasks.length} tasks to pending`);
+        logger.info('Tasks reset to pending', { count: runningTasks.length });
     } catch (error) {
-        console.error('Error resetting running tasks:', error);
+        logger.error('Error resetting running tasks', { error: error.message });
+        captureException(error);
     }
 }
 
@@ -319,7 +322,7 @@ function resetRunningTasksOnStartup() {
  * Start the task queue processor
  */
 function startTaskQueueProcessor() {
-    console.log('🚀 Task queue processor started');
+    logger.info('Task queue processor started');
     
     // Reset interrupted tasks on startup
     resetRunningTasksOnStartup();

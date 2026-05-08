@@ -5,15 +5,16 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "NODE_ENV=development node server.js",
-    "prod": "NODE_ENV=production node server.js",
+    "dev": "set NODE_ENV=development&& node server.js",
+    "prod": "set NODE_ENV=production&& node server.js",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "docker:restart": "docker-compose restart",
     "clean:db": "node clean_database.js",
-    "check:db": "node check_database.js"
+    "check:db": "node check_database.js",
+    "create-admin": "node create-admin.js"
   },
   "keywords": [
     "steam",
@@ -23,6 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/node": "^10.52.0",
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^9.2.2",
     "cookie-parser": "^1.4.6",
@@ -36,7 +38,9 @@
     "request": "^2.88.2",
     "steam-totp": "^2.1.2",
     "steam-user": "^5.3.0",
-    "steamcommunity": "^3.50.0"
+    "steamcommunity": "^3.50.0",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",

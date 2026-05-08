@@ -11,6 +11,9 @@ Steam hesap yönetimi ve FarmLabs entegrasyonu.
 - Çoklu dil (TR/EN)
 - Rate limiting
 - Docker desteği
+- **Winston logging** (structured logging with daily rotation)
+- **Sentry error tracking** (real-time error monitoring)
+- **Admin Panel** (user management, system monitoring, real-time logs)
 
 ## Kurulum
 
@@ -26,6 +29,17 @@ docker-compose up -d --build
 ```
 
 Detaylı kurulum: `SETUP.md`
+
+## Admin Panel
+
+Admin kullanıcı oluşturma:
+```bash
+npm run create-admin admin@example.com SecurePassword123
+```
+
+Admin panel: `http://localhost:5050/panel/admin`
+
+Detaylı admin guide: `ADMIN_PANEL_GUIDE.md`
 
 ## Teknolojiler
 
@@ -70,7 +84,16 @@ CORS_ORIGIN=https://sonsuz.dev
 DB_PATH=./database.sqlite
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
+
+# Logging
+LOG_LEVEL=info
+LOG_DIR=./logs
+
+# Sentry (optional)
+SENTRY_DSN=https://xxxxx@xxxxx.ingest.sentry.io/xxxxx
 ```
+
+Detaylı logging guide: `LOGGING_GUIDE.md`
 
 ## Güvenlik
 

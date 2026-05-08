@@ -33,6 +33,12 @@ function renderAccounts() {
     const emptyState = document.getElementById('emptyState');
     const table = document.getElementById('accountsTable');
     
+    // Check if elements exist
+    if (!tbody || !emptyState || !table) {
+        console.warn('Accounts page elements not found');
+        return;
+    }
+    
     if (accounts.length === 0) {
         table.style.display = 'none';
         emptyState.style.display = 'flex';
@@ -238,24 +244,54 @@ function escapeHtml(text) {
 // ==================== EVENT LISTENERS ====================
 
 // Add account button
-document.getElementById('addAccountBtn').addEventListener('click', openAddModal);
+const addAccountBtn = document.getElementById('addAccountBtn');
+if (addAccountBtn) {
+    addAccountBtn.addEventListener('click', openAddModal);
+}
 
-// Add first account button (in empty state)
-document.getElementById('addFirstAccountBtn').addEventListener('click', openAddModal);
+// Add first account button (in empty state) - support both IDs
+const addFirstAccountBtn = document.getElementById('addFirstAccountBtn');
+if (addFirstAccountBtn) {
+    addFirstAccountBtn.addEventListener('click', openAddModal);
+}
+
+const addFirstAccountDashboard = document.getElementById('addFirstAccountDashboard');
+if (addFirstAccountDashboard) {
+    addFirstAccountDashboard.addEventListener('click', openAddModal);
+}
 
 // Modal close - only overlay click
-document.getElementById('modalOverlay').addEventListener('click', closeModal);
+const modalOverlay = document.getElementById('modalOverlay');
+if (modalOverlay) {
+    modalOverlay.addEventListener('click', closeModal);
+}
 
 // Delete modal close buttons
-document.getElementById('deleteModalOverlay').addEventListener('click', closeDeleteModal);
-document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+const deleteModalOverlay = document.getElementById('deleteModalOverlay');
+if (deleteModalOverlay) {
+    deleteModalOverlay.addEventListener('click', closeDeleteModal);
+}
+
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+}
 
 // Confirm delete button
-document.getElementById('confirmDeleteBtn').addEventListener('click', handleDelete);
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', handleDelete);
+}
 
 // Form submit
-document.getElementById('accountForm').addEventListener('submit', handleFormSubmit);
+const accountForm = document.getElementById('accountForm');
+if (accountForm) {
+    accountForm.addEventListener('submit', handleFormSubmit);
+}
 
 // ==================== INITIALIZE ====================
 
-loadAccounts();
+// Only load accounts if we're on the accounts page
+if (document.getElementById('accountsTableBody')) {
+    loadAccounts();
+}

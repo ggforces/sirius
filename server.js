@@ -6,6 +6,10 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 require('dotenv').config();
 
+// Import logger and Sentry
+const logger = require('./src/utils/logger');
+const { initSentry, getRequestHandler, getTracingHandler, getErrorHandler, captureException } = require('./src/utils/sentry');
+
 // Import database (initializes tables)
 require('./src/config/database');
 
@@ -20,6 +24,7 @@ const accountsRoutes = require('./src/routes/accountsRoutes');
 const tasksRoutes = require('./src/routes/tasks');
 const proxiesRoutes = require('./src/routes/proxiesRoutes');
 const viewRoutes = require('./src/routes/viewRoutes');
+const adminRoutes = require('./src/routes/adminRoutes');
 
 // Import task queue service
 const taskQueueService = require('./src/services/taskQueueService');
@@ -30,6 +35,17 @@ const taskExecutor = require('./src/workers/taskExecutor');
 const app = express();
 const PORT = process.env.PORT || 5050;
 
+// ==================== SENTRY INITIALIZATION ====================
+
+// Initialize Sentry (must be before other middleware)
+initSentry(app);
+
+// Sentry request handler (must be first middleware)
+app.use(getRequestHandler());
+
+// Sentry tracing handler
+app.use(getTracingHandler());
+
 // ==================== SECURITY MIDDLEWARE ====================
 
 // Helmet for security headers
@@ -39,7 +55,7 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://unpkg.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://unpkg.com"],
-            scriptSrc: ["'self'", "'unsafe-eval'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://static.cloudflareinsights.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://static.cloudflareinsights.com"],
             imgSrc: ["'self'", "data:", "https:"],
             connectSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cloudflareinsights.com"],
         },
@@ -60,6 +76,10 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Request logging middleware
+const requestLogger = require('./src/middleware/requestLogger');
+app.use(requestLogger);
 
 // ==================== RATE LIMITING ====================
 
@@ -178,14 +198,32 @@ app.use('/api/farmlabs', farmlabsRoutes);
 app.use('/api/accounts', accountsRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/proxies', proxiesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        success: true, 
-        message: 'Server is running',
-        timestamp: new Date().toISOString()
-    });
+    try {
+        const db = require('./src/config/database');
+        
+        // Test database connection
+        db.prepare('SELECT 1').get();
+        
+        res.json({ 
+            success: true, 
+            message: 'Server is running',
+            timestamp: new Date().toISOString(),
+            database: 'connected',
+            environment: process.env.NODE_ENV || 'development'
+        });
+    } catch (error) {
+        logger.error('Health check failed', { error: error.message });
+        res.status(503).json({
+            success: false,
+            message: 'Service unavailable',
+            timestamp: new Date().toISOString(),
+            database: 'disconnected'
+        });
+    }
 });
 
 // Debug endpoint - Database info (only in development)
@@ -284,15 +322,52 @@ app.use('/panel', viewRoutes);
 
 // 404 handler for API routes
 app.use('/api/*', (req, res) => {
+    logger.warn('API endpoint not found', {
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip
+    });
+    
     res.status(404).json({ 
         success: false, 
         message: 'API endpoint bulunamadı.' 
     });
 });
 
+// 404 handler for all other routes
+app.use('*', (req, res) => {
+    logger.warn('Page not found', {
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip
+    });
+    
+    res.status(404).sendFile('404.html', { root: './public' });
+});
+
+// Sentry error handler (must be before other error handlers)
+app.use(getErrorHandler());
+
 // Global error handler
 app.use((err, req, res, next) => {
-    console.error('Error:', err);
+    // Log error
+    logger.error('Unhandled error', {
+        error: err.message,
+        stack: err.stack,
+        url: req.originalUrl,
+        method: req.method,
+        userId: req.user?.id
+    });
+    
+    // Capture to Sentry if it's a 500+ error
+    if (!err.status || err.status >= 500) {
+        captureException(err, {
+            url: req.originalUrl,
+            method: req.method,
+            userId: req.user?.id
+        });
+    }
+    
     res.status(err.status || 500).json({
         success: false,
         message: process.env.NODE_ENV === 'production' 
@@ -304,16 +379,16 @@ app.use((err, req, res, next) => {
 // ==================== START SERVER ====================
 
 app.listen(PORT, () => {
-    console.log('╔════════════════════════════════════════╗');
-    console.log('║   🌟 SIRIUS STEAM AUTOMATION 🌟      ║');
-    console.log('╠════════════════════════════════════════╣');
-    console.log(`║   Server: http://localhost:${PORT}       ║`);
-    console.log(`║   Environment: ${process.env.NODE_ENV}            ║`);
-    console.log('║   Database: SQLite (Local)             ║');
-    console.log('╠════════════════════════════════════════╣');
-    console.log('║   🔄 Task Queue: Active                ║');
-    console.log('║   🔄 Task Executor: Active             ║');
-    console.log('╚════════════════════════════════════════╝');
+    logger.info('╔════════════════════════════════════════╗');
+    logger.info('║   🌟 SIRIUS STEAM AUTOMATION 🌟      ║');
+    logger.info('╠════════════════════════════════════════╣');
+    logger.info(`║   Server: http://localhost:${PORT}       ║`);
+    logger.info(`║   Environment: ${process.env.NODE_ENV || 'development'}            ║`);
+    logger.info('║   Database: SQLite (Local)             ║');
+    logger.info('╠════════════════════════════════════════╣');
+    logger.info('║   🔄 Task Queue: Active                ║');
+    logger.info('║   🔄 Task Executor: Active             ║');
+    logger.info('╚════════════════════════════════════════╝');
     
     // Start task queue processor
     taskQueueService.startTaskQueueProcessor();
@@ -321,12 +396,40 @@ app.listen(PORT, () => {
     // Start task executor worker
     taskExecutor.startTaskExecutor();
     
-    console.log('║   Status: ✅ Running                    ║');
-    console.log('╚════════════════════════════════════════╝');
+    logger.info('║   Status: ✅ Running                    ║');
+    logger.info('╚════════════════════════════════════════╝');
+    
+    logger.info('Server started successfully', {
+        port: PORT,
+        environment: process.env.NODE_ENV || 'development',
+        logLevel: process.env.LOG_LEVEL || 'info',
+        sentryEnabled: !!(process.env.SENTRY_DSN && process.env.NODE_ENV === 'production')
+    });
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-    console.log('\n🛑 Shutting down gracefully...');
+    logger.info('🛑 Shutting down gracefully...');
     process.exit(0);
+});
+
+// Unhandled rejection handler
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection', {
+        reason: reason,
+        promise: promise
+    });
+    captureException(new Error(`Unhandled Rejection: ${reason}`));
+});
+
+// Uncaught exception handler
+process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception', {
+        error: error.message,
+        stack: error.stack
+    });
+    captureException(error);
+    
+    // Exit process after logging
+    process.exit(1);
 });

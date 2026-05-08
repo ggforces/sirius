@@ -2,6 +2,15 @@ const Database = require('better-sqlite3');
 const path = require('path');
 require('dotenv').config();
 
+// Logger'ı import et (circular dependency'yi önlemek için try-catch)
+let logger;
+try {
+    logger = require('../utils/logger');
+} catch (error) {
+    // Logger henüz yüklenmemişse console kullan
+    logger = console;
+}
+
 const dbPath = process.env.DB_PATH || './database.sqlite';
 const db = new Database(dbPath);
 
@@ -20,6 +29,8 @@ function initializeDatabase() {
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             balance REAL DEFAULT 0.00,
+            role TEXT DEFAULT 'user',
+            is_active INTEGER DEFAULT 1,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_login DATETIME
         )
@@ -91,22 +102,22 @@ function initializeDatabase() {
     // Migration: Add drop_count column if it doesn't exist
     try {
         db.exec(`ALTER TABLE earnings ADD COLUMN drop_count INTEGER DEFAULT 0`);
-        console.log('✅ Migration: drop_count column added to earnings table');
+        logger.info('Migration: drop_count column added to earnings table');
     } catch (error) {
         // Column already exists, ignore error
         if (!error.message.includes('duplicate column name')) {
-            console.error('Migration error:', error.message);
+            logger.error('Migration error', { error: error.message });
         }
     }
 
     // Migration: Add last_login column if it doesn't exist
     try {
         db.exec(`ALTER TABLE users ADD COLUMN last_login DATETIME`);
-        console.log('✅ Migration: last_login column added to users table');
+        logger.info('Migration: last_login column added to users table');
     } catch (error) {
         // Column already exists, ignore error
         if (!error.message.includes('duplicate column name')) {
-            console.error('Migration error:', error.message);
+            logger.error('Migration error', { error: error.message });
         }
     }
 
@@ -130,10 +141,10 @@ function initializeDatabase() {
     steamAccountColumns.forEach(column => {
         try {
             db.exec(`ALTER TABLE steam_accounts ADD COLUMN ${column}`);
-            console.log(`✅ Migration: ${column.split(' ')[0]} column added to steam_accounts table`);
+            logger.info(`Migration: ${column.split(' ')[0]} column added to steam_accounts table`);
         } catch (error) {
             if (!error.message.includes('duplicate column name')) {
-                console.error('Migration error:', error.message);
+                logger.error('Migration error', { error: error.message });
             }
         }
     });
@@ -147,10 +158,27 @@ function initializeDatabase() {
     userProxyColumns.forEach(column => {
         try {
             db.exec(`ALTER TABLE users ADD COLUMN ${column}`);
-            console.log(`✅ Migration: ${column.split(' ')[0]} column added to users table`);
+            logger.info(`Migration: ${column.split(' ')[0]} column added to users table`);
         } catch (error) {
             if (!error.message.includes('duplicate column name')) {
-                console.error('Migration error:', error.message);
+                logger.error('Migration error', { error: error.message });
+            }
+        }
+    });
+
+    // Migration: Add role and is_active columns to users table
+    const userAdminColumns = [
+        'role TEXT DEFAULT "user"',
+        'is_active INTEGER DEFAULT 1'
+    ];
+
+    userAdminColumns.forEach(column => {
+        try {
+            db.exec(`ALTER TABLE users ADD COLUMN ${column}`);
+            logger.info(`Migration: ${column.split(' ')[0]} column added to users table`);
+        } catch (error) {
+            if (!error.message.includes('duplicate column name')) {
+                logger.error('Migration error', { error: error.message });
             }
         }
     });
@@ -234,7 +262,7 @@ function initializeDatabase() {
         CREATE INDEX IF NOT EXISTS idx_tasks_account_id ON tasks(account_id);
     `);
 
-    console.log('✅ Database initialized successfully');
+    logger.info('Database initialized successfully');
 }
 
 // Initialize on module load
@@ -249,10 +277,10 @@ function cleanupExpiredSessions() {
         `).run();
         
         if (result.changes > 0) {
-            console.log(`🧹 Startup cleanup: Removed ${result.changes} expired sessions`);
+            logger.info('Startup cleanup: Removed expired sessions', { count: result.changes });
         }
     } catch (error) {
-        console.error('Startup session cleanup error:', error);
+        logger.error('Startup session cleanup error', { error: error.message });
     }
 }
 
