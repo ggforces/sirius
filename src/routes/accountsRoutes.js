@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAccounts, addAccount, updateAccount, deleteAccount } = require('../controllers/accountsController');
+const { getAccounts, addAccount, addAccountsBulk, updateAccount, deleteAccount, deleteAccountsBulk } = require('../controllers/accountsController');
 const { authenticateToken } = require('../middleware/auth');
 
 // Tüm route'lar authentication gerektirir
@@ -19,6 +19,20 @@ router.get('/', getAccounts);
  * @access  Private
  */
 router.post('/', addAccount);
+
+/**
+ * @route   POST /api/accounts/bulk
+ * @desc    Toplu Steam hesabı ekle
+ * @access  Private
+ */
+router.post('/bulk', addAccountsBulk);
+
+/**
+ * @route   DELETE /api/accounts/bulk
+ * @desc    Toplu Steam hesabı sil
+ * @access  Private
+ */
+router.delete('/bulk', deleteAccountsBulk);
 
 /**
  * @route   PUT /api/accounts/:id

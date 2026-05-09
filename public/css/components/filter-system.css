@@ -1,0 +1,177 @@
+/**
+ * Filter System Component Styles
+ * 
+ * Horizontal filter bar with task counts and active state highlighting
+ * Requirements: 6.7, 6.8, 6.10, 8.2, 8.6
+ */
+
+/* Filter System Container */
+.filter-system {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: var(--spacing-md, 1.5rem);
+    padding: 0.5rem 0;
+}
+
+/* Filter Button Base Styles */
+.filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm, 8px);
+    color: var(--gray-light, #ccd6f6);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast, 0.2s ease);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-height: 44px;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Filter Label */
+.filter-label {
+    font-size: 0.9rem;
+}
+
+/* Filter Count Badge */
+.filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: 'Orbitron', sans-serif;
+    transition: all var(--transition-fast, 0.2s ease);
+}
+
+/* Active Filter State */
+.filter-btn-active {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(123, 47, 247, 0.2) 100%);
+    border-color: var(--primary, #00d4ff);
+    color: var(--light, #ffffff);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+.filter-btn-active:hover {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.25) 0%, rgba(123, 47, 247, 0.25) 100%);
+    border-color: var(--primary, #00d4ff);
+    transform: translateY(-1px);
+}
+
+.filter-btn-active .filter-count {
+    background: var(--primary, #00d4ff);
+    color: var(--dark, #0a0e27);
+    font-weight: 700;
+}
+
+/* Focus State for Accessibility */
+.filter-btn:focus {
+    outline: 2px solid var(--primary, #00d4ff);
+    outline-offset: 2px;
+}
+
+.filter-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Disabled State */
+.filter-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.filter-btn:disabled:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Tablet and below */
+@media (max-width: 1024px) {
+    .filter-system {
+        gap: 0.625rem;
+    }
+    
+    .filter-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .filter-label {
+        font-size: 0.85rem;
+    }
+    
+    .filter-count {
+        min-width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Mobile devices - vertical layout */
+@media (max-width: 768px) {
+    .filter-system {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.25rem 0;
+    }
+    
+    .filter-btn {
+        width: 100%;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        min-height: 44px;
+    }
+    
+    .filter-label {
+        font-size: 0.8rem;
+    }
+    
+    .filter-count {
+        min-width: 20px;
+        height: 20px;
+        padding: 0 0.4rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Small mobile devices - enhanced touch targets */
+@media (max-width: 480px) {
+    .filter-btn {
+        padding: 0.875rem 1rem;
+        font-size: 0.8rem;
+        min-height: 48px;
+    }
+    
+    .filter-label {
+        font-size: 0.75rem;
+    }
+    
+    .filter-count {
+        min-width: 20px;
+        height: 20px;
+        padding: 0 0.35rem;
+        font-size: 0.7rem;
+    }
+}

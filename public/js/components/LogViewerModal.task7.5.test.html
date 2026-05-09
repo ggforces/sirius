@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogViewerModal Task 7.5 - Virtual Scrolling Test</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="../../css/base/variables.css">
+    <link rel="stylesheet" href="../../css/base/reset.css">
+    <link rel="stylesheet" href="../../css/base/typography.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="../../css/components/buttons.css">
+    <link rel="stylesheet" href="../../css/components/modals.css">
+    <link rel="stylesheet" href="../../css/components/log-viewer-modal.css">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+    
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .test-section h2 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .test-info p {
+            margin: 0.5rem 0;
+        }
+        
+        .test-results {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .test-results .pass {
+            color: #4CAF50;
+        }
+        
+        .test-results .fail {
+            color: #F44336;
+        }
+        
+        .test-results .info {
+            color: #FFC107;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>LogViewerModal Task 7.5 - Virtual Scrolling Test</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Testing virtual scrolling optimization for large log volumes (1000+ logs)
+        </p>
+        
+        <!-- Test Section 1: Small Log Volume (Standard Rendering) -->
+        <div class="test-section">
+            <h2>Test 1: Small Log Volume (100 logs)</h2>
+            <div class="test-info">
+                <p><strong>Expected:</strong> Standard rendering (no virtual scrolling)</p>
+                <p><strong>Verification:</strong> All 100 log entries should be in DOM</p>
+            </div>
+            <div class="test-controls">
+                <button class="btn btn-primary" id="test1-btn">Open Modal with 100 Logs</button>
+            </div>
+            <div class="test-results" id="test1-results">
+                <p>Click button to run test...</p>
+            </div>
+        </div>
+        
+        <!-- Test Section 2: Large Log Volume (Virtual Scrolling) -->
+        <div class="test-section">
+            <h2>Test 2: Large Log Volume (2000 logs)</h2>
+            <div class="test-info">
+                <p><strong>Expected:</strong> Virtual scrolling enabled</p>
+                <p><strong>Verification:</strong> Only visible log entries should be in DOM (~50-70 items)</p>
+            </div>
+            <div class="test-controls">
+                <button class="btn btn-primary" id="test2-btn">Open Modal with 2000 Logs</button>
+            </div>
+            <div class="test-results" id="test2-results">
+                <p>Click button to run test...</p>
+            </div>
+        </div>
+        
+        <!-- Test Section 3: Performance Test -->
+        <div class="test-section">
+            <h2>Test 3: Performance Test (5000 logs)</h2>
+            <div class="test-info">
+                <p><strong>Expected:</strong> Render time should be fast even with 5000 logs</p>
+                <p><strong>Verification:</strong> Render time < 300ms, smooth scrolling</p>
+            </div>
+            <div class="test-controls">
+                <button class="btn btn-primary" id="test3-btn">Open Modal with 5000 Logs</button>
+            </div>
+            <div class="test-results" id="test3-results">
+                <p>Click button to run test...</p>
+            </div>
+        </div>
+        
+        <!-- Test Section 4: Scroll Performance -->
+        <div class="test-section">
+            <h2>Test 4: Scroll Performance Test</h2>
+            <div class="test-info">
+                <p><strong>Expected:</strong> Smooth scrolling with virtual scroll updates</p>
+                <p><strong>Verification:</strong> Scroll should be smooth, DOM updates should be throttled</p>
+            </div>
+            <div class="test-controls">
+                <button class="btn btn-primary" id="test4-btn">Open Modal and Auto-Scroll</button>
+            </div>
+            <div class="test-results" id="test4-results">
+                <p>Click button to run test...</p>
+            </div>
+        </div>
+        
+        <!-- Test Section 5: Document Fragment Test -->
+        <div class="test-section">
+            <h2>Test 5: Document Fragment Batch Updates</h2>
+            <div class="test-info">
+                <p><strong>Expected:</strong> DOM updates should use document fragments</p>
+                <p><strong>Verification:</strong> Check that updateVirtualScroll uses createDocumentFragment</p>
+            </div>
+            <div class="test-controls">
+                <button class="btn btn-primary" id="test5-btn">Verify Document Fragment Usage</button>
+            </div>
+            <div class="test-results" id="test5-results">
+                <p>Click button to run test...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mock translation function -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.logModal.title': 'Görev Logları',
+                'tasks.logModal.close': 'Kapat',
+                'tasks.logModal.loading': 'Loglar yükleniyor...',
+                'tasks.logModal.loadError': 'Loglar yüklenirken hata oluştu',
+                'tasks.logModal.noLogs': 'Henüz log bulunmuyor',
+                'tasks.logModal.noLogsDesc': 'Bu görev için henüz log kaydı oluşturulmamış',
+                'tasks.logModal.retryLimitReached': 'Tekrar deneme limiti aşıldı',
+                'tasks.notifications.retry': 'Tekrar Dene',
+                'tasks.notifications.serverError': 'Sunucu Hatası',
+                'tasks.notifications.connectionError': 'Bağlantı Hatası'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- Component -->
+    <script src="./LogViewerModal.js"></script>
+    
+    <!-- Test Script -->
+    <script>
+        // Initialize modal
+        const logModal = new LogViewerModal('testLogModal');
+        
+        // Helper function to generate mock logs
+        function generateMockLogs(count) {
+            const levels = ['info', 'success', 'warning', 'error'];
+            const messages = [
+                'Task started successfully',
+                'Processing account data',
+                'Connecting to proxy server',
+                'Authentication completed',
+                'Data validation in progress',
+                'Warning: Rate limit approaching',
+                'Error: Connection timeout',
+                'Retrying operation...',
+                'Operation completed successfully',
+                'Cleaning up resources'
+            ];
+            
+            const logs = [];
+            const now = new Date();
+            
+            for (let i = 0; i < count; i++) {
+                const timestamp = new Date(now.getTime() - (count - i) * 1000);
+                logs.push({
+                    id: i + 1,
+                    task_id: 1,
+                    level: levels[Math.floor(Math.random() * levels.length)],
+                    message: `[${i + 1}] ${messages[Math.floor(Math.random() * messages.length)]}`,
+                    created_at: timestamp.toISOString()
+                });
+            }
+            
+            return logs;
+        }
+        
+        // Helper function to count DOM elements
+        function countLogEntriesInDOM() {
+            const viewport = document.getElementById('testLogModal-log-viewport');
+            const logList = document.getElementById('testLogModal-log-list');
+            
+            if (viewport) {
+                // Virtual scrolling mode
+                return viewport.querySelectorAll('.log-entry').length;
+            } else if (logList) {
+                // Standard mode
+                return logList.querySelectorAll('.log-entry').length;
+            }
+            
+            return 0;
+        }
+        
+        // Test 1: Small Log Volume (100 logs)
+        document.getElementById('test1-btn').addEventListener('click', async () => {
+            const resultsDiv = document.getElementById('test1-results');
+            resultsDiv.innerHTML = '<p class="info">Running test...</p>';
+            
+            const logs = generateMockLogs(100);
+            logModal.logs = logs;
+            logModal.currentTaskId = 1;
+            logModal.modal.classList.add('active');
+            
+            const startTime = performance.now();
+            logModal.renderLogs();
+            const endTime = performance.now();
+            const renderTime = endTime - startTime;
+            
+            // Wait for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const domCount = countLogEntriesInDOM();
+            const virtualScrollEnabled = logModal.virtualScrollEnabled;
+            
+            let results = `<p class="info">Test Results:</p>`;
+            results += `<p>Logs generated: 100</p>`;
+            results += `<p>Render time: ${renderTime.toFixed(2)}ms</p>`;
+            results += `<p>Virtual scrolling enabled: ${virtualScrollEnabled ? 'Yes' : 'No'}</p>`;
+            results += `<p>DOM elements: ${domCount}</p>`;
+            
+            if (!virtualScrollEnabled && domCount === 100) {
+                results += `<p class="pass">✓ PASS: Standard rendering used for small log volume</p>`;
+            } else {
+                results += `<p class="fail">✗ FAIL: Expected standard rendering with 100 DOM elements</p>`;
+            }
+            
+            resultsDiv.innerHTML = results;
+        });
+        
+        // Test 2: Large Log Volume (2000 logs)
+        document.getElementById('test2-btn').addEventListener('click', async () => {
+            const resultsDiv = document.getElementById('test2-results');
+            resultsDiv.innerHTML = '<p class="info">Running test...</p>';
+            
+            const logs = generateMockLogs(2000);
+            logModal.logs = logs;
+            logModal.currentTaskId = 1;
+            logModal.modal.classList.add('active');
+            
+            const startTime = performance.now();
+            logModal.renderLogs();
+            const endTime = performance.now();
+            const renderTime = endTime - startTime;
+            
+            // Wait for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const domCount = countLogEntriesInDOM();
+            const virtualScrollEnabled = logModal.virtualScrollEnabled;
+            
+            let results = `<p class="info">Test Results:</p>`;
+            results += `<p>Logs generated: 2000</p>`;
+            results += `<p>Render time: ${renderTime.toFixed(2)}ms</p>`;
+            results += `<p>Virtual scrolling enabled: ${virtualScrollEnabled ? 'Yes' : 'No'}</p>`;
+            results += `<p>DOM elements: ${domCount}</p>`;
+            
+            if (virtualScrollEnabled && domCount < 100) {
+                results += `<p class="pass">✓ PASS: Virtual scrolling enabled, only ${domCount} elements in DOM</p>`;
+            } else {
+                results += `<p class="fail">✗ FAIL: Expected virtual scrolling with < 100 DOM elements</p>`;
+            }
+            
+            resultsDiv.innerHTML = results;
+        });
+        
+        // Test 3: Performance Test (5000 logs)
+        document.getElementById('test3-btn').addEventListener('click', async () => {
+            const resultsDiv = document.getElementById('test3-results');
+            resultsDiv.innerHTML = '<p class="info">Running test...</p>';
+            
+            const logs = generateMockLogs(5000);
+            logModal.logs = logs;
+            logModal.currentTaskId = 1;
+            logModal.modal.classList.add('active');
+            
+            const startTime = performance.now();
+            logModal.renderLogs();
+            const endTime = performance.now();
+            const renderTime = endTime - startTime;
+            
+            // Wait for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const domCount = countLogEntriesInDOM();
+            const virtualScrollEnabled = logModal.virtualScrollEnabled;
+            
+            let results = `<p class="info">Test Results:</p>`;
+            results += `<p>Logs generated: 5000</p>`;
+            results += `<p>Render time: ${renderTime.toFixed(2)}ms</p>`;
+            results += `<p>Virtual scrolling enabled: ${virtualScrollEnabled ? 'Yes' : 'No'}</p>`;
+            results += `<p>DOM elements: ${domCount}</p>`;
+            
+            if (renderTime < 300 && virtualScrollEnabled && domCount < 100) {
+                results += `<p class="pass">✓ PASS: Fast render time (< 300ms) with virtual scrolling</p>`;
+            } else if (renderTime >= 300) {
+                results += `<p class="fail">✗ FAIL: Render time too slow (${renderTime.toFixed(2)}ms >= 300ms)</p>`;
+            } else {
+                results += `<p class="fail">✗ FAIL: Virtual scrolling not working correctly</p>`;
+            }
+            
+            resultsDiv.innerHTML = results;
+        });
+        
+        // Test 4: Scroll Performance
+        document.getElementById('test4-btn').addEventListener('click', async () => {
+            const resultsDiv = document.getElementById('test4-results');
+            resultsDiv.innerHTML = '<p class="info">Running test...</p>';
+            
+            const logs = generateMockLogs(3000);
+            logModal.logs = logs;
+            logModal.currentTaskId = 1;
+            logModal.modal.classList.add('active');
+            logModal.renderLogs();
+            
+            // Wait for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const logList = document.getElementById('testLogModal-log-list');
+            
+            if (!logList) {
+                resultsDiv.innerHTML = '<p class="fail">✗ FAIL: Log list not found</p>';
+                return;
+            }
+            
+            // Simulate scrolling
+            const scrollSteps = 10;
+            const scrollIncrement = logList.scrollHeight / scrollSteps;
+            let updateCount = 0;
+            
+            // Track DOM updates
+            const originalUpdate = logModal.updateVirtualScroll.bind(logModal);
+            logModal.updateVirtualScroll = function() {
+                updateCount++;
+                originalUpdate();
+            };
+            
+            const startTime = performance.now();
+            
+            for (let i = 0; i < scrollSteps; i++) {
+                logList.scrollTop = i * scrollIncrement;
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+            
+            const endTime = performance.now();
+            const totalTime = endTime - startTime;
+            
+            let results = `<p class="info">Test Results:</p>`;
+            results += `<p>Scroll steps: ${scrollSteps}</p>`;
+            results += `<p>Total time: ${totalTime.toFixed(2)}ms</p>`;
+            results += `<p>Virtual scroll updates: ${updateCount}</p>`;
+            
+            if (updateCount <= scrollSteps * 2) {
+                results += `<p class="pass">✓ PASS: Scroll updates are throttled (${updateCount} updates for ${scrollSteps} steps)</p>`;
+            } else {
+                results += `<p class="fail">✗ FAIL: Too many scroll updates (${updateCount} updates for ${scrollSteps} steps)</p>`;
+            }
+            
+            resultsDiv.innerHTML = results;
+        });
+        
+        // Test 5: Document Fragment Usage
+        document.getElementById('test5-btn').addEventListener('click', () => {
+            const resultsDiv = document.getElementById('test5-results');
+            
+            // Check if updateVirtualScroll method uses createDocumentFragment
+            const methodSource = logModal.updateVirtualScroll.toString();
+            const usesFragment = methodSource.includes('createDocumentFragment');
+            const usesAppendChild = methodSource.includes('appendChild(fragment)');
+            
+            let results = `<p class="info">Test Results:</p>`;
+            results += `<p>Checking updateVirtualScroll method...</p>`;
+            
+            if (usesFragment && usesAppendChild) {
+                results += `<p class="pass">✓ PASS: Method uses document fragments for batch DOM updates</p>`;
+            } else {
+                results += `<p class="fail">✗ FAIL: Method does not use document fragments</p>`;
+                if (!usesFragment) {
+                    results += `<p class="fail">  - createDocumentFragment not found</p>`;
+                }
+                if (!usesAppendChild) {
+                    results += `<p class="fail">  - appendChild(fragment) not found</p>`;
+                }
+            }
+            
+            resultsDiv.innerHTML = results;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilterSystem Unit Tests</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="/css/components/filter-system.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #050816 100%);
+            color: #ffffff;
+            padding: 2rem;
+            min-height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #00d4ff;
+        }
+        
+        .test-output {
+            background: rgba(23, 26, 34, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .test-output.success {
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .test-output.error {
+            border-left: 4px solid #F44336;
+        }
+        
+        .run-tests-btn {
+            display: block;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #7b2ff7 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .run-tests-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+        }
+        
+        .info-box {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid #00d4ff;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>FilterSystem Unit Tests</h1>
+        
+        <div class="info-box">
+            <strong>Test Coverage:</strong><br>
+            • Filter rendering with Turkish labels (Req 6.7, 6.10)<br>
+            • Task count calculation (Req 6.7, 6.9)<br>
+            • Active filter highlighting (Req 6.8)<br>
+            • Filter click handling (Req 6.6)<br>
+            • Task filtering by status (Req 6.6)<br>
+            • Count updates on data change (Req 6.9)<br>
+            • Horizontal layout (Req 6.10)
+        </div>
+        
+        <button class="run-tests-btn" onclick="runTests()">Run All Tests</button>
+        
+        <div id="test-output" class="test-output"></div>
+    </div>
+    
+    <!-- FilterSystem Component -->
+    <script src="/js/components/FilterSystem.js"></script>
+    
+    <!-- Unit Tests -->
+    <script src="/js/components/FilterSystem.unit.test.js"></script>
+    
+    <!-- Test Runner -->
+    <script>
+        // Capture console output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalAssert = console.assert;
+        let testOutput = '';
+        
+        function captureConsole() {
+            testOutput = '';
+            
+            console.log = function(...args) {
+                testOutput += args.join(' ') + '\n';
+                originalLog.apply(console, args);
+            };
+            
+            console.error = function(...args) {
+                testOutput += 'ERROR: ' + args.join(' ') + '\n';
+                originalError.apply(console, args);
+            };
+            
+            console.assert = function(condition, ...args) {
+                if (!condition) {
+                    const message = 'Assertion failed: ' + args.join(' ');
+                    testOutput += message + '\n';
+                    throw new Error(message);
+                }
+                originalAssert.apply(console, [condition, ...args]);
+            };
+        }
+        
+        function restoreConsole() {
+            console.log = originalLog;
+            console.error = originalError;
+            console.assert = originalAssert;
+        }
+        
+        function runTests() {
+            const outputDiv = document.getElementById('test-output');
+            outputDiv.textContent = 'Running tests...\n\n';
+            outputDiv.className = 'test-output';
+            
+            // Capture console output
+            captureConsole();
+            
+            try {
+                // Run tests
+                const success = FilterSystemTests.runAll();
+                
+                // Restore console
+                restoreConsole();
+                
+                // Display output
+                outputDiv.textContent = testOutput;
+                outputDiv.className = success ? 'test-output success' : 'test-output error';
+            } catch (error) {
+                restoreConsole();
+                outputDiv.textContent = testOutput + '\n\nFATAL ERROR:\n' + error.stack;
+                outputDiv.className = 'test-output error';
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>

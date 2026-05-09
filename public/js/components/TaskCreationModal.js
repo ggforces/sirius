@@ -28,6 +28,7 @@ class TaskCreationModal {
         this.selectedAccountIds = new Set();
         this.isLoading = false;
         this.onTaskCreated = null;
+        this.escapeKeyHandler = null;
         
         this.init();
     }
@@ -50,9 +51,6 @@ class TaskCreationModal {
                 <div class="modal-content modal-medium">
                     <div class="modal-header">
                         <h3 class="modal-title">${window.t('tasks.createModal.title')}</h3>
-                        <button class="modal-close-btn" id="${this.modalId}-close-x">
-                            <i class="ph-bold ph-x"></i>
-                        </button>
                     </div>
                     <div class="modal-body">
                         <!-- Search Bar -->
@@ -90,7 +88,6 @@ class TaskCreationModal {
                         </div>
                     </div>
                     <div class="modal-actions">
-                        <button class="btn btn-secondary" id="${this.modalId}-cancel">${window.t('tasks.createModal.cancel')}</button>
                         <button class="btn btn-primary" id="${this.modalId}-create" disabled>
                             <i class="ph-bold ph-plus"></i>
                             ${window.t('tasks.createModal.createTasks')}
@@ -104,12 +101,6 @@ class TaskCreationModal {
     }
     
     attachEventListeners() {
-        // Close buttons
-        const closeX = document.getElementById(`${this.modalId}-close-x`);
-        const cancelBtn = document.getElementById(`${this.modalId}-cancel`);
-        if (closeX) closeX.addEventListener('click', () => this.close());
-        if (cancelBtn) cancelBtn.addEventListener('click', () => this.close());
-        
         // Create button
         const createBtn = document.getElementById(`${this.modalId}-create`);
         if (createBtn) {
@@ -137,18 +128,28 @@ class TaskCreationModal {
             overlay.addEventListener('click', () => this.close());
         }
         
-        // Close on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.modal.classList.contains('active')) {
-                this.close();
-            }
-        });
+        // Prevent event bubbling from modal content to overlay
+        const modalContent = this.modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
     }
     
     async open() {
         this.modal.classList.add('active');
         this.selectedAccountIds.clear();
         this.updateSelectionCounter();
+        
+        // Add Escape key handler when modal opens
+        this.escapeKeyHandler = (e) => {
+            if (e.key === 'Escape') {
+                this.close();
+            }
+        };
+        document.addEventListener('keydown', this.escapeKeyHandler);
+        
         await this.loadAccounts();
     }
     
@@ -156,6 +157,12 @@ class TaskCreationModal {
         this.modal.classList.remove('active');
         this.selectedAccountIds.clear();
         this.updateCreateButton();
+        
+        // Remove Escape key handler when modal closes
+        if (this.escapeKeyHandler) {
+            document.removeEventListener('keydown', this.escapeKeyHandler);
+            this.escapeKeyHandler = null;
+        }
     }
     
     async loadAccounts(retryCount = 0) {
@@ -203,7 +210,7 @@ class TaskCreationModal {
         if (this.accounts.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-icon">🎮</div>
+                    <div class="empty-icon"><i class="ph-bold ph-game-controller" style="font-size: 3rem; opacity: 0.5;"></i></div>
                     <p>${window.t('tasks.createModal.noAccounts')}</p>
                 </div>
             `;

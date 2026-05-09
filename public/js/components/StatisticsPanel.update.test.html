@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StatisticsPanel Update Method Tests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .test-result.pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-result.fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .test-summary {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .test-summary.all-pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .test-summary.some-fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        #statisticsPanel {
+            margin: 20px 0;
+        }
+        
+        /* Statistics Panel Styles */
+        .statistics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            font-size: 32px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+        
+        .stat-info {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .stat-total .stat-icon { background: #e3f2fd; color: #1976d2; }
+        .stat-running .stat-icon { background: #e3f2fd; color: #2196f3; }
+        .stat-pending .stat-icon { background: #fff3e0; color: #f57c00; }
+        .stat-completed .stat-icon { background: #e8f5e9; color: #388e3c; }
+        .stat-failed .stat-icon { background: #ffebee; color: #d32f2f; }
+    </style>
+</head>
+<body>
+    <h1>StatisticsPanel Update Method Tests</h1>
+    <p>Testing the efficient DOM update functionality of the update() method</p>
+    
+    <div class="test-section">
+        <h2>Test Environment</h2>
+        <div id="statisticsPanel"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="testResults"></div>
+    </div>
+    
+    <!-- Mock translation function -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.statistics.total': 'Total Tasks',
+                'tasks.statistics.running': 'Running',
+                'tasks.statistics.pending': 'Pending',
+                'tasks.statistics.completed': 'Completed',
+                'tasks.statistics.failed': 'Failed'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- Include StatisticsPanel component -->
+    <script src="StatisticsPanel.js"></script>
+    
+    <!-- Test Suite -->
+    <script>
+        const testResults = [];
+        
+        function assert(condition, testName, details = '') {
+            const result = {
+                name: testName,
+                passed: condition,
+                details: details
+            };
+            testResults.push(result);
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${condition ? 'pass' : 'fail'}`;
+            resultDiv.textContent = `${condition ? '✓' : '✗'} ${testName}${details ? ': ' + details : ''}`;
+            document.getElementById('testResults').appendChild(resultDiv);
+            
+            return condition;
+        }
+        
+        function assertEqual(actual, expected, testName) {
+            const passed = actual === expected;
+            assert(passed, testName, `Expected: ${expected}, Got: ${actual}`);
+            return passed;
+        }
+        
+        function runTests() {
+            console.log('Starting StatisticsPanel update() tests...');
+            
+            // Test 1: Update method exists
+            const statsPanel = new StatisticsPanel('statisticsPanel');
+            assert(typeof statsPanel.update === 'function', 'Test 1: update() method exists');
+            
+            // Test 2: Initial render creates correct structure
+            const container = document.getElementById('statisticsPanel');
+            const statCards = container.querySelectorAll('.stat-card');
+            assertEqual(statCards.length, 5, 'Test 2: Initial render creates 5 stat cards');
+            
+            // Test 3: Update with tasks recalculates statistics
+            const tasks = [
+                { status: 'running' },
+                { status: 'running' },
+                { status: 'pending' },
+                { status: 'completed' },
+                { status: 'failed' }
+            ];
+            statsPanel.update(tasks);
+            
+            const totalValue = container.querySelector('.stat-total .stat-value');
+            assertEqual(totalValue.textContent, '5', 'Test 3: Total count updated correctly');
+            
+            const runningValue = container.querySelector('.stat-running .stat-value');
+            assertEqual(runningValue.textContent, '2', 'Test 4: Running count updated correctly');
+            
+            const pendingValue = container.querySelector('.stat-pending .stat-value');
+            assertEqual(pendingValue.textContent, '1', 'Test 5: Pending count updated correctly');
+            
+            const completedValue = container.querySelector('.stat-completed .stat-value');
+            assertEqual(completedValue.textContent, '1', 'Test 6: Completed count updated correctly');
+            
+            const failedValue = container.querySelector('.stat-failed .stat-value');
+            assertEqual(failedValue.textContent, '1', 'Test 7: Failed count updated correctly');
+            
+            // Test 8: Update with no changes doesn't modify DOM
+            const beforeHTML = container.innerHTML;
+            statsPanel.update(tasks); // Same tasks
+            const afterHTML = container.innerHTML;
+            assert(beforeHTML === afterHTML, 'Test 8: No DOM changes when statistics unchanged');
+            
+            // Test 9: Update with partial changes only updates changed values
+            const newTasks = [
+                { status: 'running' },
+                { status: 'running' },
+                { status: 'running' }, // Changed from pending
+                { status: 'completed' },
+                { status: 'failed' }
+            ];
+            
+            // Mark the running value element to track if it's replaced
+            const runningValueBefore = container.querySelector('.stat-running .stat-value');
+            runningValueBefore.setAttribute('data-test-marker', 'original');
+            
+            statsPanel.update(newTasks);
+            
+            // Check that the element still has the marker (not replaced, just updated)
+            const runningValueAfter = container.querySelector('.stat-running .stat-value');
+            assert(
+                runningValueAfter.hasAttribute('data-test-marker'),
+                'Test 9: DOM element updated in place, not replaced'
+            );
+            assertEqual(runningValueAfter.textContent, '3', 'Test 10: Running count updated to 3');
+            
+            const pendingValueAfter = container.querySelector('.stat-pending .stat-value');
+            assertEqual(pendingValueAfter.textContent, '0', 'Test 11: Pending count updated to 0');
+            
+            // Test 12: Update with empty array
+            statsPanel.update([]);
+            const totalValueEmpty = container.querySelector('.stat-total .stat-value');
+            assertEqual(totalValueEmpty.textContent, '0', 'Test 12: Total count is 0 for empty array');
+            
+            // Test 13: Update with timeout status (should count as failed)
+            const tasksWithTimeout = [
+                { status: 'running' },
+                { status: 'timeout' },
+                { status: 'failed' }
+            ];
+            statsPanel.update(tasksWithTimeout);
+            const failedValueWithTimeout = container.querySelector('.stat-failed .stat-value');
+            assertEqual(failedValueWithTimeout.textContent, '2', 'Test 13: Timeout counted as failed');
+            
+            // Test 14: Update with invalid input (non-array)
+            statsPanel.update(null);
+            const stats = statsPanel.getStatistics();
+            assertEqual(stats.total, 0, 'Test 14: Handles null input gracefully');
+            
+            // Test 15: Update with mixed case statuses
+            const mixedCaseTasks = [
+                { status: 'RUNNING' },
+                { status: 'Running' },
+                { status: 'running' }
+            ];
+            statsPanel.update(mixedCaseTasks);
+            const runningValueMixed = container.querySelector('.stat-running .stat-value');
+            assertEqual(runningValueMixed.textContent, '3', 'Test 15: Handles mixed case statuses');
+            
+            // Test 16: Verify internal state is updated
+            const currentStats = statsPanel.getStatistics();
+            assertEqual(currentStats.running, 3, 'Test 16: Internal state updated correctly');
+            
+            // Test 17: Multiple rapid updates
+            for (let i = 0; i < 10; i++) {
+                statsPanel.update([{ status: 'running' }]);
+            }
+            const runningValueRapid = container.querySelector('.stat-running .stat-value');
+            assertEqual(runningValueRapid.textContent, '1', 'Test 17: Handles rapid updates correctly');
+            
+            // Test 18: Update with large task array
+            const largeTasks = Array(100).fill(null).map((_, i) => ({
+                status: i % 4 === 0 ? 'running' : i % 4 === 1 ? 'pending' : i % 4 === 2 ? 'completed' : 'failed'
+            }));
+            const startTime = performance.now();
+            statsPanel.update(largeTasks);
+            const endTime = performance.now();
+            const updateTime = endTime - startTime;
+            
+            assert(updateTime < 50, 'Test 18: Update completes in < 50ms for 100 tasks', `Took ${updateTime.toFixed(2)}ms`);
+            
+            const totalValueLarge = container.querySelector('.stat-total .stat-value');
+            assertEqual(totalValueLarge.textContent, '100', 'Test 19: Correctly counts 100 tasks');
+            
+            // Display summary
+            const passedTests = testResults.filter(r => r.passed).length;
+            const totalTests = testResults.length;
+            const allPassed = passedTests === totalTests;
+            
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = `test-summary ${allPassed ? 'all-pass' : 'some-fail'}`;
+            summaryDiv.textContent = `Test Summary: ${passedTests}/${totalTests} tests passed`;
+            document.getElementById('testResults').appendChild(summaryDiv);
+            
+            console.log(`Tests completed: ${passedTests}/${totalTests} passed`);
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

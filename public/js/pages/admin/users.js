@@ -71,8 +71,8 @@ function renderUsersTable() {
                     <span>${escapeHtml(user.email)}</span>
                 </div>
             </td>
-            <td><span class="badge badge-${user.role}">${user.role === 'admin' ? '🛡️ Admin' : '👤 User'}</span></td>
-            <td><span class="badge badge-${user.is_active ? 'active' : 'inactive'}">${user.is_active ? '✅ Active' : '❌ Inactive'}</span></td>
+            <td><span class="badge badge-${user.role}">${user.role === 'admin' ? '<i class="ph-bold ph-shield"></i> Admin' : '<i class="ph-bold ph-user"></i> User'}</span></td>
+            <td><span class="badge badge-${user.is_active ? 'active' : 'inactive'}">${user.is_active ? '<i class="ph-bold ph-check"></i> Active' : '<i class="ph-bold ph-x"></i> Inactive'}</span></td>
             <td><strong>${user.account_count || 0}</strong></td>
             <td><strong>${user.proxy_count || 0}</strong></td>
             <td><strong>${user.task_count || 0}</strong></td>

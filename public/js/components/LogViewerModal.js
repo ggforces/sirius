@@ -26,6 +26,15 @@ class LogViewerModal {
         this.currentTaskId = null;
         this.logs = [];
         this.isLoading = false;
+        this.userHasScrolledUp = false; // Track if user has manually scrolled up
+        
+        // Virtual scrolling properties
+        this.virtualScrollEnabled = false; // Enable for 1000+ logs
+        this.itemHeight = 20; // Approximate height of each log line in pixels
+        this.visibleItems = 50; // Number of items to render at once
+        this.bufferItems = 10; // Extra items to render above/below for smooth scrolling
+        this.scrollTop = 0;
+        this.virtualScrollHandler = null;
         
         this.init();
     }
@@ -116,6 +125,19 @@ class LogViewerModal {
         this.modal.classList.remove('active');
         this.currentTaskId = null;
         this.logs = [];
+        this.userHasScrolledUp = false; // Reset scroll state when closing
+        this.virtualScrollEnabled = false;
+        this.scrollTop = 0;
+        
+        // Clean up scroll listener
+        const logList = document.getElementById(`${this.modalId}-log-list`);
+        if (logList && this.handleScroll) {
+            logList.removeEventListener('scroll', this.handleScroll);
+        }
+        if (logList && this.virtualScrollHandler) {
+            logList.removeEventListener('scroll', this.virtualScrollHandler);
+            this.virtualScrollHandler = null;
+        }
     }
     
     /**
@@ -227,7 +249,7 @@ class LogViewerModal {
         if (this.logs.length === 0) {
             container.innerHTML = `
                 <div class="empty-state" style="padding: 2rem; text-align: center;">
-                    <div class="empty-icon">📋</div>
+                    <div class="empty-icon"><i class="ph-bold ph-clipboard-text" style="font-size: 3rem; opacity: 0.5;"></i></div>
                     <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">${window.t('tasks.logModal.noLogs')}</p>
                     <p style="color: var(--gray); font-size: 0.9rem;">${window.t('tasks.logModal.noLogsDesc')}</p>
                 </div>
@@ -235,30 +257,208 @@ class LogViewerModal {
             return;
         }
         
+        // Enable virtual scrolling for 1000+ logs
+        this.virtualScrollEnabled = this.logs.length >= 1000;
+        
+        if (this.virtualScrollEnabled) {
+            this.renderLogsVirtual();
+        } else {
+            this.renderLogsStandard();
+        }
+        
+        // Attach scroll listener to detect user scrolling
+        this.attachScrollListener();
+        
+        // Auto-scroll to bottom if user hasn't scrolled up
+        this.autoScrollToBottom();
+    }
+    
+    /**
+     * Render logs using standard method (for < 1000 logs)
+     */
+    renderLogsStandard() {
+        const container = document.getElementById(`${this.modalId}-logs-container`);
+        
         const logsHTML = this.logs.map(log => {
-            const timestamp = this.formatTimestamp(log.created_at);
+            const timestampCMD = this.formatTimestampCMD(log.created_at);
+            const levelCMD = this.formatLevelCMD(log.level);
             const levelClass = this.getLevelClass(log.level);
-            const levelIcon = this.getLevelIcon(log.level);
+            
+            // Prepend timestamp and level to message in CMD style
+            const formattedMessage = `${timestampCMD} ${levelCMD} ${this.escapeHtml(log.message)}`;
             
             return `
                 <div class="log-entry log-entry-${levelClass}">
-                    <div class="log-header">
-                        <span class="log-level">
-                            <i class="${levelIcon}"></i>
-                            ${log.level.toUpperCase()}
-                        </span>
-                        <span class="log-timestamp">${timestamp}</span>
-                    </div>
-                    <div class="log-message">${this.escapeHtml(log.message)}</div>
+                    <div class="log-message">${formattedMessage}</div>
                 </div>
             `;
         }).join('');
         
         container.innerHTML = `
-            <div class="log-list">
+            <div class="log-list" id="${this.modalId}-log-list">
                 ${logsHTML}
             </div>
         `;
+    }
+    
+    /**
+     * Render logs using virtual scrolling (for 1000+ logs)
+     */
+    renderLogsVirtual() {
+        const container = document.getElementById(`${this.modalId}-logs-container`);
+        
+        // Calculate total height based on number of logs
+        const totalHeight = this.logs.length * this.itemHeight;
+        
+        // Create virtual scroll container
+        container.innerHTML = `
+            <div class="log-list log-list-virtual" id="${this.modalId}-log-list">
+                <div class="log-list-spacer" style="height: ${totalHeight}px; position: relative;">
+                    <div class="log-list-viewport" id="${this.modalId}-log-viewport"></div>
+                </div>
+            </div>
+        `;
+        
+        // Render initial visible items
+        this.updateVirtualScroll();
+        
+        // Attach virtual scroll handler
+        const logList = document.getElementById(`${this.modalId}-log-list`);
+        if (logList) {
+            // Remove existing handler if any
+            if (this.virtualScrollHandler) {
+                logList.removeEventListener('scroll', this.virtualScrollHandler);
+            }
+            
+            // Create throttled scroll handler for performance
+            this.virtualScrollHandler = this.throttle(() => {
+                this.updateVirtualScroll();
+            }, 16); // ~60fps
+            
+            logList.addEventListener('scroll', this.virtualScrollHandler);
+        }
+    }
+    
+    /**
+     * Update virtual scroll viewport with visible items
+     */
+    updateVirtualScroll() {
+        const logList = document.getElementById(`${this.modalId}-log-list`);
+        const viewport = document.getElementById(`${this.modalId}-log-viewport`);
+        
+        if (!logList || !viewport) return;
+        
+        // Get current scroll position
+        this.scrollTop = logList.scrollTop;
+        
+        // Calculate which items should be visible
+        const startIndex = Math.max(0, Math.floor(this.scrollTop / this.itemHeight) - this.bufferItems);
+        const endIndex = Math.min(
+            this.logs.length,
+            Math.ceil((this.scrollTop + logList.clientHeight) / this.itemHeight) + this.bufferItems
+        );
+        
+        // Use document fragment for batch DOM updates
+        const fragment = document.createDocumentFragment();
+        
+        // Render only visible items
+        for (let i = startIndex; i < endIndex; i++) {
+            const log = this.logs[i];
+            const timestampCMD = this.formatTimestampCMD(log.created_at);
+            const levelCMD = this.formatLevelCMD(log.level);
+            const levelClass = this.getLevelClass(log.level);
+            
+            // Prepend timestamp and level to message in CMD style
+            const formattedMessage = `${timestampCMD} ${levelCMD} ${this.escapeHtml(log.message)}`;
+            
+            // Create log entry element
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-entry-${levelClass}`;
+            logEntry.style.position = 'absolute';
+            logEntry.style.top = `${i * this.itemHeight}px`;
+            logEntry.style.left = '0';
+            logEntry.style.right = '0';
+            logEntry.style.height = `${this.itemHeight}px`;
+            
+            const logMessage = document.createElement('div');
+            logMessage.className = 'log-message';
+            logMessage.innerHTML = formattedMessage;
+            
+            logEntry.appendChild(logMessage);
+            fragment.appendChild(logEntry);
+        }
+        
+        // Clear viewport and append new items
+        viewport.innerHTML = '';
+        viewport.appendChild(fragment);
+    }
+    
+    /**
+     * Throttle function to limit execution rate
+     * @param {Function} func - Function to throttle
+     * @param {number} limit - Time limit in milliseconds
+     * @returns {Function} Throttled function
+     */
+    throttle(func, limit) {
+        let inThrottle;
+        return function(...args) {
+            if (!inThrottle) {
+                func.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    }
+    
+    /**
+     * Attach scroll listener to detect when user scrolls up
+     */
+    attachScrollListener() {
+        const logList = document.getElementById(`${this.modalId}-log-list`);
+        if (!logList) return;
+        
+        // Remove existing listener if any
+        logList.removeEventListener('scroll', this.handleScroll);
+        
+        // Add new listener
+        this.handleScroll = () => {
+            const isAtBottom = this.isScrolledToBottom(logList);
+            // If user is at bottom, reset the flag
+            // If user is not at bottom, they've scrolled up
+            this.userHasScrolledUp = !isAtBottom;
+        };
+        
+        logList.addEventListener('scroll', this.handleScroll);
+    }
+    
+    /**
+     * Check if log container is scrolled to bottom
+     * @param {HTMLElement} element - The scrollable element
+     * @returns {boolean} True if scrolled to bottom
+     */
+    isScrolledToBottom(element) {
+        if (!element) return false;
+        
+        // Allow 5px tolerance for "at bottom" detection
+        const tolerance = 5;
+        const scrollBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+        return scrollBottom <= tolerance;
+    }
+    
+    /**
+     * Auto-scroll to bottom if user hasn't scrolled up
+     */
+    autoScrollToBottom() {
+        const logList = document.getElementById(`${this.modalId}-log-list`);
+        if (!logList) return;
+        
+        // Only auto-scroll if user hasn't manually scrolled up
+        if (!this.userHasScrolledUp) {
+            // Use requestAnimationFrame for smooth scrolling
+            requestAnimationFrame(() => {
+                logList.scrollTop = logList.scrollHeight;
+            });
+        }
     }
     
     /**
@@ -289,13 +489,54 @@ class LogViewerModal {
     }
     
     /**
+     * Format timestamp as [HH:MM:SS] for CMD-like display
+     * @param {string} timestamp - ISO timestamp string
+     * @returns {string} Formatted timestamp [HH:MM:SS]
+     */
+    formatTimestampCMD(timestamp) {
+        try {
+            const date = new Date(timestamp);
+            
+            // Check if date is valid
+            if (isNaN(date.getTime())) {
+                return '[00:00:00]';
+            }
+            
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            
+            return `[${hours}:${minutes}:${seconds}]`;
+        } catch (error) {
+            console.error('Error formatting timestamp:', error);
+            return '[00:00:00]';
+        }
+    }
+    
+    /**
+     * Format log level as [LEVEL] for CMD-like display
+     * @param {string} level - Log level (info, success, warning, error)
+     * @returns {string} Formatted level [INFO], [SUCCESS], [WARNING], [ERROR]
+     */
+    formatLevelCMD(level) {
+        const levelMap = {
+            'info': '[INFO]',
+            'success': '[SUCCESS]',
+            'warning': '[WARNING]',
+            'error': '[ERROR]'
+        };
+        return levelMap[level.toLowerCase()] || '[INFO]';
+    }
+    
+    /**
      * Get CSS class for log level
-     * @param {string} level - Log level (info, warning, error)
+     * @param {string} level - Log level (info, success, warning, error)
      * @returns {string} CSS class name
      */
     getLevelClass(level) {
         const levelMap = {
             'info': 'info',
+            'success': 'success',
             'warning': 'warning',
             'error': 'error'
         };
@@ -304,12 +545,13 @@ class LogViewerModal {
     
     /**
      * Get icon for log level
-     * @param {string} level - Log level (info, warning, error)
+     * @param {string} level - Log level (info, success, warning, error)
      * @returns {string} Icon class name
      */
     getLevelIcon(level) {
         const iconMap = {
             'info': 'ph-bold ph-info',
+            'success': 'ph-bold ph-check-circle',
             'warning': 'ph-bold ph-warning',
             'error': 'ph-bold ph-x-circle'
         };

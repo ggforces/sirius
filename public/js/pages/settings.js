@@ -52,7 +52,7 @@ async function handleChangePassword(e) {
         showNotification('Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="btn-icon">💾</span>Şifreyi Değiştir';
+        submitBtn.innerHTML = '<span class="btn-icon"><i class="ph-bold ph-floppy-disk"></i></span>Şifreyi Değiştir';
     }
 }
 

@@ -236,7 +236,7 @@ async function refreshEarningsData() {
         }
         
         // Sync drops from FarmLabs
-        btn.innerHTML = '<span class="btn-icon">🔄</span>Senkronize ediliyor...';
+        btn.innerHTML = '<span class="btn-icon"><i class="ph-bold ph-arrow-clockwise"></i></span>Senkronize ediliyor...';
         const syncResponse = await fetch('/api/farmlabs/sync', {
             method: 'POST',
             credentials: 'include'
@@ -250,7 +250,7 @@ async function refreshEarningsData() {
         }
         
         // Reload earnings data
-        btn.innerHTML = '<span class="btn-icon">📊</span>Yükleniyor...';
+        btn.innerHTML = '<span class="btn-icon"><i class="ph-bold ph-chart-bar"></i></span>Yükleniyor...';
         await loadEarningsData();
         
         // Show success message with details
@@ -583,7 +583,7 @@ async function handleChangePassword(e) {
         showNotification('Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="btn-icon">💾</span>Şifreyi Değiştir';
+        submitBtn.innerHTML = '<span class="btn-icon"><i class="ph-bold ph-floppy-disk"></i></span>Şifreyi Değiştir';
     }
 }
 
@@ -688,7 +688,7 @@ async function saveFarmlabsApiKey(e) {
         showNotification('Kaydedilirken hata oluştu', 'error');
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="btn-icon">💾</span>Kaydet';
+        submitBtn.innerHTML = '<span class="btn-icon"><i class="ph-bold ph-floppy-disk"></i></span>Kaydet';
     }
 }
 
@@ -723,7 +723,7 @@ async function syncFarmlabsDrops() {
         showNotification('Senkronize edilirken hata oluştu', 'error');
     } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span class="btn-icon">🔄</span>Dropleri Senkronize Et';
+        btn.innerHTML = '<span class="btn-icon"><i class="ph-bold ph-arrow-clockwise"></i></span>Dropleri Senkronize Et';
     }
 }
 

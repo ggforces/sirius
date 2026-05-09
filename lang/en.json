@@ -50,7 +50,15 @@
     "title": "Steam Accounts",
     "comingSoon": "This feature is coming soon...",
     "addAccount": "Add Account",
-    "bulkAdd": "Bulk Add",
+    "bulkAdd": "Bulk Add Accounts",
+    "bulkDelete": "Bulk Delete",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selectedCount": "selected",
+    "totalAccounts": "Total Accounts",
+    "totalPrime": "Prime",
+    "totalNonPrime": "Non-Prime",
+    "search": "Search accounts...",
     "editAccount": "Edit Account",
     "noAccounts": "No Steam accounts added yet",
     "addFirstAccount": "Add First Account",
@@ -91,6 +99,12 @@
     "deleteConfirm": {
       "title": "Delete Account",
       "message": "Are you sure you want to delete this Steam account?"
+    },
+    "bulkDeleteConfirm": {
+      "title": "Bulk Delete Accounts",
+      "message": "accounts. Are you sure?",
+      "warning": "This action cannot be undone!",
+      "confirm": "Delete"
     }
   },
   "tasks": {
@@ -192,6 +206,20 @@
       "loadError": "Error loading logs",
       "close": "Close",
       "retryLimitReached": "Maximum retry attempts reached. Please try again later."
+    },
+    "statistics": {
+      "total": "Total",
+      "running": "Running",
+      "pending": "Pending",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "filters": {
+      "all": "All Tasks",
+      "running": "Running",
+      "pending": "Pending",
+      "failed": "Failed",
+      "completed": "Completed"
     },
     "notifications": {
       "taskCreated": "Task created successfully",

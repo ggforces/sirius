@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilterSystem Responsive Layout Test - Task 3.5</title>
+    <link rel="stylesheet" href="../base/variables.css">
+    <link rel="stylesheet" href="filter-system.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0e27;
+            font-family: 'Rajdhani', sans-serif;
+            color: #ccd6f6;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+        
+        .test-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #00d4ff;
+            font-weight: 700;
+        }
+        
+        .test-description {
+            margin-bottom: 20px;
+            color: #8892b0;
+            line-height: 1.6;
+        }
+        
+        .viewport-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 212, 255, 0.9);
+            color: #0a0e27;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 1000;
+        }
+        
+        .requirement-check {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+        
+        .requirement-check h4 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+        
+        .requirement-check ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .requirement-check li {
+            margin: 5px 0;
+            color: #ccd6f6;
+        }
+        
+        .resize-instruction {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #FFC107;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .resize-instruction strong {
+            color: #FFC107;
+        }
+    </style>
+</head>
+<body>
+    <div class="viewport-info" id="viewportInfo">
+        Width: <span id="viewportWidth">0</span>px
+    </div>
+    
+    <div class="test-container">
+        <h1 style="text-align: center; color: #00d4ff; margin-bottom: 30px;">
+            FilterSystem Responsive Layout Test - Task 3.5
+        </h1>
+        
+        <div class="resize-instruction">
+            <strong>📱 Test Instructions:</strong> Resize your browser window to test responsive behavior at different breakpoints:
+            <ul>
+                <li><strong>Desktop (> 1024px):</strong> Horizontal layout with flex-wrap</li>
+                <li><strong>Tablet (768px - 1024px):</strong> Horizontal layout with smaller buttons</li>
+                <li><strong>Mobile (< 768px):</strong> Vertical layout with full-width buttons (44px min height)</li>
+                <li><strong>Small Mobile (< 480px):</strong> Vertical layout with enhanced touch targets (48px min height)</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Test 1: Filter System with All Filters</div>
+            <div class="test-description">
+                This test displays all filter buttons with various counts. Verify that:
+                <ul>
+                    <li>On desktop (> 768px): Buttons are displayed horizontally with flex-wrap</li>
+                    <li>On mobile (< 768px): Buttons switch to vertical layout (flex-direction: column)</li>
+                    <li>On mobile: Buttons have minimum 44px height (touch-friendly)</li>
+                    <li>On small mobile (< 480px): Buttons have minimum 48px height (enhanced touch targets)</li>
+                </ul>
+            </div>
+            
+            <div class="filter-system" id="filterSystem1">
+                <button class="filter-btn filter-btn-active">
+                    <span class="filter-label">Tüm Görevler</span>
+                    <span class="filter-count">156</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Çalışan Görevler</span>
+                    <span class="filter-count">23</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Bekleyen Görevler</span>
+                    <span class="filter-count">45</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Hata Alan Görevler</span>
+                    <span class="filter-count">12</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Tamamlanan Görevler</span>
+                    <span class="filter-count">76</span>
+                </button>
+            </div>
+            
+            <div class="requirement-check">
+                <h4>✅ Requirements Verified:</h4>
+                <ul>
+                    <li><strong>Requirement 6.11:</strong> Filter system responsive on mobile devices</li>
+                    <li><strong>Requirement 8.2:</strong> Vertical layout when screen width < 768px</li>
+                    <li><strong>Requirement 8.6:</strong> Touch-friendly button sizes (minimum 44px height)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Test 2: Filter System with Different Active State</div>
+            <div class="test-description">
+                This test verifies that the active filter state works correctly in both horizontal and vertical layouts.
+            </div>
+            
+            <div class="filter-system" id="filterSystem2">
+                <button class="filter-btn">
+                    <span class="filter-label">Tüm Görevler</span>
+                    <span class="filter-count">89</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Çalışan Görevler</span>
+                    <span class="filter-count">15</span>
+                </button>
+                <button class="filter-btn filter-btn-active">
+                    <span class="filter-label">Bekleyen Görevler</span>
+                    <span class="filter-count">32</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Hata Alan Görevler</span>
+                    <span class="filter-count">8</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Tamamlanan Görevler</span>
+                    <span class="filter-count">34</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Test 3: Minimum Button Height Verification</div>
+            <div class="test-description">
+                Use browser DevTools to inspect button heights at different breakpoints:
+                <ul>
+                    <li><strong>Desktop:</strong> min-height: 44px</li>
+                    <li><strong>Mobile (< 768px):</strong> min-height: 44px</li>
+                    <li><strong>Small Mobile (< 480px):</strong> min-height: 48px</li>
+                </ul>
+            </div>
+            
+            <div class="filter-system" id="filterSystem3">
+                <button class="filter-btn filter-btn-active">
+                    <span class="filter-label">Tüm Görevler</span>
+                    <span class="filter-count">100</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Çalışan Görevler</span>
+                    <span class="filter-count">25</span>
+                </button>
+                <button class="filter-btn">
+                    <span class="filter-label">Bekleyen Görevler</span>
+                    <span class="filter-count">50</span>
+                </button>
+            </div>
+            
+            <div class="requirement-check">
+                <h4>✅ Touch Target Guidelines:</h4>
+                <ul>
+                    <li>Minimum 44px height meets WCAG 2.1 Level AAA guidelines</li>
+                    <li>48px height on small mobile provides enhanced touch comfort</li>
+                    <li>Full-width buttons on mobile prevent accidental taps</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Update viewport width display
+        function updateViewportInfo() {
+            const width = window.innerWidth;
+            document.getElementById('viewportWidth').textContent = width;
+            
+            // Update viewport info background color based on breakpoint
+            const viewportInfo = document.getElementById('viewportInfo');
+            if (width < 480) {
+                viewportInfo.style.background = 'rgba(244, 67, 54, 0.9)'; // Red for small mobile
+                viewportInfo.innerHTML = `Width: <span id="viewportWidth">${width}</span>px - Small Mobile (48px min-height)`;
+            } else if (width < 768) {
+                viewportInfo.style.background = 'rgba(255, 193, 7, 0.9)'; // Yellow for mobile
+                viewportInfo.innerHTML = `Width: <span id="viewportWidth">${width}</span>px - Mobile (44px min-height, vertical)`;
+            } else if (width < 1024) {
+                viewportInfo.style.background = 'rgba(76, 175, 80, 0.9)'; // Green for tablet
+                viewportInfo.innerHTML = `Width: <span id="viewportWidth">${width}</span>px - Tablet (horizontal)`;
+            } else {
+                viewportInfo.style.background = 'rgba(0, 212, 255, 0.9)'; // Blue for desktop
+                viewportInfo.innerHTML = `Width: <span id="viewportWidth">${width}</span>px - Desktop (horizontal)`;
+            }
+        }
+        
+        // Update on load and resize
+        updateViewportInfo();
+        window.addEventListener('resize', updateViewportInfo);
+        
+        // Add click handlers to demonstrate interactivity
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from siblings
+                this.parentElement.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('filter-btn-active');
+                });
+                // Add active class to clicked button
+                this.classList.add('filter-btn-active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -244,7 +244,7 @@ const getUserTasks = (req, res) => {
                    p.ip as proxy_ip,
                    p.port as proxy_port
             FROM tasks t
-            LEFT JOIN steam_accounts a ON t.account_id = a.id
+            JOIN steam_accounts a ON t.account_id = a.id
             LEFT JOIN proxies p ON t.proxy_id = p.id
             WHERE t.user_id = ?
         `;
@@ -307,12 +307,12 @@ const getTaskLogs = (req, res) => {
             });
         }
 
-        // Retrieve logs in chronological order (oldest first)
+        // Retrieve logs in reverse chronological order (newest first)
         const logs = db.prepare(`
             SELECT id, task_id, level, message, created_at
             FROM task_logs 
             WHERE task_id = ?
-            ORDER BY created_at ASC
+            ORDER BY created_at DESC
         `).all(taskId);
 
         res.json({ success: true, logs });

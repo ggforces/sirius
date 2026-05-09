@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskTable Flicker Prevention Demo - Task 5.4</title>
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--bg-primary, #0f172a);
+            color: var(--text-primary, #f1f5f9);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .demo-header {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary, #1e293b);
+            border-radius: 8px;
+        }
+        
+        .demo-header h1 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary, #3b82f6);
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .comparison-panel {
+            background: var(--bg-secondary, #1e293b);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .comparison-panel h2 {
+            margin: 0 0 1rem 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-old {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger, #ef4444);
+        }
+        
+        .badge-new {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success, #10b981);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--primary, #3b82f6);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-hover, #2563eb);
+        }
+        
+        .btn-danger {
+            background: var(--danger, #ef4444);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-success {
+            background: var(--success, #10b981);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .stats-panel {
+            background: var(--bg-tertiary, #334155);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary, #94a3b8);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--border, #334155);
+            border-radius: 6px;
+        }
+        
+        .info-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--primary, #3b82f6);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary, #94a3b8);
+        }
+        
+        @media (max-width: 1024px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🎬 TaskTable Flicker Prevention Demo</h1>
+            <p style="color: var(--text-secondary, #94a3b8); margin: 0.5rem 0 0 0;">
+                Task 5.4: Visual comparison of old vs. new implementation
+            </p>
+        </div>
+        
+        <div class="info-box">
+            <p><strong>Instructions:</strong> Start the polling simulation to see the difference. The OLD version will flicker on every update, while the NEW version updates smoothly without flicker.</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-success" onclick="startPolling()">▶️ Start Polling (5s interval)</button>
+            <button class="btn btn-danger" onclick="stopPolling()">⏹️ Stop Polling</button>
+            <button class="btn btn-primary" onclick="changeOneTask()">🔄 Change One Task</button>
+            <button class="btn btn-primary" onclick="changeMultipleTasks()">🔄 Change Multiple Tasks</button>
+            <button class="btn btn-primary" onclick="noChanges()">⏸️ No Changes Update</button>
+        </div>
+        
+        <div class="comparison-grid">
+            <!-- OLD Implementation -->
+            <div class="comparison-panel">
+                <h2>
+                    <span>OLD Implementation</span>
+                    <span class="badge badge-old">Full Re-render</span>
+                </h2>
+                
+                <div class="stats-panel">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Updates</div>
+                            <div class="stat-value" id="old-updates">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">DOM Ops</div>
+                            <div class="stat-value" id="old-dom-ops">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Avg Time</div>
+                            <div class="stat-value" id="old-time">0ms</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-container" id="old-table-container"></div>
+            </div>
+            
+            <!-- NEW Implementation -->
+            <div class="comparison-panel">
+                <h2>
+                    <span>NEW Implementation</span>
+                    <span class="badge badge-new">DOM Diffing</span>
+                </h2>
+                
+                <div class="stats-panel">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Updates</div>
+                            <div class="stat-value" id="new-updates">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">DOM Ops</div>
+                            <div class="stat-value" id="new-dom-ops">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Avg Time</div>
+                            <div class="stat-value" id="new-time">0ms</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-container" id="new-table-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/components/TaskTable.js"></script>
+    <script>
+        // Mock translation function
+        window.t = (key) => {
+            const translations = {
+                'tasks.table.loading': 'Yükleniyor...',
+                'tasks.table.noTasks': 'Henüz görev yok',
+                'tasks.table.noTasksDesc': 'Yeni görev oluşturmak için yukarıdaki butonu kullanın',
+                'tasks.table.taskId': 'Görev ID',
+                'tasks.table.account': 'Hesap',
+                'tasks.table.proxy': 'Proxy',
+                'tasks.table.status': 'Durum',
+                'tasks.table.logs': 'Loglar',
+                'tasks.table.viewLogs': 'Logları Görüntüle',
+                'tasks.table.viewLogsCard': 'Logları Görüntüle',
+                'tasks.card.unknown': 'Bilinmeyen',
+                'tasks.proxy.waiting': 'Bekleniyor',
+                'tasks.proxy.deleted': 'Silindi',
+                'tasks.status.pending': 'Bekliyor',
+                'tasks.status.running': 'Çalışıyor',
+                'tasks.status.completed': 'Tamamlandı',
+                'tasks.status.failed': 'Başarısız',
+                'tasks.status.timeout': 'Zaman Aşımı'
+            };
+            return translations[key] || key;
+        };
+        
+        // Create OLD implementation (always full re-render)
+        class OldTaskTable extends TaskTable {
+            setTasks(tasks) {
+                const scrollPosition = this.saveScrollPosition();
+                this.tasks = tasks || [];
+                this.render(); // Always full render
+                this.restoreScrollPosition(scrollPosition);
+            }
+        }
+        
+        // Initialize both tables
+        const oldTable = new OldTaskTable('old-table-container');
+        const newTable = new TaskTable('new-table-container');
+        
+        // Generate mock tasks
+        function generateMockTasks(count) {
+            const statuses = ['pending', 'running', 'completed', 'failed'];
+            const tasks = [];
+            
+            for (let i = 1; i <= count; i++) {
+                tasks.push({
+                    id: i,
+                    account_username: `user${i}`,
+                    proxy_id: i,
+                    proxy_ip: `192.168.1.${i % 255}`,
+                    proxy_port: 8080 + (i % 100),
+                    status: statuses[Math.floor(Math.random() * statuses.length)]
+                });
+            }
+            
+            return tasks;
+        }
+        
+        // Current tasks
+        let currentTasks = generateMockTasks(30);
+        
+        // Statistics
+        let oldStats = { updates: 0, domOps: 0, totalTime: 0 };
+        let newStats = { updates: 0, domOps: 0, totalTime: 0 };
+        
+        // Monitor DOM mutations
+        function monitorDOMMutations(container, callback) {
+            let mutationCount = 0;
+            
+            const observer = new MutationObserver((mutations) => {
+                mutationCount += mutations.length;
+            });
+            
+            observer.observe(container, {
+                childList: true,
+                subtree: true,
+                characterData: true,
+                attributes: true
+            });
+            
+            return () => {
+                observer.disconnect();
+                callback(mutationCount);
+            };
+        }
+        
+        // Update tables with monitoring
+        function updateTables(tasks) {
+            // Update OLD table
+            const oldContainer = document.getElementById('old-table-container');
+            const stopOldMonitoring = monitorDOMMutations(oldContainer, (mutations) => {
+                oldStats.domOps += mutations;
+                updateStatsDisplay();
+            });
+            
+            const oldStartTime = performance.now();
+            oldTable.setTasks(tasks);
+            const oldEndTime = performance.now();
+            
+            setTimeout(() => {
+                stopOldMonitoring();
+                oldStats.updates++;
+                oldStats.totalTime += (oldEndTime - oldStartTime);
+                updateStatsDisplay();
+            }, 50);
+            
+            // Update NEW table
+            const newContainer = document.getElementById('new-table-container');
+            const stopNewMonitoring = monitorDOMMutations(newContainer, (mutations) => {
+                newStats.domOps += mutations;
+                updateStatsDisplay();
+            });
+            
+            const newStartTime = performance.now();
+            newTable.setTasks(tasks);
+            const newEndTime = performance.now();
+            
+            setTimeout(() => {
+                stopNewMonitoring();
+                newStats.updates++;
+                newStats.totalTime += (newEndTime - newStartTime);
+                updateStatsDisplay();
+            }, 50);
+        }
+        
+        // Update statistics display
+        function updateStatsDisplay() {
+            document.getElementById('old-updates').textContent = oldStats.updates;
+            document.getElementById('old-dom-ops').textContent = oldStats.domOps;
+            document.getElementById('old-time').textContent = 
+                oldStats.updates > 0 ? Math.round(oldStats.totalTime / oldStats.updates) + 'ms' : '0ms';
+            
+            document.getElementById('new-updates').textContent = newStats.updates;
+            document.getElementById('new-dom-ops').textContent = newStats.domOps;
+            document.getElementById('new-time').textContent = 
+                newStats.updates > 0 ? Math.round(newStats.totalTime / newStats.updates) + 'ms' : '0ms';
+        }
+        
+        // Polling
+        let pollingInterval = null;
+        
+        function startPolling() {
+            if (pollingInterval) return;
+            
+            pollingInterval = setInterval(() => {
+                // Randomly change 1-3 tasks
+                const changesToMake = Math.floor(Math.random() * 3) + 1;
+                const updatedTasks = [...currentTasks];
+                
+                for (let i = 0; i < changesToMake; i++) {
+                    const randomIndex = Math.floor(Math.random() * currentTasks.length);
+                    const statuses = ['pending', 'running', 'completed', 'failed'];
+                    updatedTasks[randomIndex].status = statuses[Math.floor(Math.random() * statuses.length)];
+                }
+                
+                currentTasks = updatedTasks;
+                updateTables(currentTasks);
+            }, 5000);
+            
+            console.log('✅ Polling started (5 second interval)');
+        }
+        
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                console.log('⏹️ Polling stopped');
+            }
+        }
+        
+        // Manual update functions
+        function changeOneTask() {
+            const updatedTasks = [...currentTasks];
+            const randomIndex = Math.floor(Math.random() * currentTasks.length);
+            const statuses = ['pending', 'running', 'completed', 'failed'];
+            updatedTasks[randomIndex].status = statuses[Math.floor(Math.random() * statuses.length)];
+            
+            currentTasks = updatedTasks;
+            updateTables(currentTasks);
+            console.log('🔄 Changed one task');
+        }
+        
+        function changeMultipleTasks() {
+            const updatedTasks = [...currentTasks];
+            const changesToMake = Math.floor(Math.random() * 5) + 3;
+            
+            for (let i = 0; i < changesToMake; i++) {
+                const randomIndex = Math.floor(Math.random() * currentTasks.length);
+                const statuses = ['pending', 'running', 'completed', 'failed'];
+                updatedTasks[randomIndex].status = statuses[Math.floor(Math.random() * statuses.length)];
+            }
+            
+            currentTasks = updatedTasks;
+            updateTables(currentTasks);
+            console.log(`🔄 Changed ${changesToMake} tasks`);
+        }
+        
+        function noChanges() {
+            updateTables(currentTasks);
+            console.log('⏸️ Update with no changes');
+        }
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            updateTables(currentTasks);
+            console.log('✅ Demo initialized with 30 tasks');
+            console.log('💡 Tip: Start polling to see the flicker difference!');
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopPolling();
+        });
+    </script>
+</body>
+</html>

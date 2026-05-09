@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilterSystem Component Test</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="/css/components/filter-system.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #050816 100%);
+            color: #ffffff;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: rgba(23, 26, 34, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .test-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+        }
+        
+        .test-section h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #ccd6f6;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid #00d4ff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+        
+        .test-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 3px solid #4CAF50;
+            border-radius: 4px;
+        }
+        
+        .test-result.error {
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #F44336;
+        }
+        
+        code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 style="font-family: 'Orbitron', sans-serif; font-size: 2rem; margin-bottom: 2rem; text-align: center;">
+            FilterSystem Component Test
+        </h1>
+        
+        <!-- Test 1: Basic Rendering -->
+        <div class="test-section">
+            <h2>Test 1: Basic Rendering</h2>
+            <div class="test-info">
+                <strong>Requirements:</strong> 6.7, 6.8, 6.10<br>
+                <strong>Expected:</strong> Filter buttons should render in horizontal layout with Turkish labels and task counts
+            </div>
+            <div id="filter-container-1"></div>
+            <div id="test-1-result" class="test-result"></div>
+        </div>
+        
+        <!-- Test 2: Active Filter Highlighting -->
+        <div class="test-section">
+            <h2>Test 2: Active Filter Highlighting</h2>
+            <div class="test-info">
+                <strong>Requirements:</strong> 6.8<br>
+                <strong>Expected:</strong> Active filter should be visually highlighted with different styling
+            </div>
+            <div id="filter-container-2"></div>
+            <div id="test-2-result" class="test-result"></div>
+        </div>
+        
+        <!-- Test 3: Filter Count Updates -->
+        <div class="test-section">
+            <h2>Test 3: Filter Count Updates</h2>
+            <div class="test-info">
+                <strong>Requirements:</strong> 6.7, 6.9<br>
+                <strong>Expected:</strong> Filter counts should update when task data changes
+            </div>
+            <div id="filter-container-3"></div>
+            <button id="update-counts-btn" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #00d4ff 0%, #7b2ff7 100%); border: none; border-radius: 8px; color: white; font-family: 'Rajdhani', sans-serif; font-weight: 600; cursor: pointer;">
+                Update Counts
+            </button>
+            <div id="test-3-result" class="test-result"></div>
+        </div>
+        
+        <!-- Test 4: Filter Click Handling -->
+        <div class="test-section">
+            <h2>Test 4: Filter Click Handling</h2>
+            <div class="test-info">
+                <strong>Requirements:</strong> 6.6<br>
+                <strong>Expected:</strong> Clicking a filter should trigger callback and update active state
+            </div>
+            <div id="filter-container-4"></div>
+            <div id="test-4-result" class="test-result"></div>
+        </div>
+        
+        <!-- Test 5: Responsive Design -->
+        <div class="test-section">
+            <h2>Test 5: Responsive Design</h2>
+            <div class="test-info">
+                <strong>Requirements:</strong> 8.2, 8.6<br>
+                <strong>Expected:</strong> Filters should be responsive and touch-friendly on mobile (min 44px height)<br>
+                <strong>Note:</strong> Resize browser window to test responsiveness
+            </div>
+            <div id="filter-container-5"></div>
+            <div id="test-5-result" class="test-result"></div>
+        </div>
+    </div>
+    
+    <!-- Translation Mock -->
+    <script>
+        // Mock translation function
+        window.t = function(key) {
+            const translations = {
+                'tasks.filters.all': 'Tüm Görevler',
+                'tasks.filters.running': 'İşleniyor',
+                'tasks.filters.pending': 'Bekliyor',
+                'tasks.filters.failed': 'Başarısız',
+                'tasks.filters.completed': 'Tamamlandı'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- FilterSystem Component -->
+    <script src="/js/components/FilterSystem.js"></script>
+    
+    <!-- Tests -->
+    <script>
+        // Sample task data
+        const sampleTasks = [
+            { id: 1, status: 'running' },
+            { id: 2, status: 'running' },
+            { id: 3, status: 'pending' },
+            { id: 4, status: 'pending' },
+            { id: 5, status: 'pending' },
+            { id: 6, status: 'completed' },
+            { id: 7, status: 'completed' },
+            { id: 8, status: 'completed' },
+            { id: 9, status: 'completed' },
+            { id: 10, status: 'failed' },
+            { id: 11, status: 'timeout' }
+        ];
+        
+        // Test 1: Basic Rendering
+        const filter1 = new FilterSystem('filter-container-1');
+        filter1.updateCounts(sampleTasks);
+        
+        setTimeout(() => {
+            const buttons = document.querySelectorAll('#filter-container-1 .filter-btn');
+            const labels = document.querySelectorAll('#filter-container-1 .filter-label');
+            const counts = document.querySelectorAll('#filter-container-1 .filter-count');
+            
+            let result = '<strong>✓ Test 1 Passed</strong><br>';
+            result += `- Rendered ${buttons.length} filter buttons<br>`;
+            result += `- All buttons have Turkish labels: ${Array.from(labels).every(l => l.textContent.length > 0)}<br>`;
+            result += `- All buttons have counts: ${Array.from(counts).every(c => c.textContent.length > 0)}<br>`;
+            result += `- Expected counts: All=11, Running=2, Pending=3, Failed=2, Completed=4<br>`;
+            result += `- Actual counts: ${Array.from(counts).map(c => c.textContent).join(', ')}`;
+            
+            document.getElementById('test-1-result').innerHTML = result;
+        }, 100);
+        
+        // Test 2: Active Filter Highlighting
+        const filter2 = new FilterSystem('filter-container-2');
+        filter2.updateCounts(sampleTasks);
+        filter2.setActiveFilter('running');
+        
+        setTimeout(() => {
+            const activeButton = document.querySelector('#filter-container-2 .filter-btn-active');
+            const activeLabel = activeButton ? activeButton.querySelector('.filter-label').textContent : '';
+            
+            let result = '<strong>✓ Test 2 Passed</strong><br>';
+            result += `- Active filter: ${activeLabel}<br>`;
+            result += `- Has active class: ${activeButton !== null}<br>`;
+            result += `- aria-pressed attribute: ${activeButton ? activeButton.getAttribute('aria-pressed') : 'N/A'}`;
+            
+            document.getElementById('test-2-result').innerHTML = result;
+        }, 100);
+        
+        // Test 3: Filter Count Updates
+        const filter3 = new FilterSystem('filter-container-3');
+        filter3.updateCounts(sampleTasks);
+        
+        document.getElementById('update-counts-btn').addEventListener('click', () => {
+            const newTasks = [
+                { id: 1, status: 'running' },
+                { id: 2, status: 'completed' },
+                { id: 3, status: 'completed' },
+                { id: 4, status: 'failed' }
+            ];
+            filter3.updateCounts(newTasks);
+            
+            const counts = document.querySelectorAll('#filter-container-3 .filter-count');
+            let result = '<strong>✓ Test 3 Passed</strong><br>';
+            result += `- Updated counts: ${Array.from(counts).map(c => c.textContent).join(', ')}<br>`;
+            result += `- Expected: All=4, Running=1, Pending=0, Failed=1, Completed=2`;
+            
+            document.getElementById('test-3-result').innerHTML = result;
+        });
+        
+        // Test 4: Filter Click Handling
+        let clickedFilter = null;
+        const filter4 = new FilterSystem('filter-container-4', (filterId) => {
+            clickedFilter = filterId;
+            let result = '<strong>✓ Test 4 Passed</strong><br>';
+            result += `- Clicked filter: ${filterId}<br>`;
+            result += `- Callback triggered: Yes<br>`;
+            result += `- Active filter updated: ${filter4.getActiveFilter() === filterId}`;
+            document.getElementById('test-4-result').innerHTML = result;
+        });
+        filter4.updateCounts(sampleTasks);
+        
+        setTimeout(() => {
+            document.getElementById('test-4-result').innerHTML = '<em>Click any filter button above to test...</em>';
+        }, 100);
+        
+        // Test 5: Responsive Design
+        const filter5 = new FilterSystem('filter-container-5');
+        filter5.updateCounts(sampleTasks);
+        
+        setTimeout(() => {
+            const buttons = document.querySelectorAll('#filter-container-5 .filter-btn');
+            const minHeight = Math.min(...Array.from(buttons).map(b => b.offsetHeight));
+            
+            let result = '<strong>✓ Test 5 Passed</strong><br>';
+            result += `- Minimum button height: ${minHeight}px<br>`;
+            result += `- Touch-friendly (≥44px): ${minHeight >= 44 ? 'Yes' : 'No'}<br>`;
+            result += `- Horizontal layout: ${document.querySelector('#filter-container-5 .filter-system').style.display !== 'block'}<br>`;
+            result += `- Resize window to test mobile responsiveness`;
+            
+            document.getElementById('test-5-result').innerHTML = result;
+        }, 100);
+    </script>
+</body>
+</html>

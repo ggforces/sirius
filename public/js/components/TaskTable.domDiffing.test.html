@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskTable DOM Diffing Test - Task 5.4</title>
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--bg-primary, #0f172a);
+            color: var(--text-primary, #f1f5f9);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary, #1e293b);
+            border-radius: 8px;
+        }
+        
+        .test-header h1 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary, #3b82f6);
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--primary, #3b82f6);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-hover, #2563eb);
+        }
+        
+        .btn-success {
+            background: var(--success, #10b981);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning, #f59e0b);
+            color: white;
+        }
+        
+        .test-results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary, #1e293b);
+            border-radius: 8px;
+        }
+        
+        .test-result {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .test-result.pass {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid var(--success, #10b981);
+            color: var(--success, #10b981);
+        }
+        
+        .test-result.fail {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid var(--danger, #ef4444);
+            color: var(--danger, #ef4444);
+        }
+        
+        .test-result.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--primary, #3b82f6);
+            color: var(--primary, #3b82f6);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+            background: var(--bg-tertiary, #334155);
+            border-radius: 6px;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary, #94a3b8);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary, #f1f5f9);
+        }
+        
+        #task-table-container {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 TaskTable DOM Diffing Test</h1>
+            <p style="color: var(--text-secondary, #94a3b8); margin: 0;">
+                Task 5.4: Optimize polling updates to prevent flicker
+            </p>
+            <p style="color: var(--text-secondary, #94a3b8); margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+                Requirements: 3.7, 10.2, 10.7 - Only update DOM if task data has changed, use efficient DOM diffing
+            </p>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn btn-primary" onclick="runTest1()">Test 1: No Changes</button>
+            <button class="btn btn-primary" onclick="runTest2()">Test 2: Status Change</button>
+            <button class="btn btn-primary" onclick="runTest3()">Test 3: Multiple Changes</button>
+            <button class="btn btn-primary" onclick="runTest4()">Test 4: Add New Task</button>
+            <button class="btn btn-primary" onclick="runTest5()">Test 5: Remove Task</button>
+            <button class="btn btn-success" onclick="runAllTests()">Run All Tests</button>
+            <button class="btn btn-warning" onclick="simulatePolling()">Simulate Polling (10s)</button>
+        </div>
+        
+        <div class="test-results" id="test-results">
+            <h3 style="margin-top: 0;">Test Results</h3>
+            <div id="results-container">
+                <p style="color: var(--text-secondary, #94a3b8);">Click a test button to run tests...</p>
+            </div>
+            <div class="stats" id="stats-container" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-label">DOM Updates</div>
+                    <div class="stat-value" id="stat-updates">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Rows Updated</div>
+                    <div class="stat-value" id="stat-rows">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Update Time</div>
+                    <div class="stat-value" id="stat-time">0ms</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="task-table-container"></div>
+    </div>
+    
+    <script src="/js/components/TaskTable.js"></script>
+    <script>
+        // Mock translation function
+        window.t = (key) => {
+            const translations = {
+                'tasks.table.loading': 'Yükleniyor...',
+                'tasks.table.noTasks': 'Henüz görev yok',
+                'tasks.table.noTasksDesc': 'Yeni görev oluşturmak için yukarıdaki butonu kullanın',
+                'tasks.table.taskId': 'Görev ID',
+                'tasks.table.account': 'Hesap',
+                'tasks.table.proxy': 'Proxy',
+                'tasks.table.status': 'Durum',
+                'tasks.table.logs': 'Loglar',
+                'tasks.table.viewLogs': 'Logları Görüntüle',
+                'tasks.table.viewLogsCard': 'Logları Görüntüle',
+                'tasks.card.unknown': 'Bilinmeyen',
+                'tasks.proxy.waiting': 'Bekleniyor',
+                'tasks.proxy.deleted': 'Silindi',
+                'tasks.status.pending': 'Bekliyor',
+                'tasks.status.running': 'Çalışıyor',
+                'tasks.status.completed': 'Tamamlandı',
+                'tasks.status.failed': 'Başarısız',
+                'tasks.status.timeout': 'Zaman Aşımı'
+            };
+            return translations[key] || key;
+        };
+        
+        // Initialize TaskTable
+        const taskTable = new TaskTable('task-table-container');
+        
+        // Generate mock tasks
+        function generateMockTasks(count) {
+            const statuses = ['pending', 'running', 'completed', 'failed'];
+            const tasks = [];
+            
+            for (let i = 1; i <= count; i++) {
+                tasks.push({
+                    id: i,
+                    account_username: `user${i}`,
+                    proxy_id: i,
+                    proxy_ip: `192.168.1.${i}`,
+                    proxy_port: 8080 + i,
+                    status: statuses[Math.floor(Math.random() * statuses.length)]
+                });
+            }
+            
+            return tasks;
+        }
+        
+        // Test utilities
+        let testResults = [];
+        let domUpdateCount = 0;
+        let rowsUpdatedCount = 0;
+        
+        function logResult(message, type = 'info') {
+            testResults.push({ message, type });
+            updateResultsDisplay();
+        }
+        
+        function updateResultsDisplay() {
+            const container = document.getElementById('results-container');
+            container.innerHTML = testResults.map(result => 
+                `<div class="test-result ${result.type}">${result.message}</div>`
+            ).join('');
+        }
+        
+        function updateStats(updates, rows, time) {
+            document.getElementById('stats-container').style.display = 'grid';
+            document.getElementById('stat-updates').textContent = updates;
+            document.getElementById('stat-rows').textContent = rows;
+            document.getElementById('stat-time').textContent = time + 'ms';
+        }
+        
+        // Monitor DOM mutations
+        function monitorDOMMutations(callback) {
+            domUpdateCount = 0;
+            rowsUpdatedCount = 0;
+            
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                        domUpdateCount++;
+                        if (mutation.target.tagName === 'TR' || mutation.target.closest('tr')) {
+                            rowsUpdatedCount++;
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(document.getElementById('task-table-container'), {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+            
+            return () => {
+                observer.disconnect();
+                callback(domUpdateCount, rowsUpdatedCount);
+            };
+        }
+        
+        // Test 1: No changes - should not update DOM
+        function runTest1() {
+            testResults = [];
+            logResult('🧪 Test 1: No Changes - Should Not Update DOM', 'info');
+            
+            const tasks = generateMockTasks(10);
+            taskTable.setTasks(tasks);
+            
+            const stopMonitoring = monitorDOMMutations((updates, rows) => {
+                if (updates === 0) {
+                    logResult('✅ PASS: No DOM updates when data unchanged', 'pass');
+                } else {
+                    logResult(`❌ FAIL: Expected 0 DOM updates, got ${updates}`, 'fail');
+                }
+                updateStats(updates, rows, 0);
+            });
+            
+            setTimeout(() => {
+                const startTime = performance.now();
+                taskTable.setTasks(tasks); // Same data
+                const endTime = performance.now();
+                
+                setTimeout(() => {
+                    stopMonitoring();
+                    updateStats(domUpdateCount, rowsUpdatedCount, Math.round(endTime - startTime));
+                }, 100);
+            }, 100);
+        }
+        
+        // Test 2: Status change - should update only changed row
+        function runTest2() {
+            testResults = [];
+            logResult('🧪 Test 2: Status Change - Should Update Only Changed Row', 'info');
+            
+            const tasks = generateMockTasks(10);
+            taskTable.setTasks(tasks);
+            
+            setTimeout(() => {
+                const stopMonitoring = monitorDOMMutations((updates, rows) => {
+                    if (rows <= 2) { // Allow some tolerance for row update
+                        logResult(`✅ PASS: Only changed row updated (${rows} row updates)`, 'pass');
+                    } else {
+                        logResult(`❌ FAIL: Expected 1-2 row updates, got ${rows}`, 'fail');
+                    }
+                    updateStats(updates, rows, 0);
+                });
+                
+                const updatedTasks = [...tasks];
+                updatedTasks[5].status = 'completed'; // Change one task
+                
+                const startTime = performance.now();
+                taskTable.setTasks(updatedTasks);
+                const endTime = performance.now();
+                
+                setTimeout(() => {
+                    stopMonitoring();
+                    updateStats(domUpdateCount, rowsUpdatedCount, Math.round(endTime - startTime));
+                }, 100);
+            }, 100);
+        }
+        
+        // Test 3: Multiple changes - should update only changed rows
+        function runTest3() {
+            testResults = [];
+            logResult('🧪 Test 3: Multiple Changes - Should Update Only Changed Rows', 'info');
+            
+            const tasks = generateMockTasks(20);
+            taskTable.setTasks(tasks);
+            
+            setTimeout(() => {
+                const stopMonitoring = monitorDOMMutations((updates, rows) => {
+                    if (rows <= 6) { // 3 changes, allow some tolerance
+                        logResult(`✅ PASS: Only changed rows updated (${rows} row updates)`, 'pass');
+                    } else {
+                        logResult(`❌ FAIL: Expected ~3 row updates, got ${rows}`, 'fail');
+                    }
+                    updateStats(updates, rows, 0);
+                });
+                
+                const updatedTasks = [...tasks];
+                updatedTasks[2].status = 'failed';
+                updatedTasks[7].status = 'completed';
+                updatedTasks[15].proxy_ip = '10.0.0.1';
+                
+                const startTime = performance.now();
+                taskTable.setTasks(updatedTasks);
+                const endTime = performance.now();
+                
+                setTimeout(() => {
+                    stopMonitoring();
+                    updateStats(domUpdateCount, rowsUpdatedCount, Math.round(endTime - startTime));
+                }, 100);
+            }, 100);
+        }
+        
+        // Test 4: Add new task - should add one row
+        function runTest4() {
+            testResults = [];
+            logResult('🧪 Test 4: Add New Task - Should Add One Row', 'info');
+            
+            const tasks = generateMockTasks(10);
+            taskTable.setTasks(tasks);
+            
+            setTimeout(() => {
+                const stopMonitoring = monitorDOMMutations((updates, rows) => {
+                    if (updates > 0) {
+                        logResult(`✅ PASS: New row added (${updates} DOM updates)`, 'pass');
+                    } else {
+                        logResult(`❌ FAIL: Expected DOM updates for new row`, 'fail');
+                    }
+                    updateStats(updates, rows, 0);
+                });
+                
+                const updatedTasks = [...tasks, {
+                    id: 11,
+                    account_username: 'newuser',
+                    proxy_id: 11,
+                    proxy_ip: '192.168.1.11',
+                    proxy_port: 8091,
+                    status: 'pending'
+                }];
+                
+                const startTime = performance.now();
+                taskTable.setTasks(updatedTasks);
+                const endTime = performance.now();
+                
+                setTimeout(() => {
+                    stopMonitoring();
+                    updateStats(domUpdateCount, rowsUpdatedCount, Math.round(endTime - startTime));
+                }, 100);
+            }, 100);
+        }
+        
+        // Test 5: Remove task - should remove one row
+        function runTest5() {
+            testResults = [];
+            logResult('🧪 Test 5: Remove Task - Should Remove One Row', 'info');
+            
+            const tasks = generateMockTasks(10);
+            taskTable.setTasks(tasks);
+            
+            setTimeout(() => {
+                const stopMonitoring = monitorDOMMutations((updates, rows) => {
+                    if (updates > 0) {
+                        logResult(`✅ PASS: Row removed (${updates} DOM updates)`, 'pass');
+                    } else {
+                        logResult(`❌ FAIL: Expected DOM updates for removed row`, 'fail');
+                    }
+                    updateStats(updates, rows, 0);
+                });
+                
+                const updatedTasks = tasks.slice(0, 9); // Remove last task
+                
+                const startTime = performance.now();
+                taskTable.setTasks(updatedTasks);
+                const endTime = performance.now();
+                
+                setTimeout(() => {
+                    stopMonitoring();
+                    updateStats(domUpdateCount, rowsUpdatedCount, Math.round(endTime - startTime));
+                }, 100);
+            }, 100);
+        }
+        
+        // Run all tests sequentially
+        async function runAllTests() {
+            testResults = [];
+            logResult('🚀 Running All Tests...', 'info');
+            
+            await new Promise(resolve => {
+                runTest1();
+                setTimeout(resolve, 500);
+            });
+            
+            await new Promise(resolve => {
+                runTest2();
+                setTimeout(resolve, 500);
+            });
+            
+            await new Promise(resolve => {
+                runTest3();
+                setTimeout(resolve, 500);
+            });
+            
+            await new Promise(resolve => {
+                runTest4();
+                setTimeout(resolve, 500);
+            });
+            
+            await new Promise(resolve => {
+                runTest5();
+                setTimeout(resolve, 500);
+            });
+            
+            logResult('✅ All tests completed!', 'pass');
+        }
+        
+        // Simulate polling with random status changes
+        let pollingInterval;
+        function simulatePolling() {
+            testResults = [];
+            logResult('🔄 Simulating Polling for 10 seconds...', 'info');
+            
+            const tasks = generateMockTasks(20);
+            taskTable.setTasks(tasks);
+            
+            let updateCount = 0;
+            const stopMonitoring = monitorDOMMutations((updates, rows) => {
+                logResult(`📊 Polling complete: ${updateCount} updates, ${rows} row changes`, 'info');
+                updateStats(updates, rows, 0);
+            });
+            
+            pollingInterval = setInterval(() => {
+                const updatedTasks = [...tasks];
+                // Randomly change 1-3 task statuses
+                const changesToMake = Math.floor(Math.random() * 3) + 1;
+                for (let i = 0; i < changesToMake; i++) {
+                    const randomIndex = Math.floor(Math.random() * tasks.length);
+                    const statuses = ['pending', 'running', 'completed', 'failed'];
+                    updatedTasks[randomIndex].status = statuses[Math.floor(Math.random() * statuses.length)];
+                }
+                
+                taskTable.setTasks(updatedTasks);
+                updateCount++;
+                
+                logResult(`Update ${updateCount}: Changed ${changesToMake} tasks`, 'info');
+            }, 1000);
+            
+            setTimeout(() => {
+                clearInterval(pollingInterval);
+                stopMonitoring();
+                logResult('✅ Polling simulation complete', 'pass');
+            }, 10000);
+        }
+        
+        // Initialize with sample data
+        window.addEventListener('DOMContentLoaded', () => {
+            const initialTasks = generateMockTasks(15);
+            taskTable.setTasks(initialTasks);
+            logResult('✅ TaskTable initialized with 15 tasks', 'pass');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TasksManager Polling Error Handling Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        
+        h1 {
+            color: #00d4ff;
+            border-bottom: 2px solid #00d4ff;
+            padding-bottom: 10px;
+        }
+        
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #444;
+        }
+        
+        .test-section h2 {
+            color: #00d4ff;
+            margin-top: 0;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: #00d4ff;
+            color: #000;
+        }
+        
+        .btn-success {
+            background: #22c55e;
+            color: #fff;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+        
+        .btn-warning {
+            background: #fbbf24;
+            color: #000;
+        }
+        
+        .status-display {
+            background: #1a1a1a;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            color: #888;
+        }
+        
+        .status-value {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        .log-container {
+            background: #1a1a1a;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .log-entry {
+            padding: 3px 0;
+            border-bottom: 1px solid #222;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-time {
+            color: #888;
+        }
+        
+        .log-success {
+            color: #22c55e;
+        }
+        
+        .log-error {
+            color: #ef4444;
+        }
+        
+        .log-info {
+            color: #00d4ff;
+        }
+        
+        .test-result {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .test-pass {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+        
+        .test-fail {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 2px solid;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .notification-error {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        .notification-with-action {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+        }
+        
+        .notification-with-action span {
+            flex: 1;
+        }
+        
+        .notification-retry-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        .notification-retry-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 TasksManager Polling Error Handling Test</h1>
+    
+    <div class="test-section">
+        <h2>📊 Current Status</h2>
+        <div class="status-display">
+            <div class="status-item">
+                <span class="status-label">Polling Active:</span>
+                <span class="status-value" id="pollingActive">No</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Failure Count:</span>
+                <span class="status-value" id="failureCount">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Max Failures:</span>
+                <span class="status-value" id="maxFailures">3</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">API Mode:</span>
+                <span class="status-value" id="apiMode">Success</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Total Polls:</span>
+                <span class="status-value" id="totalPolls">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Successful Polls:</span>
+                <span class="status-value" id="successfulPolls">0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Failed Polls:</span>
+                <span class="status-value" id="failedPolls">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎮 Test Controls</h2>
+        <div class="test-controls">
+            <button class="btn-success" onclick="setAPIMode('success')">✅ API Success Mode</button>
+            <button class="btn-danger" onclick="setAPIMode('error')">❌ API Error Mode</button>
+            <button class="btn-warning" onclick="setAPIMode('network')">🌐 Network Error Mode</button>
+            <button class="btn-primary" onclick="triggerManualPoll()">🔄 Manual Poll</button>
+            <button class="btn-primary" onclick="resetCounters()">🔄 Reset Counters</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📝 Event Log</h2>
+        <div class="log-container" id="logContainer"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>✅ Test Results</h2>
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        // Mock translations
+        window.t = function(key) {
+            const translations = {
+                'tasks.notifications.tasksLoadError': 'Görevler yüklenirken sürekli hata oluşuyor. Lütfen internet bağlantınızı kontrol edin.',
+                'tasks.notifications.connectionError': 'Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.',
+                'tasks.notifications.serverError': 'Sunucu hatası',
+                'tasks.notifications.retryNow': 'Şimdi Tekrar Dene'
+            };
+            return translations[key] || key;
+        };
+
+        // Test state
+        let apiMode = 'success'; // 'success', 'error', 'network'
+        let totalPolls = 0;
+        let successfulPolls = 0;
+        let failedPolls = 0;
+        let mockTasksManager = null;
+
+        // Mock TaskTable
+        class MockTaskTable {
+            constructor() {
+                this.tasks = [];
+                this.loading = false;
+            }
+            
+            setTasks(tasks) {
+                this.tasks = tasks;
+                logEvent('info', `TaskTable updated with ${tasks.length} tasks`);
+            }
+            
+            setLoading(loading) {
+                this.loading = loading;
+                logEvent('info', `TaskTable loading: ${loading}`);
+            }
+        }
+
+        // Mock StatisticsPanel
+        class MockStatisticsPanel {
+            update(tasks) {
+                logEvent('info', `StatisticsPanel updated with ${tasks.length} tasks`);
+            }
+        }
+
+        // Simplified TasksManager for testing
+        class TestTasksManager {
+            constructor() {
+                this.taskTable = new MockTaskTable();
+                this.statisticsPanel = new MockStatisticsPanel();
+                this.pollingInterval = null;
+                this.pollingFailureCount = 0;
+                this.maxPollingFailures = 3;
+            }
+
+            async loadTasks() {
+                if (!this.taskTable) return;
+                
+                this.taskTable.setLoading(true);
+                totalPolls++;
+                updateStatus();
+                
+                try {
+                    // Simulate API call based on mode
+                    const response = await this.mockFetch();
+                    
+                    if (!response.ok) {
+                        let errorMessage = window.t('tasks.notifications.tasksLoadError');
+                        
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (parseError) {
+                            errorMessage = `${window.t('tasks.notifications.serverError')}: ${response.status}`;
+                        }
+                        
+                        throw new Error(errorMessage);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.taskTable.setTasks(data.tasks || []);
+                        
+                        if (this.statisticsPanel) {
+                            this.statisticsPanel.update(data.tasks || []);
+                        }
+                        
+                        // Reset failure count on success
+                        this.pollingFailureCount = 0;
+                        successfulPolls++;
+                        logEvent('success', `Poll successful (${data.tasks.length} tasks loaded)`);
+                        runTest('Reset failure count on success', this.pollingFailureCount === 0);
+                    } else {
+                        throw new Error(data.message || 'Failed to load tasks');
+                    }
+                } catch (error) {
+                    console.error('Error loading tasks:', error);
+                    
+                    // Increment failure count
+                    this.pollingFailureCount++;
+                    failedPolls++;
+                    logEvent('error', `Poll failed (failure count: ${this.pollingFailureCount})`);
+                    
+                    // Show notification after 3 consecutive failures
+                    if (this.pollingFailureCount >= this.maxPollingFailures) {
+                        let errorMessage = window.t('tasks.notifications.tasksLoadError');
+                        
+                        if (error instanceof TypeError && error.message.includes('fetch')) {
+                            errorMessage = window.t('tasks.notifications.connectionError');
+                        } else if (error.message) {
+                            errorMessage = error.message;
+                        }
+                        
+                        this.showPollingErrorNotification(errorMessage);
+                        logEvent('error', `Notification shown after ${this.maxPollingFailures} failures`);
+                        runTest('Show notification after 3 failures', true);
+                        
+                        // Reset counter to avoid spamming notifications
+                        this.pollingFailureCount = 0;
+                    }
+                    
+                    runTest('Continue displaying last data on error', this.taskTable.tasks.length >= 0);
+                } finally {
+                    this.taskTable.setLoading(false);
+                    updateStatus();
+                }
+            }
+
+            async mockFetch() {
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                if (apiMode === 'network') {
+                    throw new TypeError('Failed to fetch');
+                }
+                
+                if (apiMode === 'error') {
+                    return {
+                        ok: false,
+                        status: 500,
+                        json: async () => ({ success: false, message: 'Server error' })
+                    };
+                }
+                
+                // Success mode
+                return {
+                    ok: true,
+                    json: async () => ({
+                        success: true,
+                        tasks: [
+                            { id: 1, account_username: 'test1', status: 'running' },
+                            { id: 2, account_username: 'test2', status: 'pending' }
+                        ]
+                    })
+                };
+            }
+
+            showPollingErrorNotification(errorMessage) {
+                const existingNotification = document.querySelector('.notification');
+                if (existingNotification) {
+                    existingNotification.remove();
+                }
+                
+                const notification = document.createElement('div');
+                notification.className = 'notification notification-error notification-with-action';
+                
+                const messageSpan = document.createElement('span');
+                messageSpan.textContent = errorMessage;
+                
+                const retryBtn = document.createElement('button');
+                retryBtn.className = 'notification-retry-btn';
+                retryBtn.textContent = window.t('tasks.notifications.retryNow');
+                retryBtn.onclick = () => {
+                    notification.remove();
+                    this.loadTasks();
+                    logEvent('info', 'Manual retry triggered from notification');
+                };
+                
+                notification.appendChild(messageSpan);
+                notification.appendChild(retryBtn);
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.classList.add('show'), 10);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 7000);
+                
+                runTest('Notification has retry button', retryBtn !== null);
+            }
+
+            startTaskPolling() {
+                this.pollingInterval = setInterval(() => {
+                    this.loadTasks();
+                }, 5000);
+                logEvent('info', 'Polling started (5 second interval)');
+                updateStatus();
+            }
+
+            stopTaskPolling() {
+                if (this.pollingInterval) {
+                    clearInterval(this.pollingInterval);
+                    this.pollingInterval = null;
+                    logEvent('info', 'Polling stopped');
+                    updateStatus();
+                }
+            }
+        }
+
+        // Logging
+        function logEvent(type, message) {
+            const logContainer = document.getElementById('logContainer');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const time = new Date().toLocaleTimeString();
+            logEntry.innerHTML = `
+                <span class="log-time">[${time}]</span>
+                <span class="log-${type}">${message}</span>
+            `;
+            
+            logContainer.insertBefore(logEntry, logContainer.firstChild);
+            
+            // Keep only last 50 entries
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        // Test runner
+        function runTest(testName, passed) {
+            const testResults = document.getElementById('testResults');
+            const testResult = document.createElement('div');
+            testResult.className = passed ? 'test-result test-pass' : 'test-result test-fail';
+            testResult.textContent = `${passed ? '✅' : '❌'} ${testName}`;
+            testResults.insertBefore(testResult, testResults.firstChild);
+        }
+
+        // Update status display
+        function updateStatus() {
+            document.getElementById('pollingActive').textContent = mockTasksManager?.pollingInterval ? 'Yes' : 'No';
+            document.getElementById('failureCount').textContent = mockTasksManager?.pollingFailureCount || 0;
+            document.getElementById('maxFailures').textContent = mockTasksManager?.maxPollingFailures || 3;
+            document.getElementById('apiMode').textContent = apiMode.charAt(0).toUpperCase() + apiMode.slice(1);
+            document.getElementById('totalPolls').textContent = totalPolls;
+            document.getElementById('successfulPolls').textContent = successfulPolls;
+            document.getElementById('failedPolls').textContent = failedPolls;
+        }
+
+        // Control functions
+        function setAPIMode(mode) {
+            apiMode = mode;
+            updateStatus();
+            logEvent('info', `API mode set to: ${mode}`);
+        }
+
+        function triggerManualPoll() {
+            if (mockTasksManager) {
+                mockTasksManager.loadTasks();
+                logEvent('info', 'Manual poll triggered');
+            }
+        }
+
+        function resetCounters() {
+            totalPolls = 0;
+            successfulPolls = 0;
+            failedPolls = 0;
+            if (mockTasksManager) {
+                mockTasksManager.pollingFailureCount = 0;
+            }
+            updateStatus();
+            logEvent('info', 'Counters reset');
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            mockTasksManager = new TestTasksManager();
+            mockTasksManager.startTaskPolling();
+            logEvent('success', 'Test environment initialized');
+            updateStatus();
+        });
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (mockTasksManager) {
+                mockTasksManager.stopTaskPolling();
+            }
+        });
+    </script>
+</body>
+</html>

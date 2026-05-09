@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Card View Test - Task Table</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Components -->
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    
+    <style>
+        body {
+            padding: 20px;
+            background: #0a0e1a;
+            color: #fff;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .test-info {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+        }
+        
+        .viewport-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 255, 0.9);
+            color: #000;
+            font-weight: bold;
+            border-radius: 6px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="viewport-indicator" id="viewportIndicator">Desktop View</div>
+    
+    <div class="test-container">
+        <div class="test-header">
+            <h1>Mobile Card View Test - Task Table</h1>
+            <p>Resize your browser window to 767px or less to see the mobile card view.</p>
+        </div>
+        
+        <div class="test-info">
+            <h3>Test Instructions:</h3>
+            <ul>
+                <li>Desktop (≥768px): Table view should be visible</li>
+                <li>Mobile (≤767px): Card view should be visible</li>
+                <li>The viewport indicator in the top-right shows current view mode</li>
+            </ul>
+        </div>
+        
+        <div id="taskTableContainer">
+            <!-- TaskTable will render here -->
+        </div>
+    </div>
+    
+    <!-- Mock translation function -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.table.taskId': 'Görev ID',
+                'tasks.table.account': 'Hesap',
+                'tasks.table.proxy': 'Proxy',
+                'tasks.table.status': 'Durum',
+                'tasks.table.logs': 'Loglar',
+                'tasks.table.viewLogs': 'Loglar',
+                'tasks.table.viewLogsCard': 'Logları Görüntüle',
+                'tasks.status.pending': 'Bekliyor',
+                'tasks.status.running': 'İşleniyor',
+                'tasks.status.completed': 'Tamamlandı',
+                'tasks.status.failed': 'Başarısız',
+                'tasks.status.timeout': 'Zaman Aşımı',
+                'tasks.proxy.waiting': 'Bekliyor',
+                'tasks.proxy.deleted': 'Proxy Silinmiş',
+                'tasks.card.unknown': 'Bilinmiyor'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- TaskTable Component -->
+    <script src="/js/components/TaskTable.js"></script>
+    
+    <!-- Test Script -->
+    <script>
+        // Mock task data
+        const mockTasks = [
+            {
+                id: 1,
+                account_username: 'steamuser123',
+                proxy_id: 1,
+                proxy_ip: '192.168.1.100',
+                proxy_port: 8080,
+                status: 'running'
+            },
+            {
+                id: 2,
+                account_username: 'gamer456',
+                proxy_id: 2,
+                proxy_ip: '192.168.1.101',
+                proxy_port: 8080,
+                status: 'pending'
+            },
+            {
+                id: 3,
+                account_username: 'player789',
+                proxy_id: 3,
+                proxy_ip: '192.168.1.102',
+                proxy_port: 8080,
+                status: 'completed'
+            },
+            {
+                id: 4,
+                account_username: 'testuser',
+                proxy_id: null,
+                proxy_ip: null,
+                proxy_port: null,
+                status: 'failed'
+            },
+            {
+                id: 5,
+                account_username: 'demouser',
+                proxy_id: 5,
+                proxy_ip: null,
+                proxy_port: null,
+                status: 'timeout'
+            }
+        ];
+        
+        // Initialize TaskTable
+        const taskTable = new TaskTable('taskTableContainer');
+        taskTable.setTasks(mockTasks);
+        
+        // Override onViewLogs to show alert
+        taskTable.onViewLogs = function(taskId) {
+            alert('View logs for task #' + taskId);
+        };
+        
+        // Update viewport indicator
+        function updateViewportIndicator() {
+            const indicator = document.getElementById('viewportIndicator');
+            const width = window.innerWidth;
+            
+            if (width <= 767) {
+                indicator.textContent = `Mobile View (${width}px)`;
+                indicator.style.background = 'rgba(34, 197, 94, 0.9)';
+            } else {
+                indicator.textContent = `Desktop View (${width}px)`;
+                indicator.style.background = 'rgba(0, 212, 255, 0.9)';
+            }
+        }
+        
+        // Update on load and resize
+        updateViewportIndicator();
+        window.addEventListener('resize', updateViewportIndicator);
+    </script>
+</body>
+</html>

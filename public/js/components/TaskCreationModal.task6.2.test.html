@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 6.2 - Overlay Click Handler Test</title>
+    <link rel="stylesheet" href="../../css/base/variables.css">
+    <link rel="stylesheet" href="../../css/base/reset.css">
+    <link rel="stylesheet" href="../../css/components/modals.css">
+    <link rel="stylesheet" href="../../css/components/task-creation-modal.css">
+    <link rel="stylesheet" href="../../css/components/buttons.css">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <style>
+        body {
+            padding: 40px;
+            background: var(--background-primary);
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: var(--surface-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .test-section h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        
+        .test-section h3 {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .test-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .test-list li {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: var(--surface-secondary);
+            border-radius: 8px;
+            border-left: 4px solid var(--border-color);
+        }
+        
+        .test-list li.pass {
+            border-left-color: var(--success);
+        }
+        
+        .test-list li.fail {
+            border-left-color: var(--danger);
+        }
+        
+        .test-button {
+            margin-top: 16px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .status-badge.pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+        
+        .status-badge.pass {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .status-badge.fail {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+        
+        .code-block {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+        
+        .event-log {
+            background: #1E1E1E;
+            color: #4CAF50;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+        
+        .event-log-entry {
+            margin-bottom: 4px;
+        }
+        
+        .event-log-entry.close {
+            color: #F44336;
+        }
+        
+        .event-log-entry.click {
+            color: #2196F3;
+        }
+        
+        .event-log-entry.escape {
+            color: #FFC107;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-section">
+            <h2>🧪 Task 6.2 - Overlay Click Handler Test</h2>
+            <p><strong>Requirement 4.3:</strong> WHEN kullanıcı popup dışına tıkladığında, THE Task_Creation_Modal SHALL kapanır</p>
+            
+            <h3>Test Cases</h3>
+            <ul class="test-list">
+                <li id="test-1">
+                    <strong>Test 1:</strong> Overlay click closes modal
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-2">
+                    <strong>Test 2:</strong> Modal content click does NOT close modal (event bubbling prevented)
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-3">
+                    <strong>Test 3:</strong> Escape key closes modal
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-4">
+                    <strong>Test 4:</strong> Close method is called correctly
+                    <span class="status-badge pending">Pending</span>
+                </li>
+            </ul>
+            
+            <button class="btn btn-primary test-button" onclick="openModal()">
+                <i class="ph-bold ph-play"></i>
+                Open Modal for Manual Testing
+            </button>
+            
+            <button class="btn btn-secondary test-button" onclick="runAutomatedTests()">
+                <i class="ph-bold ph-check-circle"></i>
+                Run Automated Tests
+            </button>
+            
+            <button class="btn btn-secondary test-button" onclick="clearEventLog()">
+                <i class="ph-bold ph-trash"></i>
+                Clear Event Log
+            </button>
+        </div>
+        
+        <div class="test-section">
+            <h2>📋 Manual Test Instructions</h2>
+            <ol>
+                <li>Click "Open Modal for Manual Testing" button</li>
+                <li><strong>Test overlay click:</strong> Click on the dark area outside the modal (overlay) - modal should close</li>
+                <li>Open modal again</li>
+                <li><strong>Test modal content click:</strong> Click inside the white modal content area - modal should NOT close</li>
+                <li>Open modal again</li>
+                <li><strong>Test Escape key:</strong> Press Escape key - modal should close</li>
+                <li>Check the event log below to see all events</li>
+            </ol>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Event Log</h2>
+            <div id="event-log" class="event-log">
+                <div class="event-log-entry">[Ready] Waiting for events...</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔍 Implementation Details</h2>
+            <p>The implementation adds event bubbling prevention to ensure clicks inside the modal content don't propagate to the overlay:</p>
+            <div class="code-block">// Prevent event bubbling from modal content to overlay
+const modalContent = this.modal.querySelector('.modal-content');
+if (modalContent) {
+    modalContent.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+}</div>
+            <p><strong>Key Points:</strong></p>
+            <ul>
+                <li>✅ Overlay click handler calls <code>close()</code> method</li>
+                <li>✅ Modal content click handler prevents event bubbling with <code>e.stopPropagation()</code></li>
+                <li>✅ Escape key handler checks if modal is active before closing</li>
+                <li>✅ All handlers properly integrated in <code>attachEventListeners()</code> method</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="../common.js"></script>
+    <script src="TaskCreationModal.js"></script>
+    <script>
+        let modal;
+        let closeCallCount = 0;
+        
+        // Mock translations
+        window.t = function(key) {
+            const translations = {
+                'tasks.createModal.title': 'Create Tasks',
+                'tasks.createModal.searchPlaceholder': 'Search accounts...',
+                'tasks.createModal.selectAll': 'Select All',
+                'tasks.createModal.selectPrime': 'Prime Only',
+                'tasks.createModal.selectNonPrime': 'Non-Prime Only',
+                'tasks.createModal.clearSelection': 'Clear',
+                'tasks.createModal.accountsSelected': 'selected',
+                'tasks.createModal.createTasks': 'Create Tasks',
+                'tasks.createModal.loading': 'Loading accounts...',
+                'tasks.createModal.noAccounts': 'No accounts available',
+                'tasks.createModal.noResults': 'No results found'
+            };
+            return translations[key] || key;
+        };
+        
+        // Mock showNotification
+        window.showNotification = function(message, type) {
+            logEvent(`Notification: ${message} (${type})`);
+        };
+        
+        // Initialize modal
+        document.addEventListener('DOMContentLoaded', () => {
+            modal = new TaskCreationModal('taskCreationModal');
+            
+            // Override close method to track calls
+            const originalClose = modal.close.bind(modal);
+            modal.close = function() {
+                closeCallCount++;
+                logEvent(`close() method called (count: ${closeCallCount})`, 'close');
+                originalClose();
+            };
+            
+            // Add event listeners for testing
+            const overlay = modal.modal.querySelector('.modal-overlay');
+            const modalContent = modal.modal.querySelector('.modal-content');
+            
+            if (overlay) {
+                overlay.addEventListener('click', () => {
+                    logEvent('Overlay clicked', 'click');
+                }, true);
+            }
+            
+            if (modalContent) {
+                modalContent.addEventListener('click', () => {
+                    logEvent('Modal content clicked', 'click');
+                }, true);
+            }
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    logEvent('Escape key pressed', 'escape');
+                }
+            }, true);
+        });
+        
+        function openModal() {
+            closeCallCount = 0;
+            logEvent('Modal opened', 'open');
+            modal.open();
+        }
+        
+        function logEvent(message, type = 'info') {
+            const log = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `event-log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function clearEventLog() {
+            const log = document.getElementById('event-log');
+            log.innerHTML = '<div class="event-log-entry">[Ready] Event log cleared...</div>';
+        }
+        
+        function updateTestStatus(testId, status) {
+            const testElement = document.getElementById(testId);
+            const badge = testElement.querySelector('.status-badge');
+            badge.className = `status-badge ${status}`;
+            badge.textContent = status === 'pass' ? 'Pass' : status === 'fail' ? 'Fail' : 'Pending';
+            testElement.className = status;
+        }
+        
+        async function runAutomatedTests() {
+            clearEventLog();
+            logEvent('Starting automated tests...', 'info');
+            
+            // Test 1: Overlay click closes modal
+            logEvent('Test 1: Testing overlay click...', 'info');
+            closeCallCount = 0;
+            modal.open();
+            await sleep(100);
+            
+            const overlay = modal.modal.querySelector('.modal-overlay');
+            overlay.click();
+            await sleep(100);
+            
+            if (closeCallCount === 1 && !modal.modal.classList.contains('active')) {
+                updateTestStatus('test-1', 'pass');
+                logEvent('✅ Test 1 PASSED: Overlay click closes modal', 'pass');
+            } else {
+                updateTestStatus('test-1', 'fail');
+                logEvent('❌ Test 1 FAILED: Overlay click did not close modal', 'fail');
+            }
+            
+            // Test 2: Modal content click does NOT close modal
+            logEvent('Test 2: Testing modal content click...', 'info');
+            closeCallCount = 0;
+            modal.open();
+            await sleep(100);
+            
+            const modalContent = modal.modal.querySelector('.modal-content');
+            modalContent.click();
+            await sleep(100);
+            
+            if (closeCallCount === 0 && modal.modal.classList.contains('active')) {
+                updateTestStatus('test-2', 'pass');
+                logEvent('✅ Test 2 PASSED: Modal content click does NOT close modal', 'pass');
+            } else {
+                updateTestStatus('test-2', 'fail');
+                logEvent('❌ Test 2 FAILED: Modal content click closed modal (bubbling not prevented)', 'fail');
+            }
+            
+            // Close modal for next test
+            modal.close();
+            await sleep(100);
+            
+            // Test 3: Escape key closes modal
+            logEvent('Test 3: Testing Escape key...', 'info');
+            closeCallCount = 0;
+            modal.open();
+            await sleep(100);
+            
+            const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
+            document.dispatchEvent(escapeEvent);
+            await sleep(100);
+            
+            if (closeCallCount === 1 && !modal.modal.classList.contains('active')) {
+                updateTestStatus('test-3', 'pass');
+                logEvent('✅ Test 3 PASSED: Escape key closes modal', 'pass');
+            } else {
+                updateTestStatus('test-3', 'fail');
+                logEvent('❌ Test 3 FAILED: Escape key did not close modal', 'fail');
+            }
+            
+            // Test 4: Close method is called correctly
+            logEvent('Test 4: Testing close method...', 'info');
+            closeCallCount = 0;
+            modal.open();
+            await sleep(100);
+            modal.close();
+            await sleep(100);
+            
+            if (closeCallCount === 1) {
+                updateTestStatus('test-4', 'pass');
+                logEvent('✅ Test 4 PASSED: Close method works correctly', 'pass');
+            } else {
+                updateTestStatus('test-4', 'fail');
+                logEvent('❌ Test 4 FAILED: Close method not working', 'fail');
+            }
+            
+            logEvent('All automated tests completed!', 'info');
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

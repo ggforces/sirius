@@ -13,7 +13,10 @@ router.get('/dashboard', authenticateToken, (req, res) => {
     try {
         const html = viewRenderer.render('dashboard', {
             EXTRA_HEAD: '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>',
-            EXTRA_SCRIPTS: '<script src="/js/pages/dashboard.js"></script>'
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/pages/dashboard.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {
@@ -28,7 +31,10 @@ router.get('/dashboard', authenticateToken, (req, res) => {
 router.get('/accounts', authenticateToken, (req, res) => {
     try {
         const html = viewRenderer.render('accounts', {
-            EXTRA_SCRIPTS: '<script src="/js/pages/accounts.js"></script>'
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/pages/accounts.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {
@@ -43,7 +49,10 @@ router.get('/accounts', authenticateToken, (req, res) => {
 router.get('/proxies', authenticateToken, (req, res) => {
     try {
         const html = viewRenderer.render('proxies', {
-            EXTRA_SCRIPTS: '<script src="/js/pages/proxies.js"></script>'
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/pages/proxies.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {
@@ -85,7 +94,10 @@ router.get('/reports', authenticateToken, (req, res) => {
     try {
         const html = viewRenderer.render('reports', {
             EXTRA_HEAD: '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>',
-            EXTRA_SCRIPTS: '<script src="/js/pages/reports.js"></script>'
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/pages/reports.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {
@@ -100,7 +112,10 @@ router.get('/reports', authenticateToken, (req, res) => {
 router.get('/settings', authenticateToken, (req, res) => {
     try {
         const html = viewRenderer.render('settings', {
-            EXTRA_SCRIPTS: '<script src="/js/pages/settings.js"></script>'
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/pages/settings.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {
@@ -119,7 +134,10 @@ router.get('/admin', adminPageLimiter, trackSuspiciousActivity, authenticateToke
     try {
         const html = viewRenderer.render('admin/dashboard', {
             EXTRA_HEAD: '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>',
-            EXTRA_SCRIPTS: '<script src="/js/pages/admin/dashboard.js"></script>'
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/pages/admin/dashboard.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {
@@ -134,7 +152,10 @@ router.get('/admin', adminPageLimiter, trackSuspiciousActivity, authenticateToke
 router.get('/admin/users', adminPageLimiter, trackSuspiciousActivity, authenticateToken, requireAdmin, (req, res) => {
     try {
         const html = viewRenderer.render('admin/users', {
-            EXTRA_SCRIPTS: '<script src="/js/pages/admin/users.js"></script>'
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/pages/admin/users.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {
@@ -149,7 +170,10 @@ router.get('/admin/users', adminPageLimiter, trackSuspiciousActivity, authentica
 router.get('/admin/logs', adminPageLimiter, trackSuspiciousActivity, authenticateToken, requireAdmin, (req, res) => {
     try {
         const html = viewRenderer.render('admin/logs', {
-            EXTRA_SCRIPTS: '<script src="/js/pages/admin/logs.js"></script>'
+            EXTRA_SCRIPTS: `
+                <script>window.APP_LANG = '${req.lang}'; window.APP_TRANSLATIONS = ${JSON.stringify(req.translations)};</script>
+                <script src="/js/pages/admin/logs.js"></script>
+            `
         }, req.translations, req.lang, req.user);
         res.send(html);
     } catch (error) {

@@ -107,6 +107,18 @@ const addAccount = (req, res) => {
             });
         }
         
+        // Username'in sistemde olup olmadığını kontrol et (tüm kullanıcılarda)
+        const existingAccount = db.prepare(`
+            SELECT id, user_id FROM steam_accounts WHERE username = ?
+        `).get(username);
+        
+        if (existingAccount) {
+            return res.status(400).json({
+                success: false,
+                message: 'Bu Steam hesabı zaten sistemde kayıtlı.'
+            });
+        }
+        
         // Verileri şifrele
         const encryptedPassword = encrypt(password);
         const encryptedSharedSecret = encrypt(shared_secret);
@@ -243,9 +255,206 @@ const deleteAccount = (req, res) => {
     }
 };
 
+/**
+ * Toplu Steam hesabı ekle
+ */
+const addAccountsBulk = (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { accounts } = req.body;
+        
+        // Accounts array kontrolü
+        if (!Array.isArray(accounts) || accounts.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Geçerli bir hesap listesi gönderilmedi.'
+            });
+        }
+        
+        // Maksimum 500 hesap sınırı
+        if (accounts.length > 500) {
+            return res.status(400).json({
+                success: false,
+                message: 'Bir seferde en fazla 500 hesap ekleyebilirsiniz.'
+            });
+        }
+        
+        const results = {
+            success: [],
+            failed: []
+        };
+        
+        // Her hesabı ekle
+        for (let i = 0; i < accounts.length; i++) {
+            const account = accounts[i];
+            const { username, password, shared_secret, identity_secret } = account;
+            
+            try {
+                // Validasyon
+                const validation = validateSteamAccount({ username, password, shared_secret, identity_secret });
+                if (!validation.valid) {
+                    results.failed.push({
+                        index: i,
+                        username: username || 'unknown',
+                        reason: validation.message
+                    });
+                    continue;
+                }
+                
+                // Username'in sistemde olup olmadığını kontrol et (tüm kullanıcılarda)
+                const existingAccount = db.prepare(`
+                    SELECT id, user_id FROM steam_accounts WHERE username = ?
+                `).get(username);
+                
+                if (existingAccount) {
+                    results.failed.push({
+                        index: i,
+                        username: username,
+                        reason: 'Bu Steam hesabı zaten sistemde kayıtlı.'
+                    });
+                    continue;
+                }
+                
+                // Verileri şifrele
+                const encryptedPassword = encrypt(password);
+                const encryptedSharedSecret = encrypt(shared_secret);
+                const encryptedIdentitySecret = encrypt(identity_secret);
+                
+                // Database'e ekle
+                const stmt = db.prepare(`
+                    INSERT INTO steam_accounts (user_id, username, password, shared_secret, identity_secret)
+                    VALUES (?, ?, ?, ?, ?)
+                `);
+                
+                const result = stmt.run(
+                    userId,
+                    username,
+                    encryptedPassword,
+                    encryptedSharedSecret,
+                    encryptedIdentitySecret
+                );
+                
+                results.success.push({
+                    index: i,
+                    id: result.lastInsertRowid,
+                    username
+                });
+            } catch (error) {
+                results.failed.push({
+                    index: i,
+                    username: username || 'unknown',
+                    reason: error.message || 'Bilinmeyen hata'
+                });
+            }
+        }
+        
+        res.status(201).json({
+            success: true,
+            message: `${results.success.length} hesap eklendi, ${results.failed.length} hesap eklenemedi.`,
+            data: {
+                successCount: results.success.length,
+                failedCount: results.failed.length,
+                success: results.success,
+                failed: results.failed
+            }
+        });
+    } catch (error) {
+        console.error('Bulk add accounts error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Toplu hesap eklenirken hata oluştu.'
+        });
+    }
+};
+
+/**
+ * Toplu Steam hesabı sil
+ */
+const deleteAccountsBulk = (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { accountIds } = req.body;
+        
+        // AccountIds array kontrolü
+        if (!Array.isArray(accountIds) || accountIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Geçerli bir hesap ID listesi gönderilmedi.'
+            });
+        }
+        
+        // Maksimum 500 hesap sınırı
+        if (accountIds.length > 500) {
+            return res.status(400).json({
+                success: false,
+                message: 'Bir seferde en fazla 500 hesap silebilirsiniz.'
+            });
+        }
+        
+        const results = {
+            success: [],
+            failed: []
+        };
+        
+        // Her hesabı sil
+        for (let i = 0; i < accountIds.length; i++) {
+            const accountId = accountIds[i];
+            
+            try {
+                // Hesabın kullanıcıya ait olduğunu kontrol et
+                const account = db.prepare(`
+                    SELECT id, username FROM steam_accounts WHERE id = ? AND user_id = ?
+                `).get(accountId, userId);
+                
+                if (!account) {
+                    results.failed.push({
+                        id: accountId,
+                        reason: 'Hesap bulunamadı veya size ait değil.'
+                    });
+                    continue;
+                }
+                
+                // Sil
+                db.prepare(`
+                    DELETE FROM steam_accounts WHERE id = ? AND user_id = ?
+                `).run(accountId, userId);
+                
+                results.success.push({
+                    id: accountId,
+                    username: account.username
+                });
+            } catch (error) {
+                results.failed.push({
+                    id: accountId,
+                    reason: error.message || 'Bilinmeyen hata'
+                });
+            }
+        }
+        
+        res.json({
+            success: true,
+            message: `${results.success.length} hesap silindi, ${results.failed.length} hesap silinemedi.`,
+            data: {
+                successCount: results.success.length,
+                failedCount: results.failed.length,
+                success: results.success,
+                failed: results.failed
+            }
+        });
+    } catch (error) {
+        console.error('Bulk delete accounts error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Toplu hesap silinirken hata oluştu.'
+        });
+    }
+};
+
 module.exports = {
     getAccounts,
     addAccount,
+    addAccountsBulk,
     updateAccount,
-    deleteAccount
+    deleteAccount,
+    deleteAccountsBulk
 };

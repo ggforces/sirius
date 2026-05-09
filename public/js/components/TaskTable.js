@@ -34,14 +34,252 @@ class TaskTable {
      * @param {Array} tasks - Array of task objects
      */
     setTasks(tasks) {
-        // Save scroll position before updating
-        const scrollPosition = this.saveScrollPosition();
+        const newTasks = tasks || [];
         
-        this.tasks = tasks || [];
-        this.render();
+        // Check if data has actually changed
+        if (this.hasTasksChanged(this.tasks, newTasks)) {
+            // Save scroll position before updating
+            const scrollPosition = this.saveScrollPosition();
+            
+            // Use efficient update if table already exists
+            if (this.tasks.length > 0 && newTasks.length > 0 && !this.isLoading) {
+                this.updateTasksEfficiently(newTasks);
+            } else {
+                // Full render for initial load or empty states
+                this.tasks = newTasks;
+                this.render();
+            }
+            
+            this.tasks = newTasks;
+            
+            // Restore scroll position after updating
+            this.restoreScrollPosition(scrollPosition);
+        }
+    }
+    
+    /**
+     * Check if tasks data has changed
+     * @param {Array} oldTasks - Previous tasks array
+     * @param {Array} newTasks - New tasks array
+     * @returns {boolean} True if tasks have changed
+     */
+    hasTasksChanged(oldTasks, newTasks) {
+        // Different lengths means data changed
+        if (oldTasks.length !== newTasks.length) {
+            return true;
+        }
         
-        // Restore scroll position after updating
-        this.restoreScrollPosition(scrollPosition);
+        // Check if any task has changed
+        for (let i = 0; i < oldTasks.length; i++) {
+            const oldTask = oldTasks[i];
+            const newTask = newTasks[i];
+            
+            // Compare relevant fields that affect display
+            if (oldTask.id !== newTask.id ||
+                oldTask.status !== newTask.status ||
+                oldTask.account_username !== newTask.account_username ||
+                oldTask.proxy_id !== newTask.proxy_id ||
+                oldTask.proxy_ip !== newTask.proxy_ip ||
+                oldTask.proxy_port !== newTask.proxy_port) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Update tasks efficiently by only modifying changed rows
+     * @param {Array} newTasks - New tasks array
+     */
+    updateTasksEfficiently(newTasks) {
+        // Update table rows
+        const tbody = this.container.querySelector('.task-table tbody');
+        if (tbody) {
+            this.updateTableRows(tbody, newTasks);
+        }
+        
+        // Update card view
+        const cardsContainer = this.container.querySelector('.task-cards-container');
+        if (cardsContainer) {
+            this.updateTaskCards(cardsContainer, newTasks);
+        }
+    }
+    
+    /**
+     * Update table rows efficiently
+     * @param {HTMLElement} tbody - Table body element
+     * @param {Array} newTasks - New tasks array
+     */
+    updateTableRows(tbody, newTasks) {
+        const existingRows = tbody.querySelectorAll('tr');
+        
+        // Create a map of existing rows by task ID for quick lookup
+        const existingRowsMap = new Map();
+        existingRows.forEach(row => {
+            const taskId = parseInt(row.dataset.taskId);
+            existingRowsMap.set(taskId, row);
+        });
+        
+        // Create a map of new tasks by ID
+        const newTasksMap = new Map();
+        newTasks.forEach(task => {
+            newTasksMap.set(task.id, task);
+        });
+        
+        // Remove rows for tasks that no longer exist
+        existingRows.forEach(row => {
+            const taskId = parseInt(row.dataset.taskId);
+            if (!newTasksMap.has(taskId)) {
+                row.remove();
+            }
+        });
+        
+        // Update or add rows
+        newTasks.forEach((task, index) => {
+            const existingRow = existingRowsMap.get(task.id);
+            const oldTask = this.tasks.find(t => t.id === task.id);
+            
+            if (existingRow && oldTask) {
+                // Check if this specific task has changed
+                if (this.hasTaskChanged(oldTask, task)) {
+                    // Update existing row
+                    const newRowHTML = this.renderTableRow(task);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = newRowHTML;
+                    const newRow = tempDiv.firstElementChild;
+                    
+                    existingRow.replaceWith(newRow);
+                    
+                    // Re-attach event listener for the new row
+                    const logButton = newRow.querySelector('.btn-view-logs');
+                    if (logButton) {
+                        logButton.addEventListener('click', (e) => {
+                            const taskId = parseInt(e.currentTarget.dataset.taskId);
+                            this.onViewLogs(taskId);
+                        });
+                    }
+                }
+                // If task hasn't changed, don't update the row
+            } else if (!existingRow) {
+                // Add new row
+                const newRowHTML = this.renderTableRow(task);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = newRowHTML;
+                const newRow = tempDiv.firstElementChild;
+                
+                // Insert at correct position
+                if (index < tbody.children.length) {
+                    tbody.insertBefore(newRow, tbody.children[index]);
+                } else {
+                    tbody.appendChild(newRow);
+                }
+                
+                // Attach event listener
+                const logButton = newRow.querySelector('.btn-view-logs');
+                if (logButton) {
+                    logButton.addEventListener('click', (e) => {
+                        const taskId = parseInt(e.currentTarget.dataset.taskId);
+                        this.onViewLogs(taskId);
+                    });
+                }
+            }
+        });
+    }
+    
+    /**
+     * Update task cards efficiently
+     * @param {HTMLElement} cardsContainer - Cards container element
+     * @param {Array} newTasks - New tasks array
+     */
+    updateTaskCards(cardsContainer, newTasks) {
+        const existingCards = cardsContainer.querySelectorAll('.task-card');
+        
+        // Create a map of existing cards by task ID
+        const existingCardsMap = new Map();
+        existingCards.forEach(card => {
+            const taskId = parseInt(card.dataset.taskId);
+            existingCardsMap.set(taskId, card);
+        });
+        
+        // Create a map of new tasks by ID
+        const newTasksMap = new Map();
+        newTasks.forEach(task => {
+            newTasksMap.set(task.id, task);
+        });
+        
+        // Remove cards for tasks that no longer exist
+        existingCards.forEach(card => {
+            const taskId = parseInt(card.dataset.taskId);
+            if (!newTasksMap.has(taskId)) {
+                card.remove();
+            }
+        });
+        
+        // Update or add cards
+        newTasks.forEach((task, index) => {
+            const existingCard = existingCardsMap.get(task.id);
+            const oldTask = this.tasks.find(t => t.id === task.id);
+            
+            if (existingCard && oldTask) {
+                // Check if this specific task has changed
+                if (this.hasTaskChanged(oldTask, task)) {
+                    // Update existing card
+                    const newCardHTML = this.renderTaskCard(task);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = newCardHTML;
+                    const newCard = tempDiv.firstElementChild;
+                    
+                    existingCard.replaceWith(newCard);
+                    
+                    // Re-attach event listener
+                    const logButton = newCard.querySelector('.btn-view-logs-card');
+                    if (logButton) {
+                        logButton.addEventListener('click', (e) => {
+                            const taskId = parseInt(e.currentTarget.dataset.taskId);
+                            this.onViewLogs(taskId);
+                        });
+                    }
+                }
+                // If task hasn't changed, don't update the card
+            } else if (!existingCard) {
+                // Add new card
+                const newCardHTML = this.renderTaskCard(task);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = newCardHTML;
+                const newCard = tempDiv.firstElementChild;
+                
+                // Insert at correct position
+                if (index < cardsContainer.children.length) {
+                    cardsContainer.insertBefore(newCard, cardsContainer.children[index]);
+                } else {
+                    cardsContainer.appendChild(newCard);
+                }
+                
+                // Attach event listener
+                const logButton = newCard.querySelector('.btn-view-logs-card');
+                if (logButton) {
+                    logButton.addEventListener('click', (e) => {
+                        const taskId = parseInt(e.currentTarget.dataset.taskId);
+                        this.onViewLogs(taskId);
+                    });
+                }
+            }
+        });
+    }
+    
+    /**
+     * Check if a single task has changed
+     * @param {Object} oldTask - Previous task object
+     * @param {Object} newTask - New task object
+     * @returns {boolean} True if task has changed
+     */
+    hasTaskChanged(oldTask, newTask) {
+        return oldTask.status !== newTask.status ||
+               oldTask.account_username !== newTask.account_username ||
+               oldTask.proxy_id !== newTask.proxy_id ||
+               oldTask.proxy_ip !== newTask.proxy_ip ||
+               oldTask.proxy_port !== newTask.proxy_port;
     }
     
     /**
@@ -125,7 +363,7 @@ class TaskTable {
     renderEmpty() {
         this.container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">📋</div>
+                <div class="empty-icon"><i class="ph-bold ph-clipboard-text" style="font-size: 3rem; opacity: 0.5;"></i></div>
                 <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 0.5rem;">${window.t('tasks.table.noTasks')}</p>
                 <p style="color: var(--gray); font-size: 0.9rem;">${window.t('tasks.table.noTasksDesc')}</p>
             </div>
@@ -190,7 +428,7 @@ class TaskTable {
                 <td class="task-status-cell">${statusBadge}</td>
                 <td class="task-logs-cell">
                     <button class="btn-view-logs" data-task-id="${task.id}">
-                        <span class="btn-icon">📄</span>
+                        <span class="btn-icon"><i class="ph-bold ph-file-text"></i></span>
                         ${window.t('tasks.table.viewLogs')}
                     </button>
                 </td>
@@ -226,7 +464,7 @@ class TaskTable {
                 </div>
                 <div class="task-card-footer">
                     <button class="btn-view-logs-card" data-task-id="${task.id}">
-                        <span class="btn-icon">📄</span>
+                        <span class="btn-icon"><i class="ph-bold ph-file-text"></i></span>
                         ${window.t('tasks.table.viewLogsCard')}
                     </button>
                 </div>

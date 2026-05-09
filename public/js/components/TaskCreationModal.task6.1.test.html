@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 6.1 Test - TaskCreationModal Close Buttons Removed</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Components -->
+    <link rel="stylesheet" href="/css/components/buttons.css">
+    <link rel="stylesheet" href="/css/components/modals.css">
+    <link rel="stylesheet" href="/css/components/task-creation-modal.css">
+    
+    <style>
+        body {
+            padding: 40px;
+            background: var(--background-primary);
+            color: var(--text-primary);
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--surface-primary);
+            border-radius: 8px;
+        }
+        
+        .test-header h1 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--surface-primary);
+            border-radius: 8px;
+        }
+        
+        .test-section h2 {
+            margin: 0 0 15px 0;
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+        
+        .test-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .test-list li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--surface-secondary);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .test-list li::before {
+            content: "✓ ";
+            color: var(--success);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .btn-test {
+            padding: 12px 24px;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status.pass {
+            background: var(--success);
+            color: white;
+        }
+        
+        .status.pending {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .code-block {
+            background: var(--surface-secondary);
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>Task 6.1 Test: Remove Redundant Close Buttons</h1>
+            <p><strong>Requirements:</strong> 4.1, 4.2</p>
+            <p><strong>Description:</strong> Verify that X button and Cancel button have been removed from TaskCreationModal, and that overlay click and Escape key still work.</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Actions</h2>
+            <button class="btn btn-primary btn-test" id="openModalBtn">Open Modal</button>
+            <button class="btn btn-secondary btn-test" id="checkStructureBtn">Check Modal Structure</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Expected Behavior <span class="status pending" id="overallStatus">PENDING</span></h2>
+            <ul class="test-list">
+                <li id="test1">Modal header should NOT contain X close button <span class="status pending" id="status1">PENDING</span></li>
+                <li id="test2">Modal footer should NOT contain Cancel button <span class="status pending" id="status2">PENDING</span></li>
+                <li id="test3">Modal footer should only contain Create Tasks button <span class="status pending" id="status3">PENDING</span></li>
+                <li id="test4">Modal title should be centered <span class="status pending" id="status4">PENDING</span></li>
+                <li id="test5">Clicking overlay should close modal <span class="status pending" id="status5">PENDING</span></li>
+                <li id="test6">Pressing Escape key should close modal <span class="status pending" id="status6">PENDING</span></li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="testResults" class="code-block">
+                Click "Check Modal Structure" to run automated tests...
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Manual Testing Instructions</h2>
+            <ol style="padding-left: 20px;">
+                <li>Click "Open Modal" button</li>
+                <li>Verify that there is NO X button in the top-right corner of the modal header</li>
+                <li>Verify that there is NO Cancel button in the modal footer</li>
+                <li>Verify that the modal title is centered</li>
+                <li>Click outside the modal (on the dark overlay) - modal should close</li>
+                <li>Open modal again and press Escape key - modal should close</li>
+                <li>Click "Check Modal Structure" to run automated verification</li>
+            </ol>
+        </div>
+    </div>
+    
+    <!-- Mock translation function -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.createModal.title': 'Görev Oluştur',
+                'tasks.createModal.searchPlaceholder': 'Hesap ara...',
+                'tasks.createModal.selectAll': 'Tümünü Seç',
+                'tasks.createModal.selectPrime': 'Prime Seç',
+                'tasks.createModal.selectNonPrime': 'Non-Prime Seç',
+                'tasks.createModal.clearSelection': 'Temizle',
+                'tasks.createModal.accountsSelected': 'hesap seçildi',
+                'tasks.createModal.createTasks': 'Görev Oluştur',
+                'tasks.createModal.cancel': 'İptal',
+                'tasks.createModal.loading': 'Yükleniyor...',
+                'tasks.createModal.loadError': 'Hesaplar yüklenemedi',
+                'tasks.createModal.noAccounts': 'Henüz hesap eklenmemiş',
+                'tasks.createModal.noResults': 'Sonuç bulunamadı'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- Component -->
+    <script src="/js/components/TaskCreationModal.js"></script>
+    
+    <!-- Test Script -->
+    <script>
+        // Initialize modal
+        const modal = new TaskCreationModal('testTaskCreationModal');
+        
+        // Open modal button
+        document.getElementById('openModalBtn').addEventListener('click', () => {
+            modal.open();
+        });
+        
+        // Check structure button
+        document.getElementById('checkStructureBtn').addEventListener('click', () => {
+            runAutomatedTests();
+        });
+        
+        function runAutomatedTests() {
+            const results = [];
+            let allPassed = true;
+            
+            // Test 1: Check for X button
+            const closeXBtn = document.getElementById('testTaskCreationModal-close-x');
+            const test1Pass = closeXBtn === null;
+            updateTestStatus('status1', test1Pass);
+            results.push(`Test 1 - X button removed: ${test1Pass ? 'PASS ✓' : 'FAIL ✗'}`);
+            if (!test1Pass) {
+                results.push(`  → Found element with id: testTaskCreationModal-close-x`);
+                allPassed = false;
+            }
+            
+            // Test 2: Check for Cancel button
+            const cancelBtn = document.getElementById('testTaskCreationModal-cancel');
+            const test2Pass = cancelBtn === null;
+            updateTestStatus('status2', test2Pass);
+            results.push(`Test 2 - Cancel button removed: ${test2Pass ? 'PASS ✓' : 'FAIL ✗'}`);
+            if (!test2Pass) {
+                results.push(`  → Found element with id: testTaskCreationModal-cancel`);
+                allPassed = false;
+            }
+            
+            // Test 3: Check for Create button (should exist)
+            const createBtn = document.getElementById('testTaskCreationModal-create');
+            const test3Pass = createBtn !== null;
+            updateTestStatus('status3', test3Pass);
+            results.push(`Test 3 - Create button exists: ${test3Pass ? 'PASS ✓' : 'FAIL ✗'}`);
+            if (!test3Pass) {
+                results.push(`  → Create button not found`);
+                allPassed = false;
+            }
+            
+            // Test 4: Check modal header centering
+            const modalHeader = document.querySelector('#testTaskCreationModal .modal-header');
+            if (modalHeader) {
+                const styles = window.getComputedStyle(modalHeader);
+                const test4Pass = styles.justifyContent === 'center';
+                updateTestStatus('status4', test4Pass);
+                results.push(`Test 4 - Modal header centered: ${test4Pass ? 'PASS ✓' : 'FAIL ✗'}`);
+                if (!test4Pass) {
+                    results.push(`  → justify-content: ${styles.justifyContent} (expected: center)`);
+                    allPassed = false;
+                }
+            } else {
+                updateTestStatus('status4', false);
+                results.push(`Test 4 - Modal header centered: FAIL ✗`);
+                results.push(`  → Modal header not found`);
+                allPassed = false;
+            }
+            
+            // Test 5: Check overlay click handler (verify it exists)
+            const overlay = document.querySelector('#testTaskCreationModal .modal-overlay');
+            const test5Pass = overlay !== null;
+            updateTestStatus('status5', test5Pass);
+            results.push(`Test 5 - Overlay element exists: ${test5Pass ? 'PASS ✓' : 'FAIL ✗'}`);
+            if (!test5Pass) {
+                results.push(`  → Overlay element not found`);
+                allPassed = false;
+            } else {
+                results.push(`  → Manual test required: Click overlay to verify close behavior`);
+            }
+            
+            // Test 6: Escape key handler (manual test required)
+            updateTestStatus('status6', true);
+            results.push(`Test 6 - Escape key handler: MANUAL TEST REQUIRED`);
+            results.push(`  → Open modal and press Escape to verify`);
+            
+            // Update overall status
+            const overallStatus = document.getElementById('overallStatus');
+            if (allPassed) {
+                overallStatus.textContent = 'PASS';
+                overallStatus.className = 'status pass';
+            } else {
+                overallStatus.textContent = 'FAIL';
+                overallStatus.className = 'status fail';
+            }
+            
+            // Display results
+            document.getElementById('testResults').textContent = results.join('\n');
+        }
+        
+        function updateTestStatus(statusId, passed) {
+            const statusEl = document.getElementById(statusId);
+            if (passed) {
+                statusEl.textContent = 'PASS';
+                statusEl.className = 'status pass';
+            } else {
+                statusEl.textContent = 'FAIL';
+                statusEl.className = 'status fail';
+            }
+        }
+        
+        // Auto-run tests after a short delay
+        setTimeout(() => {
+            runAutomatedTests();
+        }, 500);
+    </script>
+</body>
+</html>

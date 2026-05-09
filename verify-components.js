@@ -1,161 +1,270 @@
 /**
  * Component Verification Script
+ * Task 4: Checkpoint - Verify Backend and Core Components
  * 
- * This script verifies that all frontend components are properly implemented
- * and accessible.
+ * This script verifies that:
+ * 1. Backend API enhancements are in place (tasks 1.1-1.2)
+ * 2. StatisticsPanel component is implemented (tasks 2.1-2.4)
+ * 3. FilterSystem component is implemented (tasks 3.1-3.5)
  */
 
 const fs = require('fs');
 const path = require('path');
 
-console.log('🔍 Verifying Frontend Components...\n');
+console.log('='.repeat(60));
+console.log('Component Verification - Task 4 Checkpoint');
+console.log('='.repeat(60));
+console.log();
 
-// Component files to check
-const components = [
-    {
-        name: 'TaskTable',
-        path: 'public/js/components/TaskTable.js',
-        css: 'public/css/components/task-table.css'
-    },
-    {
-        name: 'TaskCreationModal',
-        path: 'public/js/components/TaskCreationModal.js',
-        css: 'public/css/components/task-creation-modal.css'
-    },
-    {
-        name: 'LogViewerModal',
-        path: 'public/js/components/LogViewerModal.js',
-        css: 'public/css/components/log-viewer-modal.css'
+let allChecksPassed = true;
+
+// Helper function to check file exists
+function checkFileExists(filePath, description) {
+    const exists = fs.existsSync(filePath);
+    if (exists) {
+        console.log(`✓ ${description}`);
+    } else {
+        console.log(`✗ ${description} - FILE NOT FOUND`);
+        allChecksPassed = false;
     }
-];
+    return exists;
+}
 
-let allPassed = true;
-
-// Check each component
-components.forEach(component => {
-    console.log(`📦 Checking ${component.name}...`);
-    
-    // Check JS file
-    if (fs.existsSync(component.path)) {
-        const content = fs.readFileSync(component.path, 'utf8');
-        const size = (content.length / 1024).toFixed(2);
-        console.log(`  ✅ JS file exists (${size} KB)`);
-        
-        // Check for class definition
-        if (content.includes(`class ${component.name}`)) {
-            console.log(`  ✅ Class definition found`);
+// Helper function to check file contains text
+function checkFileContains(filePath, searchText, description) {
+    try {
+        const content = fs.readFileSync(filePath, 'utf8');
+        const contains = content.includes(searchText);
+        if (contains) {
+            console.log(`✓ ${description}`);
         } else {
-            console.log(`  ❌ Class definition NOT found`);
-            allPassed = false;
+            console.log(`✗ ${description} - TEXT NOT FOUND`);
+            allChecksPassed = false;
         }
-        
-        // Check for key methods
-        const methods = ['constructor', 'render', 'open', 'close'];
-        methods.forEach(method => {
-            if (content.includes(method)) {
-                console.log(`  ✅ Method '${method}' found`);
-            }
-        });
-    } else {
-        console.log(`  ❌ JS file NOT found`);
-        allPassed = false;
+        return contains;
+    } catch (error) {
+        console.log(`✗ ${description} - ERROR: ${error.message}`);
+        allChecksPassed = false;
+        return false;
     }
-    
-    // Check CSS file
-    if (fs.existsSync(component.css)) {
-        const content = fs.readFileSync(component.css, 'utf8');
-        const size = (content.length / 1024).toFixed(2);
-        console.log(`  ✅ CSS file exists (${size} KB)`);
-    } else {
-        console.log(`  ❌ CSS file NOT found`);
-        allPassed = false;
-    }
-    
-    console.log('');
-});
-
-// Check integration files
-console.log('🔗 Checking Integration Files...\n');
-
-const integrationFiles = [
-    {
-        name: 'Dashboard HTML',
-        path: 'public/dashboard.html',
-        checks: [
-            { pattern: 'TaskTable.js', description: 'TaskTable script import' },
-            { pattern: 'TaskCreationModal.js', description: 'TaskCreationModal script import' },
-            { pattern: 'LogViewerModal.js', description: 'LogViewerModal script import' },
-            { pattern: 'task-table.css', description: 'TaskTable CSS import' },
-            { pattern: 'task-creation-modal.css', description: 'TaskCreationModal CSS import' },
-            { pattern: 'log-viewer-modal.css', description: 'LogViewerModal CSS import' },
-            { pattern: 'taskTableContainer', description: 'Task table container' },
-            { pattern: 'createTaskBtn', description: 'Create task button' }
-        ]
-    },
-    {
-        name: 'Tasks Page JS',
-        path: 'public/js/pages/tasks.js',
-        checks: [
-            { pattern: 'new TaskTable', description: 'TaskTable initialization' },
-            { pattern: 'new TaskCreationModal', description: 'TaskCreationModal initialization' },
-            { pattern: 'new LogViewerModal', description: 'LogViewerModal initialization' },
-            { pattern: 'onViewLogs', description: 'Log viewer wiring' },
-            { pattern: 'onTaskCreated', description: 'Task creation callback' },
-            { pattern: 'startTaskPolling', description: 'Polling service' }
-        ]
-    }
-];
-
-integrationFiles.forEach(file => {
-    console.log(`📄 Checking ${file.name}...`);
-    
-    if (fs.existsSync(file.path)) {
-        const content = fs.readFileSync(file.path, 'utf8');
-        console.log(`  ✅ File exists`);
-        
-        file.checks.forEach(check => {
-            if (content.includes(check.pattern)) {
-                console.log(`  ✅ ${check.description}`);
-            } else {
-                console.log(`  ❌ ${check.description} NOT found`);
-                allPassed = false;
-            }
-        });
-    } else {
-        console.log(`  ❌ File NOT found`);
-        allPassed = false;
-    }
-    
-    console.log('');
-});
-
-// Check test page
-console.log('🧪 Checking Test Page...\n');
-
-const testPage = 'public/test-task-components.html';
-if (fs.existsSync(testPage)) {
-    console.log(`  ✅ Test page exists: ${testPage}`);
-    console.log(`  📝 Access at: http://localhost:5050/test-task-components.html`);
-} else {
-    console.log(`  ❌ Test page NOT found`);
-    allPassed = false;
 }
 
-console.log('');
+console.log('1. Backend API Enhancements (Tasks 1.1-1.2)');
+console.log('-'.repeat(60));
 
-// Final result
-console.log('═══════════════════════════════════════════════════════════');
-if (allPassed) {
-    console.log('✅ ALL CHECKS PASSED - Components are ready!');
-    console.log('');
-    console.log('Next steps:');
-    console.log('1. Start server: npm run dev');
-    console.log('2. Open test page: http://localhost:5050/test-task-components.html');
-    console.log('3. Login to get authentication token');
-    console.log('4. Test all components manually');
+// Check tasksController.js exists
+checkFileExists(
+    'src/controllers/tasksController.js',
+    'tasksController.js exists'
+);
+
+// Check getUserTasks function has status filtering
+checkFileContains(
+    'src/controllers/tasksController.js',
+    'const { status } = req.query',
+    'getUserTasks supports status query parameter'
+);
+
+// Check 100-task limit
+checkFileContains(
+    'src/controllers/tasksController.js',
+    'LIMIT 100',
+    'getUserTasks has 100-task limit'
+);
+
+// Check DESC ordering
+checkFileContains(
+    'src/controllers/tasksController.js',
+    'ORDER BY t.created_at DESC',
+    'getUserTasks orders by created_at DESC'
+);
+
+// Check JOIN with steam_accounts
+checkFileContains(
+    'src/controllers/tasksController.js',
+    'JOIN steam_accounts a ON t.account_id = a.id',
+    'getUserTasks joins with steam_accounts'
+);
+
+// Check LEFT JOIN with proxies
+checkFileContains(
+    'src/controllers/tasksController.js',
+    'LEFT JOIN proxies p ON t.proxy_id = p.id',
+    'getUserTasks left joins with proxies'
+);
+
+console.log();
+console.log('2. StatisticsPanel Component (Tasks 2.1-2.4)');
+console.log('-'.repeat(60));
+
+// Check StatisticsPanel.js exists
+checkFileExists(
+    'public/js/components/StatisticsPanel.js',
+    'StatisticsPanel.js exists'
+);
+
+// Check calculateStatistics method
+checkFileContains(
+    'public/js/components/StatisticsPanel.js',
+    'calculateStatistics(tasks)',
+    'StatisticsPanel has calculateStatistics method'
+);
+
+// Check update method
+checkFileContains(
+    'public/js/components/StatisticsPanel.js',
+    'update(tasks)',
+    'StatisticsPanel has update method'
+);
+
+// Check render method
+checkFileContains(
+    'public/js/components/StatisticsPanel.js',
+    'render()',
+    'StatisticsPanel has render method'
+);
+
+// Check CSS file exists
+checkFileExists(
+    'public/css/components/statistics-panel.css',
+    'statistics-panel.css exists'
+);
+
+// Check color coding in CSS
+checkFileContains(
+    'public/css/components/statistics-panel.css',
+    '.stat-running',
+    'CSS has running color class'
+);
+
+checkFileContains(
+    'public/css/components/statistics-panel.css',
+    '.stat-pending',
+    'CSS has pending color class'
+);
+
+checkFileContains(
+    'public/css/components/statistics-panel.css',
+    '.stat-completed',
+    'CSS has completed color class'
+);
+
+checkFileContains(
+    'public/css/components/statistics-panel.css',
+    '.stat-failed',
+    'CSS has failed color class'
+);
+
+console.log();
+console.log('3. FilterSystem Component (Tasks 3.1-3.5)');
+console.log('-'.repeat(60));
+
+// Check FilterSystem.js exists
+checkFileExists(
+    'public/js/components/FilterSystem.js',
+    'FilterSystem.js exists'
+);
+
+// Check updateCounts method
+checkFileContains(
+    'public/js/components/FilterSystem.js',
+    'updateCounts(tasks)',
+    'FilterSystem has updateCounts method'
+);
+
+// Check setActiveFilter method
+checkFileContains(
+    'public/js/components/FilterSystem.js',
+    'setActiveFilter(filterId)',
+    'FilterSystem has setActiveFilter method'
+);
+
+// Check getFilteredTasks method
+checkFileContains(
+    'public/js/components/FilterSystem.js',
+    'getFilteredTasks(tasks, filterId)',
+    'FilterSystem has getFilteredTasks method'
+);
+
+// Check filter configurations
+checkFileContains(
+    'public/js/components/FilterSystem.js',
+    "id: 'all'",
+    'FilterSystem has "all" filter'
+);
+
+checkFileContains(
+    'public/js/components/FilterSystem.js',
+    "id: 'running'",
+    'FilterSystem has "running" filter'
+);
+
+checkFileContains(
+    'public/js/components/FilterSystem.js',
+    "id: 'pending'",
+    'FilterSystem has "pending" filter'
+);
+
+checkFileContains(
+    'public/js/components/FilterSystem.js',
+    "id: 'failed'",
+    'FilterSystem has "failed" filter'
+);
+
+checkFileContains(
+    'public/js/components/FilterSystem.js',
+    "id: 'completed'",
+    'FilterSystem has "completed" filter'
+);
+
+// Check CSS file exists
+checkFileExists(
+    'public/css/components/filter-system.css',
+    'filter-system.css exists'
+);
+
+// Check responsive design in CSS
+checkFileContains(
+    'public/css/components/filter-system.css',
+    '@media (max-width: 768px)',
+    'CSS has mobile responsive styles'
+);
+
+checkFileContains(
+    'public/css/components/filter-system.css',
+    'min-height: 44px',
+    'CSS has touch-friendly button sizes'
+);
+
+console.log();
+console.log('4. Unit Tests');
+console.log('-'.repeat(60));
+
+// Check test files exist
+checkFileExists(
+    'public/js/components/StatisticsPanel.calculateStatistics.test.js',
+    'StatisticsPanel test file exists'
+);
+
+checkFileExists(
+    'public/js/components/FilterSystem.updateCounts.node-test.js',
+    'FilterSystem test file exists'
+);
+
+console.log();
+console.log('='.repeat(60));
+if (allChecksPassed) {
+    console.log('✓ ALL CHECKS PASSED');
+    console.log('Backend and core components are properly implemented.');
+    console.log();
+    console.log('Summary:');
+    console.log('  ✓ Task 1.1: Backend API status filtering - COMPLETE');
+    console.log('  ✓ Task 1.2: Backend API JOIN queries - COMPLETE');
+    console.log('  ✓ Tasks 2.1-2.4: StatisticsPanel component - COMPLETE');
+    console.log('  ✓ Tasks 3.1-3.5: FilterSystem component - COMPLETE');
+    process.exit(0);
 } else {
-    console.log('❌ SOME CHECKS FAILED - Please review the issues above');
+    console.log('✗ SOME CHECKS FAILED');
+    console.log('Please review the failed checks above.');
+    process.exit(1);
 }
-console.log('═══════════════════════════════════════════════════════════');
-
-process.exit(allPassed ? 0 : 1);

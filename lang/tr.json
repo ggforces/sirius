@@ -50,7 +50,15 @@
     "title": "Steam Hesapları",
     "comingSoon": "Bu özellik yakında eklenecek...",
     "addAccount": "Hesap Ekle",
-    "bulkAdd": "Toplu Ekle",
+    "bulkAdd": "Toplu Hesap Ekleme",
+    "bulkDelete": "Toplu Sil",
+    "selectAll": "Tümünü Seç",
+    "deselectAll": "Seçimi Kaldır",
+    "selectedCount": "seçili",
+    "totalAccounts": "Toplam Hesap",
+    "totalPrime": "Prime",
+    "totalNonPrime": "Non-Prime",
+    "search": "Hesap ara...",
     "editAccount": "Hesap Düzenle",
     "noAccounts": "Henüz Steam hesabı eklenmemiş",
     "addFirstAccount": "İlk Hesabı Ekle",
@@ -91,6 +99,12 @@
     "deleteConfirm": {
       "title": "Hesabı Sil",
       "message": "Bu Steam hesabını silmek istediğinizden emin misiniz?"
+    },
+    "bulkDeleteConfirm": {
+      "title": "Toplu Hesap Silme",
+      "message": "hesabı silmek istediğinizden emin misiniz?",
+      "warning": "Bu işlem geri alınamaz!",
+      "confirm": "Sil"
     }
   },
   "tasks": {
@@ -192,6 +206,20 @@
       "loadError": "Loglar yüklenirken hata oluştu",
       "close": "Kapat",
       "retryLimitReached": "Maksimum deneme sayısına ulaşıldı. Lütfen daha sonra tekrar deneyin."
+    },
+    "statistics": {
+      "total": "Toplam",
+      "running": "İşleniyor",
+      "pending": "Bekliyor",
+      "completed": "Tamamlandı",
+      "failed": "Başarısız"
+    },
+    "filters": {
+      "all": "Tüm Görevler",
+      "running": "İşleniyor",
+      "pending": "Bekliyor",
+      "failed": "Başarısız",
+      "completed": "Tamamlandı"
     },
     "notifications": {
       "taskCreated": "Görev başarıyla oluşturuldu",

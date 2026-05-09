@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilterSystem updateCounts() Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .filter-system {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .filter-btn-active {
+            border-color: #007bff;
+            background: #e7f3ff;
+        }
+        .filter-count {
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .filter-btn-active .filter-count {
+            background: #007bff;
+            color: white;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .task-data {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>FilterSystem updateCounts() Test</h1>
+    <p>Testing Requirements 6.7 and 6.9: Filter count updates</p>
+
+    <div class="test-section">
+        <h2>Test 1: Basic Count Updates</h2>
+        <div id="filter-container-1"></div>
+        <div id="test-1-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Failed Filter Includes Timeout</h2>
+        <div id="filter-container-2"></div>
+        <div id="test-2-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Empty Task Array</h2>
+        <div id="filter-container-3"></div>
+        <div id="test-3-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Dynamic Count Updates</h2>
+        <div id="filter-container-4"></div>
+        <button id="add-task-btn" style="padding: 10px 20px; margin: 10px 0; cursor: pointer;">Add Running Task</button>
+        <div id="test-4-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: Null/Undefined Tasks Handling</h2>
+        <div id="filter-container-5"></div>
+        <div id="test-5-result"></div>
+    </div>
+
+    <script>
+        // Mock translation function
+        window.t = function(key) {
+            const translations = {
+                'tasks.filters.all': 'Tüm Görevler',
+                'tasks.filters.running': 'Çalışan',
+                'tasks.filters.pending': 'Bekleyen',
+                'tasks.filters.failed': 'Hata Alan',
+                'tasks.filters.completed': 'Tamamlanan'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    <script src="FilterSystem.js"></script>
+    <script>
+        function runTests() {
+            const results = [];
+
+            // Test 1: Basic Count Updates
+            console.log('Running Test 1: Basic Count Updates');
+            const filter1 = new FilterSystem('filter-container-1', () => {});
+            const tasks1 = [
+                { id: 1, status: 'running' },
+                { id: 2, status: 'running' },
+                { id: 3, status: 'pending' },
+                { id: 4, status: 'completed' },
+                { id: 5, status: 'failed' }
+            ];
+            filter1.updateCounts(tasks1);
+            
+            const test1Pass = 
+                filter1.filters[0].count === 5 && // all
+                filter1.filters[1].count === 2 && // running
+                filter1.filters[2].count === 1 && // pending
+                filter1.filters[3].count === 1 && // failed
+                filter1.filters[4].count === 1;   // completed
+            
+            document.getElementById('test-1-result').innerHTML = `
+                <div class="test-result ${test1Pass ? 'test-pass' : 'test-fail'}">
+                    ${test1Pass ? '✓ PASS' : '✗ FAIL'}: Basic count updates
+                    <div class="task-data">
+                        Expected: all=5, running=2, pending=1, failed=1, completed=1<br>
+                        Actual: all=${filter1.filters[0].count}, running=${filter1.filters[1].count}, 
+                        pending=${filter1.filters[2].count}, failed=${filter1.filters[3].count}, 
+                        completed=${filter1.filters[4].count}
+                    </div>
+                </div>
+            `;
+            results.push({ name: 'Test 1', pass: test1Pass });
+
+            // Test 2: Failed Filter Includes Timeout
+            console.log('Running Test 2: Failed Filter Includes Timeout');
+            const filter2 = new FilterSystem('filter-container-2', () => {});
+            const tasks2 = [
+                { id: 1, status: 'failed' },
+                { id: 2, status: 'timeout' },
+                { id: 3, status: 'failed' },
+                { id: 4, status: 'completed' }
+            ];
+            filter2.updateCounts(tasks2);
+            
+            const test2Pass = 
+                filter2.filters[3].count === 3; // failed filter should count both 'failed' and 'timeout'
+            
+            document.getElementById('test-2-result').innerHTML = `
+                <div class="test-result ${test2Pass ? 'test-pass' : 'test-fail'}">
+                    ${test2Pass ? '✓ PASS' : '✗ FAIL'}: Failed filter includes timeout status
+                    <div class="task-data">
+                        Expected: failed=3 (2 failed + 1 timeout)<br>
+                        Actual: failed=${filter2.filters[3].count}
+                    </div>
+                </div>
+            `;
+            results.push({ name: 'Test 2', pass: test2Pass });
+
+            // Test 3: Empty Task Array
+            console.log('Running Test 3: Empty Task Array');
+            const filter3 = new FilterSystem('filter-container-3', () => {});
+            filter3.updateCounts([]);
+            
+            const test3Pass = 
+                filter3.filters[0].count === 0 && // all
+                filter3.filters[1].count === 0 && // running
+                filter3.filters[2].count === 0 && // pending
+                filter3.filters[3].count === 0 && // failed
+                filter3.filters[4].count === 0;   // completed
+            
+            document.getElementById('test-3-result').innerHTML = `
+                <div class="test-result ${test3Pass ? 'test-pass' : 'test-fail'}">
+                    ${test3Pass ? '✓ PASS' : '✗ FAIL'}: Empty task array handling
+                    <div class="task-data">
+                        Expected: all counts = 0<br>
+                        Actual: all=${filter3.filters[0].count}, running=${filter3.filters[1].count}, 
+                        pending=${filter3.filters[2].count}, failed=${filter3.filters[3].count}, 
+                        completed=${filter3.filters[4].count}
+                    </div>
+                </div>
+            `;
+            results.push({ name: 'Test 3', pass: test3Pass });
+
+            // Test 4: Dynamic Count Updates
+            console.log('Running Test 4: Dynamic Count Updates');
+            const filter4 = new FilterSystem('filter-container-4', () => {});
+            let tasks4 = [
+                { id: 1, status: 'running' },
+                { id: 2, status: 'pending' }
+            ];
+            filter4.updateCounts(tasks4);
+            const initialRunningCount = filter4.filters[1].count;
+            
+            document.getElementById('add-task-btn').addEventListener('click', () => {
+                tasks4.push({ id: tasks4.length + 1, status: 'running' });
+                filter4.updateCounts(tasks4);
+                const newRunningCount = filter4.filters[1].count;
+                
+                const test4Pass = newRunningCount === initialRunningCount + 1;
+                document.getElementById('test-4-result').innerHTML = `
+                    <div class="test-result ${test4Pass ? 'test-pass' : 'test-fail'}">
+                        ${test4Pass ? '✓ PASS' : '✗ FAIL'}: Dynamic count updates
+                        <div class="task-data">
+                            Initial running count: ${initialRunningCount}<br>
+                            After adding task: ${newRunningCount}<br>
+                            Expected increase: 1
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('test-4-result').innerHTML = `
+                <div class="test-result test-pass">
+                    ✓ Initial state: running=${initialRunningCount}, pending=${filter4.filters[2].count}<br>
+                    Click "Add Running Task" button to test dynamic updates
+                </div>
+            `;
+            results.push({ name: 'Test 4', pass: true }); // Manual test
+
+            // Test 5: Null/Undefined Tasks Handling
+            console.log('Running Test 5: Null/Undefined Tasks Handling');
+            const filter5 = new FilterSystem('filter-container-5', () => {});
+            
+            // Test with null
+            filter5.updateCounts(null);
+            const nullPass = filter5.filters[0].count === 0;
+            
+            // Test with undefined
+            filter5.updateCounts(undefined);
+            const undefinedPass = filter5.filters[0].count === 0;
+            
+            const test5Pass = nullPass && undefinedPass;
+            
+            document.getElementById('test-5-result').innerHTML = `
+                <div class="test-result ${test5Pass ? 'test-pass' : 'test-fail'}">
+                    ${test5Pass ? '✓ PASS' : '✗ FAIL'}: Null/undefined tasks handling
+                    <div class="task-data">
+                        Null tasks: ${nullPass ? 'handled correctly' : 'FAILED'}<br>
+                        Undefined tasks: ${undefinedPass ? 'handled correctly' : 'FAILED'}
+                    </div>
+                </div>
+            `;
+            results.push({ name: 'Test 5', pass: test5Pass });
+
+            // Summary
+            const passCount = results.filter(r => r.pass).length;
+            const totalCount = results.length;
+            console.log(`\n=== Test Summary ===`);
+            console.log(`Passed: ${passCount}/${totalCount}`);
+            results.forEach(r => {
+                console.log(`${r.pass ? '✓' : '✗'} ${r.name}`);
+            });
+        }
+
+        // Run tests when page loads
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

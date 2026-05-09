@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskTable Responsive Test - Task 9.2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d4ff;
+            --light: #ffffff;
+            --gray: #9ca3af;
+            --gray-light: #d1d5db;
+            --text-secondary: #6b7280;
+            --radius-md: 8px;
+            --transition-fast: 0.2s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--light);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .test-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .test-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .test-header p {
+            color: var(--gray-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .test-info h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .test-info ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .test-info li {
+            margin-bottom: 0.25rem;
+            color: var(--gray-light);
+            font-size: 0.9rem;
+        }
+
+        .test-info li:before {
+            content: "✓ ";
+            color: var(--primary);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .viewport-indicator {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .viewport-size {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .viewport-mode {
+            color: var(--gray-light);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: var(--primary);
+        }
+
+        #taskTableContainer {
+            margin-top: 1rem;
+        }
+
+        .scroll-indicator {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .scroll-indicator.visible {
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="/css/components/task-table.css">
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>TaskTable Responsive Test - Task 9.2</h1>
+            <p><strong>Requirement 8.1:</strong> Responsive design across all screen sizes</p>
+            <p><strong>Task:</strong> Make TaskTable responsive with horizontal scrolling on small screens and optimized column widths for tablets</p>
+            
+            <div class="test-info">
+                <h3>Test Criteria:</h3>
+                <ul>
+                    <li>Desktop (>1024px): Full table with standard column widths</li>
+                    <li>Tablet (768px-1024px): Optimized column widths, compact padding</li>
+                    <li>Small Tablet (481px-768px): Horizontally scrollable table</li>
+                    <li>Mobile (<480px): Card view (from Task 9.1)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="viewport-indicator">
+            <div class="viewport-size" id="viewportSize">Loading...</div>
+            <div class="viewport-mode" id="viewportMode">Detecting viewport...</div>
+        </div>
+
+        <div class="scroll-indicator" id="scrollIndicator">
+            ← Scroll horizontally to see all columns →
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="addTasks(5)">Add 5 Tasks</button>
+            <button class="btn" onclick="addTasks(20)">Add 20 Tasks</button>
+            <button class="btn" onclick="clearTasks()">Clear Tasks</button>
+            <button class="btn" onclick="testScrolling()">Test Horizontal Scroll</button>
+        </div>
+
+        <div id="taskTableContainer"></div>
+    </div>
+
+    <script src="/js/components/TaskTable.js"></script>
+    <script>
+        // Mock translation function
+        window.t = function(key) {
+            const translations = {
+                'tasks.table.loading': 'Yükleniyor...',
+                'tasks.table.noTasks': 'Görev Bulunamadı',
+                'tasks.table.noTasksDesc': 'Henüz hiç görev oluşturulmamış.',
+                'tasks.table.taskId': 'Görev ID',
+                'tasks.table.account': 'Hesap',
+                'tasks.table.proxy': 'Proxy',
+                'tasks.table.status': 'Durum',
+                'tasks.table.logs': 'Loglar',
+                'tasks.table.viewLogs': 'Logları Görüntüle',
+                'tasks.table.viewLogsCard': 'Logları Görüntüle',
+                'tasks.status.pending': 'Bekliyor',
+                'tasks.status.running': 'Çalışıyor',
+                'tasks.status.completed': 'Tamamlandı',
+                'tasks.status.failed': 'Başarısız',
+                'tasks.status.timeout': 'Zaman Aşımı',
+                'tasks.proxy.waiting': 'Proxy bekleniyor',
+                'tasks.proxy.deleted': 'Proxy silindi',
+                'tasks.card.unknown': 'Bilinmiyor'
+            };
+            return translations[key] || key;
+        };
+
+        // Initialize TaskTable
+        const taskTable = new TaskTable('taskTableContainer');
+
+        // Mock task data generator
+        function generateMockTasks(count) {
+            const statuses = ['pending', 'running', 'completed', 'failed', 'timeout'];
+            const tasks = [];
+            
+            for (let i = 1; i <= count; i++) {
+                tasks.push({
+                    id: i,
+                    account_username: `steamuser${i}`,
+                    proxy_id: Math.random() > 0.2 ? i : null,
+                    proxy_ip: Math.random() > 0.2 ? `192.168.1.${100 + i}` : null,
+                    proxy_port: Math.random() > 0.2 ? 8080 + i : null,
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    created_at: new Date().toISOString()
+                });
+            }
+            
+            return tasks;
+        }
+
+        // Add tasks
+        function addTasks(count) {
+            const currentTasks = taskTable.tasks || [];
+            const newTasks = generateMockTasks(currentTasks.length + count);
+            taskTable.setTasks(newTasks);
+            updateScrollIndicator();
+        }
+
+        // Clear tasks
+        function clearTasks() {
+            taskTable.setTasks([]);
+            updateScrollIndicator();
+        }
+
+        // Test horizontal scrolling
+        function testScrolling() {
+            const container = document.querySelector('.task-table-container');
+            if (container) {
+                // Scroll to middle
+                container.scrollLeft = container.scrollWidth / 2;
+                setTimeout(() => {
+                    // Scroll back to start
+                    container.scrollLeft = 0;
+                }, 1000);
+            }
+        }
+
+        // Update viewport indicator
+        function updateViewportIndicator() {
+            const width = window.innerWidth;
+            const sizeEl = document.getElementById('viewportSize');
+            const modeEl = document.getElementById('viewportMode');
+            
+            sizeEl.textContent = `${width}px × ${window.innerHeight}px`;
+            
+            let mode = '';
+            if (width > 1024) {
+                mode = 'Desktop Mode - Full table with standard columns';
+            } else if (width >= 769 && width <= 1024) {
+                mode = 'Tablet Mode - Optimized column widths';
+            } else if (width >= 481 && width <= 768) {
+                mode = 'Small Tablet Mode - Horizontally scrollable table';
+            } else {
+                mode = 'Mobile Mode - Card view';
+            }
+            
+            modeEl.textContent = mode;
+            updateScrollIndicator();
+        }
+
+        // Update scroll indicator visibility
+        function updateScrollIndicator() {
+            const width = window.innerWidth;
+            const indicator = document.getElementById('scrollIndicator');
+            const container = document.querySelector('.task-table-container');
+            
+            // Show indicator on small tablets when table is scrollable
+            if (width >= 481 && width <= 768 && container && container.scrollWidth > container.clientWidth) {
+                indicator.classList.add('visible');
+            } else {
+                indicator.classList.remove('visible');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('resize', updateViewportIndicator);
+        window.addEventListener('load', () => {
+            updateViewportIndicator();
+            // Add initial tasks
+            addTasks(10);
+        });
+
+        // Override onViewLogs for testing
+        taskTable.onViewLogs = (taskId) => {
+            alert(`View logs for task #${taskId}`);
+        };
+    </script>
+</body>
+</html>

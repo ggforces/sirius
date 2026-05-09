@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskTable Scroll Position Preservation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            font-weight: normal;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        #task-table-test {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+        
+        .task-table-container {
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .task-table th,
+        .task-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .task-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-running {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #664d03;
+        }
+        
+        .status-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #842029;
+        }
+        
+        .btn-view-logs {
+            padding: 6px 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .task-cards-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 TaskTable Scroll Position Preservation Tests</h1>
+        
+        <div class="test-section">
+            <h2>Test Setup</h2>
+            <p>This test verifies that TaskTable preserves scroll position when updating task data.</p>
+            <button onclick="runAllTests()">Run All Tests</button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Table (Scroll to test)</h2>
+            <div id="task-table-test"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="test-results"></div>
+        </div>
+    </div>
+    
+    <script src="TaskTable.js"></script>
+    <script>
+        // Mock translation function
+        window.t = (key) => {
+            const translations = {
+                'tasks.table.loading': 'Loading...',
+                'tasks.table.noTasks': 'No tasks found',
+                'tasks.table.noTasksDesc': 'Create a task to get started',
+                'tasks.table.taskId': 'Task ID',
+                'tasks.table.account': 'Account',
+                'tasks.table.proxy': 'Proxy',
+                'tasks.table.status': 'Status',
+                'tasks.table.logs': 'Logs',
+                'tasks.table.viewLogs': 'View Logs',
+                'tasks.table.viewLogsCard': 'View Logs',
+                'tasks.card.unknown': 'Unknown',
+                'tasks.proxy.waiting': 'Waiting...',
+                'tasks.proxy.deleted': 'Deleted',
+                'tasks.status.pending': 'Pending',
+                'tasks.status.running': 'Running',
+                'tasks.status.completed': 'Completed',
+                'tasks.status.failed': 'Failed',
+                'tasks.status.timeout': 'Timeout'
+            };
+            return translations[key] || key;
+        };
+        
+        // Generate mock tasks
+        function generateMockTasks(count) {
+            const statuses = ['pending', 'running', 'completed', 'failed'];
+            const tasks = [];
+            
+            for (let i = 1; i <= count; i++) {
+                tasks.push({
+                    id: i,
+                    account_username: `steamuser${i}`,
+                    proxy_id: i % 3 === 0 ? null : i,
+                    proxy_ip: i % 3 === 0 ? null : `192.168.1.${i}`,
+                    proxy_port: i % 3 === 0 ? null : 8080 + i,
+                    status: statuses[i % statuses.length],
+                    created_at: new Date(Date.now() - i * 60000).toISOString()
+                });
+            }
+            
+            return tasks;
+        }
+        
+        // Test results container
+        const resultsContainer = document.getElementById('test-results');
+        let testsPassed = 0;
+        let testsFailed = 0;
+        
+        function logResult(testName, passed, message) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${passed ? 'test-pass' : 'test-fail'}`;
+            resultDiv.textContent = `${passed ? '✓' : '✗'} ${testName}: ${message}`;
+            resultsContainer.appendChild(resultDiv);
+            
+            if (passed) testsPassed++;
+            else testsFailed++;
+        }
+        
+        function logInfo(message) {
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'test-result test-info';
+            infoDiv.textContent = `ℹ ${message}`;
+            resultsContainer.appendChild(infoDiv);
+        }
+        
+        function clearResults() {
+            resultsContainer.innerHTML = '';
+            testsPassed = 0;
+            testsFailed = 0;
+        }
+        
+        // Test 1: Verify saveScrollPosition method exists
+        function test1_methodExists() {
+            const taskTable = new TaskTable('task-table-test');
+            const hasSaveMethod = typeof taskTable.saveScrollPosition === 'function';
+            const hasRestoreMethod = typeof taskTable.restoreScrollPosition === 'function';
+            
+            logResult(
+                'Test 1: Methods Exist',
+                hasSaveMethod && hasRestoreMethod,
+                hasSaveMethod && hasRestoreMethod 
+                    ? 'Both saveScrollPosition and restoreScrollPosition methods exist'
+                    : 'One or both methods are missing'
+            );
+        }
+        
+        // Test 2: Verify scroll position is saved correctly
+        function test2_saveScrollPosition() {
+            const taskTable = new TaskTable('task-table-test');
+            taskTable.setTasks(generateMockTasks(50));
+            
+            // Scroll to a specific position
+            const tableContainer = document.querySelector('.task-table-container');
+            tableContainer.scrollTop = 500;
+            
+            // Save scroll position
+            const scrollPosition = taskTable.saveScrollPosition();
+            
+            const passed = scrollPosition && scrollPosition.table === 500;
+            logResult(
+                'Test 2: Save Scroll Position',
+                passed,
+                passed 
+                    ? `Scroll position saved correctly: ${scrollPosition.table}px`
+                    : 'Failed to save scroll position'
+            );
+        }
+        
+        // Test 3: Verify scroll position is restored after update
+        async function test3_restoreScrollPosition() {
+            const taskTable = new TaskTable('task-table-test');
+            taskTable.setTasks(generateMockTasks(50));
+            
+            // Wait for render
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Scroll to a specific position
+            const tableContainer = document.querySelector('.task-table-container');
+            tableContainer.scrollTop = 600;
+            
+            logInfo(`Initial scroll position: ${tableContainer.scrollTop}px`);
+            
+            // Update tasks (this should preserve scroll position)
+            taskTable.setTasks(generateMockTasks(50));
+            
+            // Wait for requestAnimationFrame to complete
+            await new Promise(resolve => requestAnimationFrame(() => {
+                requestAnimationFrame(resolve);
+            }));
+            
+            const finalScrollTop = tableContainer.scrollTop;
+            logInfo(`Final scroll position: ${finalScrollTop}px`);
+            
+            // Allow small tolerance for browser differences
+            const passed = Math.abs(finalScrollTop - 600) < 5;
+            logResult(
+                'Test 3: Restore Scroll Position',
+                passed,
+                passed 
+                    ? `Scroll position restored correctly (${finalScrollTop}px ≈ 600px)`
+                    : `Scroll position not restored (expected 600px, got ${finalScrollTop}px)`
+            );
+        }
+        
+        // Test 4: Verify requestAnimationFrame is used
+        function test4_usesRequestAnimationFrame() {
+            // Check if the code uses requestAnimationFrame
+            const taskTableCode = TaskTable.toString();
+            const usesRAF = taskTableCode.includes('requestAnimationFrame');
+            
+            logResult(
+                'Test 4: Uses requestAnimationFrame',
+                usesRAF,
+                usesRAF 
+                    ? 'Code uses requestAnimationFrame for smooth restoration'
+                    : 'Code does not use requestAnimationFrame'
+            );
+        }
+        
+        // Test 5: Verify scroll position preserved during multiple updates
+        async function test5_multipleUpdates() {
+            const taskTable = new TaskTable('task-table-test');
+            taskTable.setTasks(generateMockTasks(50));
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const tableContainer = document.querySelector('.task-table-container');
+            tableContainer.scrollTop = 400;
+            
+            logInfo(`Initial scroll: ${tableContainer.scrollTop}px`);
+            
+            // Perform multiple updates
+            for (let i = 0; i < 3; i++) {
+                taskTable.setTasks(generateMockTasks(50));
+                await new Promise(resolve => requestAnimationFrame(() => {
+                    requestAnimationFrame(resolve);
+                }));
+            }
+            
+            const finalScrollTop = tableContainer.scrollTop;
+            logInfo(`Final scroll after 3 updates: ${finalScrollTop}px`);
+            
+            const passed = Math.abs(finalScrollTop - 400) < 5;
+            logResult(
+                'Test 5: Multiple Updates',
+                passed,
+                passed 
+                    ? `Scroll position preserved through multiple updates (${finalScrollTop}px ≈ 400px)`
+                    : `Scroll position lost during updates (expected 400px, got ${finalScrollTop}px)`
+            );
+        }
+        
+        // Test 6: Verify scroll position with different scroll values
+        async function test6_differentScrollValues() {
+            const taskTable = new TaskTable('task-table-test');
+            taskTable.setTasks(generateMockTasks(100));
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const tableContainer = document.querySelector('.task-table-container');
+            const testValues = [0, 100, 500, 1000];
+            let allPassed = true;
+            
+            for (const scrollValue of testValues) {
+                tableContainer.scrollTop = scrollValue;
+                taskTable.setTasks(generateMockTasks(100));
+                
+                await new Promise(resolve => requestAnimationFrame(() => {
+                    requestAnimationFrame(resolve);
+                }));
+                
+                const finalScrollTop = tableContainer.scrollTop;
+                const passed = Math.abs(finalScrollTop - scrollValue) < 5;
+                
+                if (!passed) {
+                    allPassed = false;
+                    logInfo(`Failed at scroll value ${scrollValue}px (got ${finalScrollTop}px)`);
+                }
+            }
+            
+            logResult(
+                'Test 6: Different Scroll Values',
+                allPassed,
+                allPassed 
+                    ? `All scroll values preserved correctly: ${testValues.join(', ')}px`
+                    : 'Some scroll values were not preserved correctly'
+            );
+        }
+        
+        // Run all tests
+        async function runAllTests() {
+            clearResults();
+            logInfo('Starting scroll position preservation tests...');
+            
+            test1_methodExists();
+            test2_saveScrollPosition();
+            await test3_restoreScrollPosition();
+            test4_usesRequestAnimationFrame();
+            await test5_multipleUpdates();
+            await test6_differentScrollValues();
+            
+            // Summary
+            const totalTests = testsPassed + testsFailed;
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = `test-result ${testsFailed === 0 ? 'test-pass' : 'test-fail'}`;
+            summaryDiv.innerHTML = `<strong>Summary: ${testsPassed}/${totalTests} tests passed</strong>`;
+            resultsContainer.appendChild(summaryDiv);
+            
+            if (testsFailed === 0) {
+                logInfo('✅ All tests passed! Scroll position preservation is working correctly.');
+            } else {
+                logInfo(`⚠️ ${testsFailed} test(s) failed. Please review the implementation.`);
+            }
+        }
+        
+        // Initialize with sample data
+        window.addEventListener('DOMContentLoaded', () => {
+            const taskTable = new TaskTable('task-table-test');
+            taskTable.setTasks(generateMockTasks(50));
+            
+            logInfo('Test environment initialized. Click "Run All Tests" to start testing.');
+        });
+    </script>
+</body>
+</html>

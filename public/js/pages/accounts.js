@@ -1,7 +1,10 @@
 // ==================== STATE ====================
 
 let accounts = [];
+let filteredAccounts = [];
 let editingAccountId = null;
+let selectedAccountIds = new Set();
+let searchQuery = '';
 
 // ==================== LOAD ACCOUNTS ====================
 
@@ -16,13 +19,65 @@ async function loadAccounts() {
         
         if (data.success) {
             accounts = data.data;
+            filteredAccounts = accounts;
+            applyFilters();
             renderAccounts();
+            updateStats();
         } else {
             showNotification(data.message || 'Hesaplar yüklenemedi', 'error');
         }
     } catch (error) {
         console.error('Load accounts error:', error);
         showNotification('Hesaplar yüklenirken hata oluştu', 'error');
+    }
+}
+
+// ==================== FILTER & SEARCH ====================
+
+function applyFilters() {
+    let filtered = [...accounts];
+    
+    // Apply search
+    if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(account => 
+            account.username.toLowerCase().includes(query) ||
+            (account.steamid && account.steamid.toLowerCase().includes(query))
+        );
+    }
+    
+    filteredAccounts = filtered;
+}
+
+function handleSearch(e) {
+    searchQuery = e.target.value;
+    applyFilters();
+    renderAccounts();
+    updateStats();
+}
+
+// ==================== STATS ====================
+
+function updateStats() {
+    const totalAccountsStat = document.getElementById('totalAccountsStat');
+    const totalPrimeStat = document.getElementById('totalPrimeStat');
+    const totalNonPrimeStat = document.getElementById('totalNonPrimeStat');
+    
+    if (totalAccountsStat) {
+        const label = window.t('accounts.totalAccounts');
+        totalAccountsStat.innerHTML = `${label}: <strong>${filteredAccounts.length}</strong>`;
+    }
+    
+    if (totalPrimeStat) {
+        const primeCount = filteredAccounts.filter(a => a.last_checked_at && a.is_prime).length;
+        const label = window.t('accounts.totalPrime');
+        totalPrimeStat.innerHTML = `${label}: <strong>${primeCount}</strong>`;
+    }
+    
+    if (totalNonPrimeStat) {
+        const nonPrimeCount = filteredAccounts.filter(a => a.last_checked_at && !a.is_prime).length;
+        const label = window.t('accounts.totalNonPrime');
+        totalNonPrimeStat.innerHTML = `${label}: <strong>${nonPrimeCount}</strong>`;
     }
 }
 
@@ -39,7 +94,7 @@ function renderAccounts() {
         return;
     }
     
-    if (accounts.length === 0) {
+    if (filteredAccounts.length === 0) {
         table.style.display = 'none';
         emptyState.style.display = 'flex';
         return;
@@ -48,7 +103,11 @@ function renderAccounts() {
     table.style.display = 'table';
     emptyState.style.display = 'none';
     
-    tbody.innerHTML = accounts.map(account => {
+    tbody.innerHTML = filteredAccounts.map(account => {
+        // Get translations
+        const notCheckedText = window.t('accounts.table.notChecked').toUpperCase();
+        const noBanText = window.t('accounts.table.noBan').toUpperCase();
+        
         // Prime status
         let primeText = '-';
         let primeClass = 'badge-secondary';
@@ -61,7 +120,7 @@ function renderAccounts() {
                 primeClass = 'badge-danger';
             }
         } else {
-            primeText = 'KONTROL EDİLMEDİ';
+            primeText = notCheckedText;
         }
         
         // Account type (Limited/Unlimited)
@@ -76,7 +135,7 @@ function renderAccounts() {
                 accountTypeClass = 'badge-danger';
             }
         } else {
-            accountTypeText = 'KONTROL EDİLMEDİ';
+            accountTypeText = notCheckedText;
         }
         
         // Wallet
@@ -88,11 +147,14 @@ function renderAccounts() {
         // Trade ban
         let tradeBanText = '-';
         if (account.last_checked_at) {
-            tradeBanText = `<span class="text-success">YOK</span>`;
+            tradeBanText = `<span class="text-success">${noBanText}</span>`;
         }
         
         return `
             <tr data-id="${account.id}">
+                <td class="checkbox-cell">
+                    <input type="checkbox" class="account-checkbox" data-id="${account.id}" ${selectedAccountIds.has(account.id) ? 'checked' : ''}>
+                </td>
                 <td class="username-cell">
                     <strong>${escapeHtml(account.username)}</strong>
                     ${account.steamid ? `<br><small class="text-secondary">${account.steamid}</small>` : ''}
@@ -177,7 +239,7 @@ function openEditModal(accountId) {
     }
     
     editingAccountId = accountId;
-    document.getElementById('modalTitle').textContent = window.APP_TRANSLATIONS.accounts.editAccount;
+    document.getElementById('modalTitle').textContent = window.APP_TRANSLATIONS?.accounts?.editAccount || 'Hesap Düzenle';
     document.getElementById('accountId').value = account.id;
     document.getElementById('username').value = account.username;
     document.getElementById('password').value = account.password;
@@ -338,44 +400,34 @@ async function handleBulkAdd(e) {
             return;
         }
         
-        // Add accounts one by one
-        let successCount = 0;
-        let failCount = 0;
+        // Send bulk add request
+        const response = await fetch('/api/accounts/bulk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ accounts })
+        });
         
-        for (const account of accounts) {
-            try {
-                const response = await fetch('/api/accounts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(account)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    successCount++;
-                } else {
-                    failCount++;
-                }
-            } catch (error) {
-                failCount++;
+        const data = await response.json();
+        
+        if (data.success) {
+            const { successCount, failedCount } = data.data;
+            
+            if (successCount > 0 && failedCount === 0) {
+                showNotification(`${successCount} hesap başarıyla eklendi`, 'success');
+            } else if (successCount > 0 && failedCount > 0) {
+                showNotification(`${successCount} hesap eklendi, ${failedCount} hesap eklenemedi`, 'warning');
+            } else {
+                showNotification('Hesaplar eklenemedi', 'error');
             }
-        }
-        
-        // Show result
-        if (successCount > 0 && failCount === 0) {
-            showNotification(`${successCount} hesap başarıyla eklendi`, 'success');
-        } else if (successCount > 0 && failCount > 0) {
-            showNotification(`${successCount} hesap eklendi, ${failCount} hesap eklenemedi`, 'warning');
+            
+            closeBulkAddModal();
+            await loadAccounts();
         } else {
-            showNotification('Hesaplar eklenemedi', 'error');
+            showNotification(data.message || 'Hesaplar eklenemedi', 'error');
         }
-        
-        closeBulkAddModal();
-        await loadAccounts();
     } catch (error) {
         console.error('Bulk add error:', error);
         showNotification('Bir hata oluştu', 'error');
@@ -391,6 +443,141 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ==================== BULK DELETE ====================
+
+let bulkDeleteAccountIds = [];
+
+function openBulkDeleteModal() {
+    if (selectedAccountIds.size === 0) {
+        showNotification('Lütfen silinecek hesapları seçin', 'warning');
+        return;
+    }
+    
+    bulkDeleteAccountIds = Array.from(selectedAccountIds);
+    const message = document.getElementById('bulkDeleteMessage');
+    if (message) {
+        message.textContent = `${bulkDeleteAccountIds.length} ${message.textContent}`;
+    }
+    
+    document.getElementById('bulkDeleteModal').classList.add('active');
+}
+
+function closeBulkDeleteModal() {
+    document.getElementById('bulkDeleteModal').classList.remove('active');
+    bulkDeleteAccountIds = [];
+}
+
+function updateBulkDeleteButton() {
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtnToolbar');
+    const bulkDeleteText = document.getElementById('bulkDeleteTextToolbar');
+    
+    if (!bulkDeleteBtn || !bulkDeleteText) return;
+    
+    if (selectedAccountIds.size > 0) {
+        bulkDeleteBtn.style.display = 'inline-flex';
+        const selectedText = window.t('accounts.selectedCount');
+        const bulkDeleteLabel = window.t('accounts.bulkDelete');
+        bulkDeleteText.textContent = `${bulkDeleteLabel} (${selectedAccountIds.size} ${selectedText})`;
+    } else {
+        bulkDeleteBtn.style.display = 'none';
+    }
+}
+
+function handleSelectAll(e) {
+    const isChecked = e.target.checked;
+    const checkboxes = document.querySelectorAll('.account-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+        const accountId = parseInt(checkbox.dataset.id);
+        if (isChecked) {
+            selectedAccountIds.add(accountId);
+        } else {
+            selectedAccountIds.delete(accountId);
+        }
+    });
+    
+    updateBulkDeleteButton();
+}
+
+function handleCheckboxChange(e) {
+    const accountId = parseInt(e.target.dataset.id);
+    
+    if (e.target.checked) {
+        selectedAccountIds.add(accountId);
+    } else {
+        selectedAccountIds.delete(accountId);
+    }
+    
+    // Update select all checkbox
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const checkboxes = document.querySelectorAll('.account-checkbox');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = allChecked && checkboxes.length > 0;
+    }
+    
+    updateBulkDeleteButton();
+}
+
+async function handleBulkDelete() {
+    if (bulkDeleteAccountIds.length === 0) {
+        closeBulkDeleteModal();
+        return;
+    }
+    
+    const confirmBtn = document.getElementById('confirmBulkDeleteBtn');
+    const originalText = confirmBtn.innerHTML;
+    
+    // Disable button
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="ph-bold ph-circle-notch ph-spin"></i>';
+    
+    try {
+        const response = await fetch('/api/accounts/bulk', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ accountIds: bulkDeleteAccountIds })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const { successCount, failedCount } = data.data;
+            
+            if (successCount > 0 && failedCount === 0) {
+                showNotification(`${successCount} hesap başarıyla silindi`, 'success');
+            } else if (successCount > 0 && failedCount > 0) {
+                showNotification(`${successCount} hesap silindi, ${failedCount} hesap silinemedi`, 'warning');
+            } else {
+                showNotification('Hesaplar silinemedi', 'error');
+            }
+            
+            // Clear selection
+            selectedAccountIds.clear();
+            updateBulkDeleteButton();
+            
+            // Close modal
+            closeBulkDeleteModal();
+            
+            // Reload accounts
+            await loadAccounts();
+        } else {
+            showNotification(data.message || 'Hesaplar silinemedi', 'error');
+        }
+    } catch (error) {
+        console.error('Bulk delete error:', error);
+        showNotification('Bir hata oluştu', 'error');
+    } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalText;
+    }
 }
 
 // ==================== EVENT LISTENERS ====================
@@ -458,6 +645,48 @@ const bulkAddForm = document.getElementById('bulkAddForm');
 if (bulkAddForm) {
     bulkAddForm.addEventListener('submit', handleBulkAdd);
 }
+
+// Select all checkbox
+const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', handleSelectAll);
+}
+
+// Bulk delete button
+const bulkDeleteBtnToolbar = document.getElementById('bulkDeleteBtnToolbar');
+if (bulkDeleteBtnToolbar) {
+    bulkDeleteBtnToolbar.addEventListener('click', openBulkDeleteModal);
+}
+
+// Search input
+const accountSearch = document.getElementById('accountSearch');
+if (accountSearch) {
+    accountSearch.addEventListener('input', handleSearch);
+}
+
+// Bulk delete modal close buttons
+const bulkDeleteModalOverlay = document.getElementById('bulkDeleteModalOverlay');
+if (bulkDeleteModalOverlay) {
+    bulkDeleteModalOverlay.addEventListener('click', closeBulkDeleteModal);
+}
+
+const cancelBulkDeleteBtn = document.getElementById('cancelBulkDeleteBtn');
+if (cancelBulkDeleteBtn) {
+    cancelBulkDeleteBtn.addEventListener('click', closeBulkDeleteModal);
+}
+
+// Confirm bulk delete button
+const confirmBulkDeleteBtn = document.getElementById('confirmBulkDeleteBtn');
+if (confirmBulkDeleteBtn) {
+    confirmBulkDeleteBtn.addEventListener('click', handleBulkDelete);
+}
+
+// Delegate checkbox events
+document.addEventListener('change', (e) => {
+    if (e.target.classList.contains('account-checkbox')) {
+        handleCheckboxChange(e);
+    }
+});
 
 // ==================== INITIALIZE ====================
 

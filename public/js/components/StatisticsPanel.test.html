@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StatisticsPanel Component Test</title>
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    <link rel="stylesheet" href="/css/components/statistics-panel.css">
+    <style>
+        body {
+            padding: 2rem;
+            background: #0a0e1a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            margin-bottom: 2rem;
+            color: #ffffff;
+        }
+        
+        .test-section {
+            background: rgba(23, 26, 34, 0.6);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .test-section h2 {
+            margin-bottom: 1rem;
+            color: #ffffff;
+            font-size: 1.2rem;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            background: #2196F3;
+            color: white;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .btn:hover {
+            background: #1976D2;
+        }
+        
+        .btn-secondary {
+            background: #757575;
+        }
+        
+        .btn-secondary:hover {
+            background: #616161;
+        }
+        
+        #testLog {
+            font-family: monospace;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+    <!-- Phosphor Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/bold/style.css">
+</head>
+<body>
+    <div class="test-container">
+        <h1>StatisticsPanel Component Test</h1>
+        
+        <div class="test-section">
+            <h2>Statistics Panel</h2>
+            <div id="statisticsPanel"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Controls</h2>
+            <div class="controls">
+                <button class="btn" onclick="testUpdate1()">Update: Mixed Tasks</button>
+                <button class="btn" onclick="testUpdate2()">Update: All Running</button>
+                <button class="btn" onclick="testUpdate3()">Update: All Completed</button>
+                <button class="btn" onclick="testUpdate4()">Update: With Failures</button>
+                <button class="btn btn-secondary" onclick="testReset()">Reset</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Log</h2>
+            <div id="testLog" style="font-family: monospace; font-size: 0.875rem; color: #666;"></div>
+        </div>
+    </div>
+    
+    <!-- Mock translation function -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.statistics.total': 'Toplam',
+                'tasks.statistics.running': 'İşleniyor',
+                'tasks.statistics.pending': 'Bekliyor',
+                'tasks.statistics.completed': 'Tamamlandı',
+                'tasks.statistics.failed': 'Başarısız'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- Component -->
+    <script src="/js/components/StatisticsPanel.js"></script>
+    
+    <!-- Test Script -->
+    <script>
+        let statsPanel;
+        const logElement = document.getElementById('testLog');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}<br>`;
+            console.log(message);
+        }
+        
+        // Initialize component
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Initializing StatisticsPanel...');
+            statsPanel = new StatisticsPanel('statisticsPanel');
+            log('StatisticsPanel initialized successfully');
+            
+            // Initial update with sample data
+            testUpdate1();
+        });
+        
+        function testUpdate1() {
+            log('Test 1: Mixed tasks (5 running, 3 pending, 10 completed, 2 failed)');
+            const tasks = [
+                ...Array(5).fill({ status: 'running' }),
+                ...Array(3).fill({ status: 'pending' }),
+                ...Array(10).fill({ status: 'completed' }),
+                ...Array(2).fill({ status: 'failed' })
+            ];
+            statsPanel.update(tasks);
+            log(`Statistics updated: ${JSON.stringify(statsPanel.getStatistics())}`);
+        }
+        
+        function testUpdate2() {
+            log('Test 2: All running (15 tasks)');
+            const tasks = Array(15).fill({ status: 'running' });
+            statsPanel.update(tasks);
+            log(`Statistics updated: ${JSON.stringify(statsPanel.getStatistics())}`);
+        }
+        
+        function testUpdate3() {
+            log('Test 3: All completed (25 tasks)');
+            const tasks = Array(25).fill({ status: 'completed' });
+            statsPanel.update(tasks);
+            log(`Statistics updated: ${JSON.stringify(statsPanel.getStatistics())}`);
+        }
+        
+        function testUpdate4() {
+            log('Test 4: With failures (2 running, 1 pending, 5 completed, 8 failed, 2 timeout)');
+            const tasks = [
+                ...Array(2).fill({ status: 'running' }),
+                ...Array(1).fill({ status: 'pending' }),
+                ...Array(5).fill({ status: 'completed' }),
+                ...Array(8).fill({ status: 'failed' }),
+                ...Array(2).fill({ status: 'timeout' }) // timeout counts as failed
+            ];
+            statsPanel.update(tasks);
+            log(`Statistics updated: ${JSON.stringify(statsPanel.getStatistics())}`);
+        }
+        
+        function testReset() {
+            log('Test: Reset statistics');
+            statsPanel.reset();
+            log(`Statistics reset: ${JSON.stringify(statsPanel.getStatistics())}`);
+        }
+    </script>
+</body>
+</html>

@@ -113,7 +113,7 @@
 .section-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
     margin-bottom: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
     border-bottom: 2px solid rgba(0, 212, 255, 0.2);
@@ -121,11 +121,14 @@
     gap: var(--spacing-sm);
 }
 
-.section-title {
-    font-size: 1.3rem;
+.section-header .section-title {
+    font-size: 1.6rem;
     font-weight: 700;
     color: var(--light);
     margin: 0;
+    margin-bottom: 0 !important;
+    line-height: 1;
+    padding-bottom: 0.125rem;
 }
 
 .section-subtitle {
@@ -140,6 +143,227 @@
     align-items: center;
     gap: 0.5rem;
     margin-left: auto;
+}
+
+.section-actions .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.95rem;
+}
+
+.account-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: var(--radius-sm);
+    color: var(--primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.account-count i {
+    font-size: 1.1rem;
+}
+
+.account-count strong {
+    color: var(--light);
+    font-size: 1.05rem;
+}
+
+/* Custom Checkbox styling */
+.checkbox-cell {
+    text-align: center;
+    width: 40px;
+    padding: 0.75rem 0.5rem;
+}
+
+/* Hide default checkbox */
+.account-checkbox,
+.account-checkbox-main {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    margin: 0;
+    outline: none;
+}
+
+.account-checkbox:focus,
+.account-checkbox-main:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+}
+
+.account-checkbox:hover,
+.account-checkbox-main:hover {
+    border-color: rgba(0, 212, 255, 0.6);
+    background: rgba(0, 212, 255, 0.1);
+    transform: scale(1.05);
+}
+
+/* Checked state */
+.account-checkbox:checked,
+.account-checkbox-main:checked {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Checkmark */
+.account-checkbox:checked::after,
+.account-checkbox-main:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: solid var(--dark);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.account-checkbox-main {
+    width: 22px;
+    height: 22px;
+}
+
+.account-checkbox-main:checked::after {
+    left: 6px;
+    top: 2px;
+    width: 7px;
+    height: 11px;
+}
+
+/* Bulk delete warning */
+.bulk-delete-warning {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: var(--radius-sm);
+    margin-top: 1rem;
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.bulk-delete-warning i {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Accounts Toolbar */
+.accounts-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(23, 26, 34, 0.6);
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Search Box */
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box i {
+    position: absolute;
+    left: 0.875rem;
+    color: var(--gray);
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+.search-box input {
+    padding: 0.625rem 0.875rem 0.625rem 2.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--light);
+    font-size: 0.95rem;
+    width: 280px;
+    transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+}
+
+.search-box input::placeholder {
+    color: var(--gray);
+}
+
+/* Account Stats */
+.account-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: var(--radius-sm);
+    color: var(--primary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.stat-item i {
+    font-size: 1.1rem;
+}
+
+.stat-item strong {
+    color: var(--light);
+    font-weight: 700;
+}
+
+.stat-item.stat-prime {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: var(--success);
+}
+
+.stat-item.stat-nonprime {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+    color: var(--danger);
 }
 
 .last-update {

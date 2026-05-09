@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 9.1 - Mobile Card View Unit Test</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="/css/base/reset.css">
+    <link rel="stylesheet" href="/css/base/variables.css">
+    <link rel="stylesheet" href="/css/base/typography.css">
+    
+    <!-- Components -->
+    <link rel="stylesheet" href="/css/components/task-table.css">
+    
+    <style>
+        body {
+            padding: 20px;
+            background: #0a0e1a;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .test-suite {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .test-case {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid #666;
+            border-radius: 4px;
+        }
+        
+        .test-case.pass {
+            border-left-color: #22c55e;
+        }
+        
+        .test-case.fail {
+            border-left-color: #ef4444;
+        }
+        
+        .test-result {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+        
+        .test-result.pass {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .test-result.fail {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .test-summary {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+        }
+        
+        .viewport-simulator {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .viewport-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .viewport-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 6px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .viewport-btn:hover {
+            background: rgba(0, 212, 255, 0.3);
+        }
+        
+        .viewport-btn.active {
+            background: rgba(0, 212, 255, 0.4);
+            border-color: var(--primary);
+        }
+        
+        .test-container {
+            margin-top: 1rem;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .test-container.mobile {
+            max-width: 375px;
+        }
+        
+        .test-container.tablet {
+            max-width: 768px;
+        }
+        
+        .test-container.desktop {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-suite">
+        <div class="test-header">
+            <h1>Task 9.1 - Mobile Card View Unit Test</h1>
+            <p><strong>Requirement 8.1:</strong> When screen width is less than 768px, the TaskTable should switch from table view to card view for better mobile usability.</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>Automated Tests</h2>
+            <div id="testResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Visual Verification</h2>
+            <div class="viewport-simulator">
+                <h3>Viewport Simulator</h3>
+                <div class="viewport-controls">
+                    <button class="viewport-btn" data-width="375" data-name="mobile">Mobile (375px)</button>
+                    <button class="viewport-btn" data-width="768" data-name="tablet">Tablet (768px)</button>
+                    <button class="viewport-btn active" data-width="1200" data-name="desktop">Desktop (1200px)</button>
+                </div>
+                <div class="test-container desktop" id="testContainer">
+                    <div id="taskTableContainer"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-summary" id="testSummary"></div>
+    </div>
+    
+    <!-- Mock translation function -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.table.taskId': 'Görev ID',
+                'tasks.table.account': 'Hesap',
+                'tasks.table.proxy': 'Proxy',
+                'tasks.table.status': 'Durum',
+                'tasks.table.logs': 'Loglar',
+                'tasks.table.viewLogs': 'Loglar',
+                'tasks.table.viewLogsCard': 'Logları Görüntüle',
+                'tasks.status.pending': 'Bekliyor',
+                'tasks.status.running': 'İşleniyor',
+                'tasks.status.completed': 'Tamamlandı',
+                'tasks.status.failed': 'Başarısız',
+                'tasks.status.timeout': 'Zaman Aşımı',
+                'tasks.proxy.waiting': 'Bekliyor',
+                'tasks.proxy.deleted': 'Proxy Silinmiş',
+                'tasks.card.unknown': 'Bilinmiyor'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- TaskTable Component -->
+    <script src="/js/components/TaskTable.js"></script>
+    
+    <!-- Test Script -->
+    <script>
+        // Test framework
+        class TestRunner {
+            constructor() {
+                this.tests = [];
+                this.passed = 0;
+                this.failed = 0;
+            }
+            
+            test(name, fn) {
+                this.tests.push({ name, fn });
+            }
+            
+            async run() {
+                const resultsContainer = document.getElementById('testResults');
+                resultsContainer.innerHTML = '';
+                
+                for (const test of this.tests) {
+                    try {
+                        await test.fn();
+                        this.passed++;
+                        this.renderTestCase(resultsContainer, test.name, true);
+                    } catch (error) {
+                        this.failed++;
+                        this.renderTestCase(resultsContainer, test.name, false, error.message);
+                    }
+                }
+                
+                this.renderSummary();
+            }
+            
+            renderTestCase(container, name, passed, error = null) {
+                const testCase = document.createElement('div');
+                testCase.className = `test-case ${passed ? 'pass' : 'fail'}`;
+                
+                const result = document.createElement('span');
+                result.className = `test-result ${passed ? 'pass' : 'fail'}`;
+                result.textContent = passed ? 'PASS' : 'FAIL';
+                
+                const testName = document.createElement('span');
+                testName.textContent = name;
+                
+                testCase.appendChild(testName);
+                testCase.appendChild(result);
+                
+                if (error) {
+                    const errorMsg = document.createElement('div');
+                    errorMsg.style.marginTop = '0.5rem';
+                    errorMsg.style.color = '#ef4444';
+                    errorMsg.style.fontSize = '0.9rem';
+                    errorMsg.textContent = `Error: ${error}`;
+                    testCase.appendChild(errorMsg);
+                }
+                
+                container.appendChild(testCase);
+            }
+            
+            renderSummary() {
+                const summary = document.getElementById('testSummary');
+                const total = this.passed + this.failed;
+                const percentage = total > 0 ? Math.round((this.passed / total) * 100) : 0;
+                
+                summary.innerHTML = `
+                    <h2>Test Summary</h2>
+                    <p><strong>Total Tests:</strong> ${total}</p>
+                    <p><strong>Passed:</strong> <span style="color: #22c55e;">${this.passed}</span></p>
+                    <p><strong>Failed:</strong> <span style="color: #ef4444;">${this.failed}</span></p>
+                    <p><strong>Success Rate:</strong> ${percentage}%</p>
+                    ${this.failed === 0 ? '<p style="color: #22c55e; font-weight: bold; margin-top: 1rem;">✓ All tests passed! Task 9.1 implementation is correct.</p>' : '<p style="color: #ef4444; font-weight: bold; margin-top: 1rem;">✗ Some tests failed. Please review the implementation.</p>'}
+                `;
+            }
+        }
+        
+        // Mock task data
+        const mockTasks = [
+            {
+                id: 1,
+                account_username: 'steamuser123',
+                proxy_id: 1,
+                proxy_ip: '192.168.1.100',
+                proxy_port: 8080,
+                status: 'running'
+            },
+            {
+                id: 2,
+                account_username: 'gamer456',
+                proxy_id: 2,
+                proxy_ip: '192.168.1.101',
+                proxy_port: 8080,
+                status: 'pending'
+            },
+            {
+                id: 3,
+                account_username: 'player789',
+                proxy_id: null,
+                proxy_ip: null,
+                proxy_port: null,
+                status: 'completed'
+            }
+        ];
+        
+        // Initialize TaskTable
+        const taskTable = new TaskTable('taskTableContainer');
+        taskTable.setTasks(mockTasks);
+        
+        // Create test runner
+        const runner = new TestRunner();
+        
+        // Test 1: CSS media query exists for screens < 768px
+        runner.test('CSS media query exists for mobile view (< 768px)', () => {
+            const styleSheets = Array.from(document.styleSheets);
+            let mediaQueryFound = false;
+            
+            for (const sheet of styleSheets) {
+                try {
+                    const rules = Array.from(sheet.cssRules || []);
+                    for (const rule of rules) {
+                        if (rule.type === CSSRule.MEDIA_RULE) {
+                            if (rule.conditionText.includes('768px') || rule.conditionText.includes('max-width')) {
+                                mediaQueryFound = true;
+                                break;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Skip CORS-protected stylesheets
+                }
+            }
+            
+            if (!mediaQueryFound) {
+                throw new Error('Media query for mobile view not found');
+            }
+        });
+        
+        // Test 2: Card container exists in DOM
+        runner.test('Card container element exists in DOM', () => {
+            const cardsContainer = document.querySelector('.task-cards-container');
+            if (!cardsContainer) {
+                throw new Error('Card container element not found');
+            }
+        });
+        
+        // Test 3: Table container exists in DOM
+        runner.test('Table container element exists in DOM', () => {
+            const tableContainer = document.querySelector('.task-table-container');
+            if (!tableContainer) {
+                throw new Error('Table container element not found');
+            }
+        });
+        
+        // Test 4: Card elements are rendered for each task
+        runner.test('Card elements are rendered for each task', () => {
+            const cards = document.querySelectorAll('.task-card');
+            if (cards.length !== mockTasks.length) {
+                throw new Error(`Expected ${mockTasks.length} cards, found ${cards.length}`);
+            }
+        });
+        
+        // Test 5: Each card displays task ID
+        runner.test('Each card displays task ID', () => {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach((card, index) => {
+                const taskId = card.querySelector('.task-card-id');
+                if (!taskId) {
+                    throw new Error(`Card ${index} missing task ID element`);
+                }
+                const expectedId = `#${mockTasks[index].id}`;
+                if (!taskId.textContent.includes(expectedId)) {
+                    throw new Error(`Card ${index} has incorrect task ID: ${taskId.textContent}`);
+                }
+            });
+        });
+        
+        // Test 6: Each card displays account username
+        runner.test('Each card displays account username', () => {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach((card, index) => {
+                const accountValue = card.querySelector('.task-card-value');
+                if (!accountValue) {
+                    throw new Error(`Card ${index} missing account value element`);
+                }
+            });
+        });
+        
+        // Test 7: Each card displays status badge
+        runner.test('Each card displays status badge', () => {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach((card, index) => {
+                const statusBadge = card.querySelector('.status-badge');
+                if (!statusBadge) {
+                    throw new Error(`Card ${index} missing status badge`);
+                }
+            });
+        });
+        
+        // Test 8: Each card displays proxy information
+        runner.test('Each card displays proxy information', () => {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach((card, index) => {
+                const cardRows = card.querySelectorAll('.task-card-row');
+                let proxyRowFound = false;
+                cardRows.forEach(row => {
+                    const label = row.querySelector('.task-card-label');
+                    if (label && label.textContent.includes('Proxy')) {
+                        proxyRowFound = true;
+                    }
+                });
+                if (!proxyRowFound) {
+                    throw new Error(`Card ${index} missing proxy information row`);
+                }
+            });
+        });
+        
+        // Test 9: Each card has a view logs button
+        runner.test('Each card has a view logs button', () => {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach((card, index) => {
+                const logButton = card.querySelector('.btn-view-logs-card');
+                if (!logButton) {
+                    throw new Error(`Card ${index} missing view logs button`);
+                }
+            });
+        });
+        
+        // Test 10: Card layout uses proper CSS classes
+        runner.test('Card layout uses proper CSS classes', () => {
+            const cards = document.querySelectorAll('.task-card');
+            cards.forEach((card, index) => {
+                const header = card.querySelector('.task-card-header');
+                const body = card.querySelector('.task-card-body');
+                const footer = card.querySelector('.task-card-footer');
+                
+                if (!header) throw new Error(`Card ${index} missing header`);
+                if (!body) throw new Error(`Card ${index} missing body`);
+                if (!footer) throw new Error(`Card ${index} missing footer`);
+            });
+        });
+        
+        // Test 11: renderTaskCard method exists
+        runner.test('TaskTable has renderTaskCard method', () => {
+            if (typeof taskTable.renderTaskCard !== 'function') {
+                throw new Error('renderTaskCard method not found');
+            }
+        });
+        
+        // Test 12: renderTaskCard returns valid HTML
+        runner.test('renderTaskCard returns valid HTML string', () => {
+            const html = taskTable.renderTaskCard(mockTasks[0]);
+            if (typeof html !== 'string') {
+                throw new Error('renderTaskCard did not return a string');
+            }
+            if (!html.includes('task-card')) {
+                throw new Error('renderTaskCard HTML does not contain task-card class');
+            }
+        });
+        
+        // Run all tests
+        runner.run();
+        
+        // Viewport simulator
+        const viewportButtons = document.querySelectorAll('.viewport-btn');
+        const testContainer = document.getElementById('testContainer');
+        
+        viewportButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const width = btn.dataset.width;
+                const name = btn.dataset.name;
+                
+                // Update active button
+                viewportButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update container class
+                testContainer.className = `test-container ${name}`;
+                
+                // Update container width
+                if (name === 'mobile') {
+                    testContainer.style.maxWidth = '375px';
+                } else if (name === 'tablet') {
+                    testContainer.style.maxWidth = '768px';
+                } else {
+                    testContainer.style.maxWidth = '100%';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

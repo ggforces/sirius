@@ -324,16 +324,16 @@ function updateUIForLoggedInUser(user) {
                 </button>
                 <div class="dropdown-menu" id="userDropdownMenu">
                     <a href="/panel/dashboard" class="dropdown-item">
-                        <span class="dropdown-icon">🏠</span>
+                        <span class="dropdown-icon"><i class="ph-bold ph-house"></i></span>
                         <span>Panel</span>
                     </a>
                     <a href="#" class="dropdown-item" id="profileLink">
-                        <span class="dropdown-icon">👤</span>
+                        <span class="dropdown-icon"><i class="ph-bold ph-user"></i></span>
                         <span>Profil</span>
                     </a>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item" id="logoutLink">
-                        <span class="dropdown-icon">🚪</span>
+                        <span class="dropdown-icon"><i class="ph-bold ph-sign-out"></i></span>
                         <span>Çıkış Yap</span>
                     </a>
                 </div>

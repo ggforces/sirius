@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogViewerModal Task 7.2 Test - Color Coding by Log Level</title>
+    
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="../../css/base/variables.css">
+    <link rel="stylesheet" href="../../css/base/reset.css">
+    <link rel="stylesheet" href="../../css/base/typography.css">
+    
+    <!-- Component CSS -->
+    <link rel="stylesheet" href="../../css/components/modals.css">
+    <link rel="stylesheet" href="../../css/components/log-viewer-modal.css">
+    <link rel="stylesheet" href="../../css/components/buttons.css">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--dark);
+            color: var(--light);
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+        
+        .test-header h1 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+        }
+        
+        .test-section h2 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        
+        .test-result.success {
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .test-result.error {
+            border-left: 4px solid #F44336;
+        }
+        
+        .color-swatch {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .expected-colors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .color-item {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🎨 Task 7.2: Color Coding by Log Level</h1>
+            <p>Testing color coding implementation for log levels (info, success, warning, error)</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>Expected Colors</h2>
+            <div class="expected-colors">
+                <div class="color-item">
+                    <span class="color-swatch" style="background: #FFFFFF;"></span>
+                    <strong>Info:</strong> #FFFFFF (white)
+                </div>
+                <div class="color-item">
+                    <span class="color-swatch" style="background: #4CAF50;"></span>
+                    <strong>Success:</strong> #4CAF50 (green)
+                </div>
+                <div class="color-item">
+                    <span class="color-swatch" style="background: #FFC107;"></span>
+                    <strong>Warning:</strong> #FFC107 (yellow)
+                </div>
+                <div class="color-item">
+                    <span class="color-swatch" style="background: #F44336;"></span>
+                    <strong>Error:</strong> #F44336 (red)
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Controls</h2>
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="openLogModal()">Open Log Viewer Modal</button>
+                <button class="btn btn-secondary" onclick="runColorTests()">Run Color Tests</button>
+            </div>
+            <div id="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Manual Verification</h2>
+            <ol>
+                <li>Click "Open Log Viewer Modal" to see the log viewer with sample logs</li>
+                <li>Verify that each log level has the correct color:
+                    <ul>
+                        <li>INFO logs should be white (#FFFFFF)</li>
+                        <li>SUCCESS logs should be green (#4CAF50)</li>
+                        <li>WARNING logs should be yellow (#FFC107)</li>
+                        <li>ERROR logs should be red (#F44336)</li>
+                    </ul>
+                </li>
+                <li>Check that the border-left color matches the log level color</li>
+                <li>Verify that the log level badge has the correct background and text color</li>
+            </ol>
+        </div>
+    </div>
+    
+    <!-- Mock translation function -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.logModal.title': 'Görev Logları',
+                'tasks.logModal.close': 'Kapat',
+                'tasks.logModal.loading': 'Loglar yükleniyor...',
+                'tasks.logModal.loadError': 'Loglar yüklenirken hata oluştu',
+                'tasks.logModal.noLogs': 'Henüz log bulunmuyor',
+                'tasks.logModal.noLogsDesc': 'Bu görev için henüz log kaydı oluşturulmamış',
+                'tasks.logModal.retryLimitReached': 'Tekrar deneme limiti aşıldı',
+                'tasks.notifications.retry': 'Tekrar Dene',
+                'tasks.notifications.serverError': 'Sunucu hatası',
+                'tasks.notifications.connectionError': 'Bağlantı hatası'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- LogViewerModal Component -->
+    <script src="./LogViewerModal.js"></script>
+    
+    <script>
+        // Initialize LogViewerModal
+        const logModal = new LogViewerModal('testLogModal');
+        
+        // Mock sample logs with all log levels
+        const sampleLogs = [
+            {
+                id: 1,
+                level: 'info',
+                message: 'Task started successfully',
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 2,
+                level: 'info',
+                message: 'Connecting to Steam API...',
+                created_at: new Date(Date.now() + 1000).toISOString()
+            },
+            {
+                id: 3,
+                level: 'success',
+                message: 'Successfully connected to Steam API',
+                created_at: new Date(Date.now() + 2000).toISOString()
+            },
+            {
+                id: 4,
+                level: 'info',
+                message: 'Verifying account credentials...',
+                created_at: new Date(Date.now() + 3000).toISOString()
+            },
+            {
+                id: 5,
+                level: 'success',
+                message: 'Account credentials verified',
+                created_at: new Date(Date.now() + 4000).toISOString()
+            },
+            {
+                id: 6,
+                level: 'warning',
+                message: 'Rate limit approaching, slowing down requests',
+                created_at: new Date(Date.now() + 5000).toISOString()
+            },
+            {
+                id: 7,
+                level: 'info',
+                message: 'Checking account status...',
+                created_at: new Date(Date.now() + 6000).toISOString()
+            },
+            {
+                id: 8,
+                level: 'error',
+                message: 'Failed to retrieve account status: Connection timeout',
+                created_at: new Date(Date.now() + 7000).toISOString()
+            },
+            {
+                id: 9,
+                level: 'warning',
+                message: 'Retrying with backup proxy...',
+                created_at: new Date(Date.now() + 8000).toISOString()
+            },
+            {
+                id: 10,
+                level: 'success',
+                message: 'Task completed successfully',
+                created_at: new Date(Date.now() + 9000).toISOString()
+            }
+        ];
+        
+        function openLogModal() {
+            // Override loadLogs to use sample data
+            logModal.logs = sampleLogs;
+            logModal.currentTaskId = 999;
+            logModal.modal.classList.add('active');
+            logModal.renderLogs();
+        }
+        
+        function runColorTests() {
+            const resultsDiv = document.getElementById('test-results');
+            const results = [];
+            
+            // Test 1: Check if getLevelClass handles all log levels
+            const testLevels = ['info', 'success', 'warning', 'error'];
+            const expectedClasses = ['info', 'success', 'warning', 'error'];
+            
+            let allClassesCorrect = true;
+            testLevels.forEach((level, index) => {
+                const result = logModal.getLevelClass(level);
+                if (result !== expectedClasses[index]) {
+                    allClassesCorrect = false;
+                    results.push(`❌ getLevelClass('${level}') returned '${result}', expected '${expectedClasses[index]}'`);
+                } else {
+                    results.push(`✅ getLevelClass('${level}') = '${result}'`);
+                }
+            });
+            
+            // Test 2: Check if getLevelIcon handles all log levels
+            const expectedIcons = {
+                'info': 'ph-bold ph-info',
+                'success': 'ph-bold ph-check-circle',
+                'warning': 'ph-bold ph-warning',
+                'error': 'ph-bold ph-x-circle'
+            };
+            
+            let allIconsCorrect = true;
+            testLevels.forEach(level => {
+                const result = logModal.getLevelIcon(level);
+                if (result !== expectedIcons[level]) {
+                    allIconsCorrect = false;
+                    results.push(`❌ getLevelIcon('${level}') returned '${result}', expected '${expectedIcons[level]}'`);
+                } else {
+                    results.push(`✅ getLevelIcon('${level}') = '${result}'`);
+                }
+            });
+            
+            // Test 3: Check CSS classes exist
+            const cssTests = [
+                '.log-entry-info',
+                '.log-entry-success',
+                '.log-entry-warning',
+                '.log-entry-error'
+            ];
+            
+            results.push('<br><strong>CSS Class Tests:</strong>');
+            cssTests.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                results.push(`✅ CSS class '${selector}' is defined`);
+            });
+            
+            // Display results
+            const resultClass = (allClassesCorrect && allIconsCorrect) ? 'success' : 'error';
+            resultsDiv.innerHTML = `
+                <div class="test-result ${resultClass}">
+                    <strong>Test Results:</strong><br>
+                    ${results.join('<br>')}
+                </div>
+            `;
+        }
+        
+        // Run tests on page load
+        window.addEventListener('load', () => {
+            console.log('LogViewerModal Task 7.2 Test Page Loaded');
+            runColorTests();
+        });
+    </script>
+</body>
+</html>

@@ -99,7 +99,7 @@ function toggleAutoRefresh() {
         btn.innerHTML = '<i class="ph-bold ph-stop"></i> Stop';
         btn.classList.remove('btn-secondary');
         btn.classList.add('btn-danger');
-        status.textContent = '🔄 Auto-refreshing every 5s';
+        status.textContent = 'Auto-refreshing every 5s';
         loadLogs();
     }
 }

@@ -5,6 +5,7 @@ class TasksManager {
         this.taskCreationModal = null;
         this.logViewerModal = null;
         this.taskTable = null;
+        this.statisticsPanel = null;
         this.pollingInterval = null;
         this.pollingFailureCount = 0;
         this.maxPollingFailures = 3;
@@ -14,6 +15,7 @@ class TasksManager {
     init() {
         this.initializeTaskCreationModal();
         this.initializeLogViewerModal();
+        this.initializeStatisticsPanel();
         this.initializeTaskTable();
         this.bindEvents();
         this.loadAccounts();
@@ -38,6 +40,14 @@ class TasksManager {
     initializeLogViewerModal() {
         // Initialize LogViewerModal component
         this.logViewerModal = new LogViewerModal('logViewerModal');
+    }
+
+    initializeStatisticsPanel() {
+        // Initialize StatisticsPanel component if container exists
+        const statisticsPanelContainer = document.getElementById('statisticsPanel');
+        if (statisticsPanelContainer) {
+            this.statisticsPanel = new StatisticsPanel('statisticsPanel');
+        }
     }
 
     initializeTaskTable() {
@@ -90,6 +100,12 @@ class TasksManager {
             
             if (data.success) {
                 this.taskTable.setTasks(data.tasks || []);
+                
+                // Update statistics panel with new task data
+                if (this.statisticsPanel) {
+                    this.statisticsPanel.update(data.tasks || []);
+                }
+                
                 // Reset failure count on success
                 this.pollingFailureCount = 0;
             } else {

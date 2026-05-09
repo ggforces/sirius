@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogViewerModal Task 7.4 Test - Scrollable Log Container</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="../../css/base/variables.css">
+    <link rel="stylesheet" href="../../css/base/reset.css">
+    <link rel="stylesheet" href="../../css/base/typography.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="../../css/components/modals.css">
+    <link rel="stylesheet" href="../../css/components/log-viewer-modal.css">
+    <link rel="stylesheet" href="../../css/components/buttons.css">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .test-section h2 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .test-info {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .test-info h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .test-info ul {
+            margin-left: 1.5rem;
+        }
+        
+        .test-info li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        
+        .status-pass {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .status-fail {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+        
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>LogViewerModal Task 7.4 Test</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Testing scrollable log container with auto-scroll and scroll position preservation
+        </p>
+        
+        <!-- Test Info -->
+        <div class="test-info">
+            <h3>Task 7.4 Requirements:</h3>
+            <ul>
+                <li>✅ Log container has fixed height with overflow-y: auto</li>
+                <li>✅ Auto-scroll to bottom when new logs are added</li>
+                <li>✅ Preserve user scroll position if user has scrolled up</li>
+            </ul>
+        </div>
+        
+        <!-- Test 1: Auto-scroll to bottom -->
+        <div class="test-section">
+            <h2>Test 1: Auto-scroll to Bottom <span class="status-indicator status-pending" id="test1-status">Pending</span></h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                When logs are loaded, the container should automatically scroll to the bottom to show the latest logs.
+            </p>
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="runTest1()">Run Test 1</button>
+                <button class="btn btn-secondary" onclick="resetTest1()">Reset</button>
+            </div>
+            <div id="test1-result" style="margin-top: 1rem;"></div>
+        </div>
+        
+        <!-- Test 2: Preserve scroll position when user scrolls up -->
+        <div class="test-section">
+            <h2>Test 2: Preserve Scroll Position <span class="status-indicator status-pending" id="test2-status">Pending</span></h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                When user scrolls up to view older logs, the position should be preserved even when new logs are added.
+            </p>
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="runTest2()">Run Test 2</button>
+                <button class="btn btn-secondary" onclick="resetTest2()">Reset</button>
+            </div>
+            <div id="test2-result" style="margin-top: 1rem;"></div>
+        </div>
+        
+        <!-- Test 3: Resume auto-scroll when user scrolls back to bottom -->
+        <div class="test-section">
+            <h2>Test 3: Resume Auto-scroll <span class="status-indicator status-pending" id="test3-status">Pending</span></h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                When user scrolls back to the bottom after scrolling up, auto-scroll should resume for new logs.
+            </p>
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="runTest3()">Run Test 3</button>
+                <button class="btn btn-secondary" onclick="resetTest3()">Reset</button>
+            </div>
+            <div id="test3-result" style="margin-top: 1rem;"></div>
+        </div>
+        
+        <!-- Manual Test -->
+        <div class="test-section">
+            <h2>Manual Test: Interactive Log Viewer</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Open the log viewer and interact with it manually to test scrolling behavior.
+            </p>
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="openLogViewer()">Open Log Viewer</button>
+                <button class="btn btn-secondary" onclick="addMoreLogs()">Add More Logs</button>
+                <button class="btn btn-secondary" onclick="clearLogs()">Clear Logs</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mock translations -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.logModal.title': 'Görev Logları',
+                'tasks.logModal.close': 'Kapat',
+                'tasks.logModal.loading': 'Loglar yükleniyor...',
+                'tasks.logModal.loadError': 'Loglar yüklenirken hata oluştu',
+                'tasks.logModal.noLogs': 'Henüz log bulunmuyor',
+                'tasks.logModal.noLogsDesc': 'Bu görev için henüz log kaydı oluşturulmamış',
+                'tasks.logModal.retryLimitReached': 'Tekrar deneme limiti aşıldı',
+                'tasks.notifications.retry': 'Tekrar Dene',
+                'tasks.notifications.serverError': 'Sunucu hatası',
+                'tasks.notifications.connectionError': 'Bağlantı hatası'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- LogViewerModal Component -->
+    <script src="./LogViewerModal.js"></script>
+    
+    <!-- Test Scripts -->
+    <script>
+        let logModal;
+        let testLogs = [];
+        let logIdCounter = 1;
+        
+        // Initialize modal
+        document.addEventListener('DOMContentLoaded', () => {
+            logModal = new LogViewerModal('testLogModal');
+        });
+        
+        // Generate mock logs
+        function generateMockLogs(count, startId = 1) {
+            const levels = ['info', 'success', 'warning', 'error'];
+            const messages = [
+                'Task started successfully',
+                'Connecting to Steam API',
+                'Authentication completed',
+                'Fetching account data',
+                'Processing game library',
+                'Checking inventory items',
+                'Validating account status',
+                'Task completed successfully',
+                'Warning: Rate limit approaching',
+                'Error: Connection timeout'
+            ];
+            
+            const logs = [];
+            for (let i = 0; i < count; i++) {
+                const level = levels[Math.floor(Math.random() * levels.length)];
+                const message = messages[Math.floor(Math.random() * messages.length)];
+                const timestamp = new Date(Date.now() - (count - i) * 1000).toISOString();
+                
+                logs.push({
+                    id: startId + i,
+                    task_id: 1,
+                    level: level,
+                    message: `${message} (Log #${startId + i})`,
+                    created_at: timestamp
+                });
+            }
+            
+            return logs;
+        }
+        
+        // Test 1: Auto-scroll to bottom
+        async function runTest1() {
+            const statusEl = document.getElementById('test1-status');
+            const resultEl = document.getElementById('test1-result');
+            
+            statusEl.textContent = 'Running...';
+            statusEl.className = 'status-indicator status-pending';
+            resultEl.innerHTML = '<p style="color: var(--text-secondary);">Running test...</p>';
+            
+            try {
+                // Generate 50 logs (enough to require scrolling)
+                testLogs = generateMockLogs(50);
+                logModal.logs = testLogs;
+                
+                // Open modal and render logs
+                logModal.modal.classList.add('active');
+                logModal.renderLogs();
+                
+                // Wait for render
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Check if scrolled to bottom
+                const logList = document.getElementById('testLogModal-log-list');
+                const isAtBottom = logList.scrollHeight - logList.scrollTop - logList.clientHeight <= 5;
+                
+                if (isAtBottom) {
+                    statusEl.textContent = 'Pass';
+                    statusEl.className = 'status-indicator status-pass';
+                    resultEl.innerHTML = `
+                        <p style="color: var(--success);">✅ Test passed!</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Log container automatically scrolled to bottom.<br>
+                            ScrollTop: ${logList.scrollTop}, ScrollHeight: ${logList.scrollHeight}, ClientHeight: ${logList.clientHeight}
+                        </p>
+                    `;
+                } else {
+                    statusEl.textContent = 'Fail';
+                    statusEl.className = 'status-indicator status-fail';
+                    resultEl.innerHTML = `
+                        <p style="color: var(--danger);">❌ Test failed!</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Log container did not scroll to bottom.<br>
+                            ScrollTop: ${logList.scrollTop}, ScrollHeight: ${logList.scrollHeight}, ClientHeight: ${logList.clientHeight}
+                        </p>
+                    `;
+                }
+            } catch (error) {
+                statusEl.textContent = 'Fail';
+                statusEl.className = 'status-indicator status-fail';
+                resultEl.innerHTML = `<p style="color: var(--danger);">❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        function resetTest1() {
+            logModal.close();
+            document.getElementById('test1-status').textContent = 'Pending';
+            document.getElementById('test1-status').className = 'status-indicator status-pending';
+            document.getElementById('test1-result').innerHTML = '';
+        }
+        
+        // Test 2: Preserve scroll position when user scrolls up
+        async function runTest2() {
+            const statusEl = document.getElementById('test2-status');
+            const resultEl = document.getElementById('test2-result');
+            
+            statusEl.textContent = 'Running...';
+            statusEl.className = 'status-indicator status-pending';
+            resultEl.innerHTML = '<p style="color: var(--text-secondary);">Running test...</p>';
+            
+            try {
+                // Generate initial logs
+                testLogs = generateMockLogs(50);
+                logModal.logs = testLogs;
+                
+                // Open modal and render logs
+                logModal.modal.classList.add('active');
+                logModal.renderLogs();
+                
+                // Wait for render
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Scroll up to middle
+                const logList = document.getElementById('testLogModal-log-list');
+                const middlePosition = logList.scrollHeight / 2;
+                logList.scrollTop = middlePosition;
+                
+                // Wait for scroll event to register
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Add more logs
+                const newLogs = generateMockLogs(10, 51);
+                testLogs = [...testLogs, ...newLogs];
+                logModal.logs = testLogs;
+                logModal.renderLogs();
+                
+                // Wait for render
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Check if scroll position is preserved (should still be near middle)
+                const currentPosition = logList.scrollTop;
+                const positionDiff = Math.abs(currentPosition - middlePosition);
+                
+                if (positionDiff < 50) { // Allow small tolerance
+                    statusEl.textContent = 'Pass';
+                    statusEl.className = 'status-indicator status-pass';
+                    resultEl.innerHTML = `
+                        <p style="color: var(--success);">✅ Test passed!</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Scroll position preserved when user scrolled up.<br>
+                            Original position: ${middlePosition.toFixed(0)}, Current position: ${currentPosition.toFixed(0)}, Diff: ${positionDiff.toFixed(0)}px
+                        </p>
+                    `;
+                } else {
+                    statusEl.textContent = 'Fail';
+                    statusEl.className = 'status-indicator status-fail';
+                    resultEl.innerHTML = `
+                        <p style="color: var(--danger);">❌ Test failed!</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Scroll position changed unexpectedly.<br>
+                            Original position: ${middlePosition.toFixed(0)}, Current position: ${currentPosition.toFixed(0)}, Diff: ${positionDiff.toFixed(0)}px
+                        </p>
+                    `;
+                }
+            } catch (error) {
+                statusEl.textContent = 'Fail';
+                statusEl.className = 'status-indicator status-fail';
+                resultEl.innerHTML = `<p style="color: var(--danger);">❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        function resetTest2() {
+            logModal.close();
+            document.getElementById('test2-status').textContent = 'Pending';
+            document.getElementById('test2-status').className = 'status-indicator status-pending';
+            document.getElementById('test2-result').innerHTML = '';
+        }
+        
+        // Test 3: Resume auto-scroll when user scrolls back to bottom
+        async function runTest3() {
+            const statusEl = document.getElementById('test3-status');
+            const resultEl = document.getElementById('test3-result');
+            
+            statusEl.textContent = 'Running...';
+            statusEl.className = 'status-indicator status-pending';
+            resultEl.innerHTML = '<p style="color: var(--text-secondary);">Running test...</p>';
+            
+            try {
+                // Generate initial logs
+                testLogs = generateMockLogs(50);
+                logModal.logs = testLogs;
+                
+                // Open modal and render logs
+                logModal.modal.classList.add('active');
+                logModal.renderLogs();
+                
+                // Wait for render
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                const logList = document.getElementById('testLogModal-log-list');
+                
+                // Scroll up to middle
+                logList.scrollTop = logList.scrollHeight / 2;
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Scroll back to bottom
+                logList.scrollTop = logList.scrollHeight;
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Add more logs
+                const newLogs = generateMockLogs(10, 51);
+                testLogs = [...testLogs, ...newLogs];
+                logModal.logs = testLogs;
+                logModal.renderLogs();
+                
+                // Wait for render
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Check if scrolled to bottom again (auto-scroll resumed)
+                const isAtBottom = logList.scrollHeight - logList.scrollTop - logList.clientHeight <= 5;
+                
+                if (isAtBottom) {
+                    statusEl.textContent = 'Pass';
+                    statusEl.className = 'status-indicator status-pass';
+                    resultEl.innerHTML = `
+                        <p style="color: var(--success);">✅ Test passed!</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Auto-scroll resumed after user scrolled back to bottom.<br>
+                            ScrollTop: ${logList.scrollTop}, ScrollHeight: ${logList.scrollHeight}, ClientHeight: ${logList.clientHeight}
+                        </p>
+                    `;
+                } else {
+                    statusEl.textContent = 'Fail';
+                    statusEl.className = 'status-indicator status-fail';
+                    resultEl.innerHTML = `
+                        <p style="color: var(--danger);">❌ Test failed!</p>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Auto-scroll did not resume.<br>
+                            ScrollTop: ${logList.scrollTop}, ScrollHeight: ${logList.scrollHeight}, ClientHeight: ${logList.clientHeight}
+                        </p>
+                    `;
+                }
+            } catch (error) {
+                statusEl.textContent = 'Fail';
+                statusEl.className = 'status-indicator status-fail';
+                resultEl.innerHTML = `<p style="color: var(--danger);">❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        function resetTest3() {
+            logModal.close();
+            document.getElementById('test3-status').textContent = 'Pending';
+            document.getElementById('test3-status').className = 'status-indicator status-pending';
+            document.getElementById('test3-result').innerHTML = '';
+        }
+        
+        // Manual test functions
+        function openLogViewer() {
+            if (testLogs.length === 0) {
+                testLogs = generateMockLogs(50);
+            }
+            logModal.logs = testLogs;
+            logModal.modal.classList.add('active');
+            logModal.renderLogs();
+        }
+        
+        function addMoreLogs() {
+            const newLogs = generateMockLogs(10, logIdCounter);
+            logIdCounter += 10;
+            testLogs = [...testLogs, ...newLogs];
+            logModal.logs = testLogs;
+            logModal.renderLogs();
+        }
+        
+        function clearLogs() {
+            testLogs = [];
+            logIdCounter = 1;
+            logModal.logs = [];
+            logModal.renderLogs();
+        }
+    </script>
+</body>
+</html>

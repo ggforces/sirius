@@ -17,14 +17,47 @@
             </button>
         </div>
     </div>
-        </button>
-    </div>
 
+    <!-- Accounts Toolbar -->
+    <div class="accounts-toolbar">
+        <div class="toolbar-left">
+            <div class="search-box">
+                <i class="ph-bold ph-magnifying-glass"></i>
+                <input type="text" id="accountSearch" placeholder="{{t:accounts.search}}" />
+            </div>
+            <div class="account-stats">
+                <div class="stat-item">
+                    <i class="ph-bold ph-users"></i>
+                    <span id="totalAccountsStat">{{t:accounts.totalAccounts}}: <strong>0</strong></span>
+                </div>
+                <div class="stat-item stat-prime">
+                    <i class="ph-bold ph-check-circle"></i>
+                    <span id="totalPrimeStat">{{t:accounts.totalPrime}}: <strong>0</strong></span>
+                </div>
+                <div class="stat-item stat-nonprime">
+                    <i class="ph-bold ph-x-circle"></i>
+                    <span id="totalNonPrimeStat">{{t:accounts.totalNonPrime}}: <strong>0</strong></span>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn btn-danger" id="bulkDeleteBtnToolbar" style="display: none;">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-trash"></i>
+                </span>
+                <span id="bulkDeleteTextToolbar">{{t:accounts.bulkDelete}}</span>
+            </button>
+        </div>
+    </div>
+    
     <!-- Accounts Table -->
     <div class="accounts-table-container">
         <table class="accounts-table" id="accountsTable">
             <thead>
                 <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" id="selectAllCheckbox" class="account-checkbox-main">
+                    </th>
                     <th>{{t:accounts.table.username}}</th>
                     <th>{{t:accounts.table.prime}}</th>
                     <th>{{t:accounts.table.accountType}}</th>
@@ -36,7 +69,7 @@
             <tbody id="accountsTableBody">
                 <!-- Accounts will be loaded here -->
                 <tr class="loading-row">
-                    <td colspan="6" class="text-center">
+                    <td colspan="7" class="text-center">
                         <i class="ph-bold ph-circle-notch ph-spin"></i>
                         {{t:common.loading}}
                     </td>
@@ -189,6 +222,34 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Delete Confirmation Modal -->
+<div class="modal" id="bulkDeleteModal">
+    <div class="modal-overlay" id="bulkDeleteModalOverlay"></div>
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h3 class="modal-title">{{t:accounts.bulkDeleteConfirm.title}}</h3>
+        </div>
+        <div class="modal-body">
+            <p id="bulkDeleteMessage">{{t:accounts.bulkDeleteConfirm.message}}</p>
+            <div class="bulk-delete-warning">
+                <i class="ph-bold ph-warning"></i>
+                <span>{{t:accounts.bulkDeleteConfirm.warning}}</span>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelBulkDeleteBtn">
+                {{t:common.cancel}}
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmBulkDeleteBtn">
+                <span class="btn-icon">
+                    <i class="ph-bold ph-trash"></i>
+                </span>
+                {{t:accounts.bulkDeleteConfirm.confirm}}
+            </button>
         </div>
     </div>
 </div>

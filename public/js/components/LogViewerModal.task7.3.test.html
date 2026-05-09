@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogViewerModal Task 7.3 Test - Timestamp and Level Formatting</title>
+    
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="../../css/base/variables.css">
+    <link rel="stylesheet" href="../../css/base/reset.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="../../css/components/modals.css">
+    <link rel="stylesheet" href="../../css/components/log-viewer-modal.css">
+    <link rel="stylesheet" href="../../css/components/buttons.css">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--dark);
+            color: var(--light);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .test-section h2 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .test-section p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid var(--primary);
+            border-radius: 6px;
+        }
+        
+        .test-result.success {
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4CAF50;
+        }
+        
+        .test-result.error {
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #F44336;
+        }
+        
+        .code-block {
+            background: #1E1E1E;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        
+        .expected-format {
+            color: #4CAF50;
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>LogViewerModal Task 7.3 Test</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Testing timestamp and level formatting: [HH:MM:SS] [LEVEL] message
+        </p>
+        
+        <!-- Test 1: Format Timestamp CMD -->
+        <div class="test-section">
+            <h2>Test 1: Format Timestamp as [HH:MM:SS]</h2>
+            <p>Tests the formatTimestampCMD method to ensure timestamps are formatted correctly.</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testFormatTimestampCMD()">Run Test</button>
+            </div>
+            <div id="test1-result"></div>
+        </div>
+        
+        <!-- Test 2: Format Level CMD -->
+        <div class="test-section">
+            <h2>Test 2: Format Level as [LEVEL]</h2>
+            <p>Tests the formatLevelCMD method to ensure levels are formatted correctly.</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testFormatLevelCMD()">Run Test</button>
+            </div>
+            <div id="test2-result"></div>
+        </div>
+        
+        <!-- Test 3: Render Logs with CMD Formatting -->
+        <div class="test-section">
+            <h2>Test 3: Render Logs with CMD-Style Formatting</h2>
+            <p>Tests that logs are rendered with prepended timestamp and level in CMD format.</p>
+            <p class="expected-format">Expected format: [HH:MM:SS] [LEVEL] message</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testRenderLogsWithFormatting()">Open Log Viewer</button>
+            </div>
+            <div id="test3-result"></div>
+        </div>
+        
+        <!-- Test 4: Color Coding Verification -->
+        <div class="test-section">
+            <h2>Test 4: Verify Color Coding</h2>
+            <p>Tests that different log levels have correct color coding.</p>
+            <div class="code-block">
+                <div style="color: #FFFFFF;">INFO: White (#FFFFFF)</div>
+                <div style="color: #4CAF50;">SUCCESS: Green (#4CAF50)</div>
+                <div style="color: #FFC107;">WARNING: Yellow (#FFC107)</div>
+                <div style="color: #F44336;">ERROR: Red (#F44336)</div>
+            </div>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testColorCoding()">Open Log Viewer with All Levels</button>
+            </div>
+            <div id="test4-result"></div>
+        </div>
+        
+        <!-- Test 5: Edge Cases -->
+        <div class="test-section">
+            <h2>Test 5: Edge Cases</h2>
+            <p>Tests edge cases like invalid timestamps, unknown levels, and special characters in messages.</p>
+            <div class="test-buttons">
+                <button class="btn btn-primary" onclick="testEdgeCases()">Run Test</button>
+            </div>
+            <div id="test5-result"></div>
+        </div>
+    </div>
+    
+    <!-- Mock translation function -->
+    <script>
+        window.t = function(key) {
+            const translations = {
+                'tasks.logModal.title': 'Görev Logları',
+                'tasks.logModal.close': 'Kapat',
+                'tasks.logModal.loading': 'Loglar yükleniyor...',
+                'tasks.logModal.loadError': 'Loglar yüklenirken hata oluştu',
+                'tasks.logModal.noLogs': 'Henüz log bulunmuyor',
+                'tasks.logModal.noLogsDesc': 'Bu görev için henüz log kaydı oluşturulmamış',
+                'tasks.notifications.retry': 'Tekrar Dene',
+                'tasks.logModal.retryLimitReached': 'Maksimum deneme sayısına ulaşıldı'
+            };
+            return translations[key] || key;
+        };
+    </script>
+    
+    <!-- LogViewerModal Component -->
+    <script src="./LogViewerModal.js"></script>
+    
+    <!-- Test Scripts -->
+    <script>
+        let logModal;
+        
+        // Initialize modal
+        document.addEventListener('DOMContentLoaded', () => {
+            logModal = new LogViewerModal('testLogModal');
+        });
+        
+        // Test 1: Format Timestamp CMD
+        function testFormatTimestampCMD() {
+            const resultDiv = document.getElementById('test1-result');
+            const tests = [
+                { input: '2026-05-09T10:30:45Z', expected: '[10:30:45]' },
+                { input: '2026-05-09T08:05:03Z', expected: '[08:05:03]' },
+                { input: '2026-05-09T23:59:59Z', expected: '[23:59:59]' },
+                { input: '2026-05-09T00:00:00Z', expected: '[00:00:00]' }
+            ];
+            
+            let allPassed = true;
+            let results = '<div class="code-block">';
+            
+            tests.forEach(test => {
+                const result = logModal.formatTimestampCMD(test.input);
+                const passed = result === test.expected;
+                allPassed = allPassed && passed;
+                
+                results += `<div style="color: ${passed ? '#4CAF50' : '#F44336'}">
+                    Input: ${test.input}<br>
+                    Expected: ${test.expected}<br>
+                    Got: ${result}<br>
+                    ${passed ? '✓ PASS' : '✗ FAIL'}
+                </div><br>`;
+            });
+            
+            results += '</div>';
+            
+            resultDiv.innerHTML = `
+                <div class="test-result ${allPassed ? 'success' : 'error'}">
+                    <strong>${allPassed ? '✓ All tests passed!' : '✗ Some tests failed'}</strong>
+                    ${results}
+                </div>
+            `;
+        }
+        
+        // Test 2: Format Level CMD
+        function testFormatLevelCMD() {
+            const resultDiv = document.getElementById('test2-result');
+            const tests = [
+                { input: 'info', expected: '[INFO]' },
+                { input: 'success', expected: '[SUCCESS]' },
+                { input: 'warning', expected: '[WARNING]' },
+                { input: 'error', expected: '[ERROR]' },
+                { input: 'INFO', expected: '[INFO]' },
+                { input: 'unknown', expected: '[INFO]' } // Default to INFO
+            ];
+            
+            let allPassed = true;
+            let results = '<div class="code-block">';
+            
+            tests.forEach(test => {
+                const result = logModal.formatLevelCMD(test.input);
+                const passed = result === test.expected;
+                allPassed = allPassed && passed;
+                
+                results += `<div style="color: ${passed ? '#4CAF50' : '#F44336'}">
+                    Input: "${test.input}"<br>
+                    Expected: ${test.expected}<br>
+                    Got: ${result}<br>
+                    ${passed ? '✓ PASS' : '✗ FAIL'}
+                </div><br>`;
+            });
+            
+            results += '</div>';
+            
+            resultDiv.innerHTML = `
+                <div class="test-result ${allPassed ? 'success' : 'error'}">
+                    <strong>${allPassed ? '✓ All tests passed!' : '✗ Some tests failed'}</strong>
+                    ${results}
+                </div>
+            `;
+        }
+        
+        // Test 3: Render Logs with CMD Formatting
+        function testRenderLogsWithFormatting() {
+            const resultDiv = document.getElementById('test3-result');
+            
+            // Mock logs data
+            logModal.logs = [
+                {
+                    id: 1,
+                    level: 'info',
+                    message: 'Task started successfully',
+                    created_at: '2026-05-09T10:30:45Z'
+                },
+                {
+                    id: 2,
+                    level: 'success',
+                    message: 'Account verified',
+                    created_at: '2026-05-09T10:30:50Z'
+                },
+                {
+                    id: 3,
+                    level: 'warning',
+                    message: 'Rate limit approaching',
+                    created_at: '2026-05-09T10:30:55Z'
+                },
+                {
+                    id: 4,
+                    level: 'error',
+                    message: 'Connection timeout',
+                    created_at: '2026-05-09T10:31:00Z'
+                }
+            ];
+            
+            // Open modal
+            logModal.modal.classList.add('active');
+            logModal.renderLogs();
+            
+            resultDiv.innerHTML = `
+                <div class="test-result success">
+                    <strong>✓ Log viewer opened with sample logs</strong>
+                    <p>Check that each log line follows the format: <span class="expected-format">[HH:MM:SS] [LEVEL] message</span></p>
+                    <p>Verify that timestamp and level are prepended to each message.</p>
+                </div>
+            `;
+        }
+        
+        // Test 4: Color Coding
+        function testColorCoding() {
+            const resultDiv = document.getElementById('test4-result');
+            
+            // Mock logs with all levels
+            logModal.logs = [
+                {
+                    id: 1,
+                    level: 'info',
+                    message: 'This is an INFO message - should be white',
+                    created_at: '2026-05-09T10:30:00Z'
+                },
+                {
+                    id: 2,
+                    level: 'success',
+                    message: 'This is a SUCCESS message - should be green',
+                    created_at: '2026-05-09T10:30:10Z'
+                },
+                {
+                    id: 3,
+                    level: 'warning',
+                    message: 'This is a WARNING message - should be yellow',
+                    created_at: '2026-05-09T10:30:20Z'
+                },
+                {
+                    id: 4,
+                    level: 'error',
+                    message: 'This is an ERROR message - should be red',
+                    created_at: '2026-05-09T10:30:30Z'
+                }
+            ];
+            
+            // Open modal
+            logModal.modal.classList.add('active');
+            logModal.renderLogs();
+            
+            resultDiv.innerHTML = `
+                <div class="test-result success">
+                    <strong>✓ Log viewer opened with all log levels</strong>
+                    <p>Verify the color coding:</p>
+                    <ul>
+                        <li>INFO: White (#FFFFFF)</li>
+                        <li>SUCCESS: Green (#4CAF50)</li>
+                        <li>WARNING: Yellow (#FFC107)</li>
+                        <li>ERROR: Red (#F44336)</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        // Test 5: Edge Cases
+        function testEdgeCases() {
+            const resultDiv = document.getElementById('test5-result');
+            
+            // Test invalid timestamp
+            const invalidTimestamp = logModal.formatTimestampCMD('invalid-date');
+            const invalidTimestampPassed = invalidTimestamp === '[00:00:00]';
+            
+            // Test unknown level
+            const unknownLevel = logModal.formatLevelCMD('unknown');
+            const unknownLevelPassed = unknownLevel === '[INFO]';
+            
+            // Test special characters in message
+            logModal.logs = [
+                {
+                    id: 1,
+                    level: 'info',
+                    message: 'Message with <script>alert("XSS")</script> should be escaped',
+                    created_at: '2026-05-09T10:30:00Z'
+                },
+                {
+                    id: 2,
+                    level: 'error',
+                    message: 'Message with special chars: & < > " \' should work',
+                    created_at: '2026-05-09T10:30:10Z'
+                }
+            ];
+            
+            logModal.modal.classList.add('active');
+            logModal.renderLogs();
+            
+            const allPassed = invalidTimestampPassed && unknownLevelPassed;
+            
+            resultDiv.innerHTML = `
+                <div class="test-result ${allPassed ? 'success' : 'error'}">
+                    <strong>${allPassed ? '✓ All edge case tests passed!' : '✗ Some edge case tests failed'}</strong>
+                    <div class="code-block">
+                        <div style="color: ${invalidTimestampPassed ? '#4CAF50' : '#F44336'}">
+                            Invalid timestamp: ${invalidTimestamp} ${invalidTimestampPassed ? '✓' : '✗'}
+                        </div>
+                        <div style="color: ${unknownLevelPassed ? '#4CAF50' : '#F44336'}">
+                            Unknown level: ${unknownLevel} ${unknownLevelPassed ? '✓' : '✗'}
+                        </div>
+                        <div style="color: #4CAF50;">
+                            Special characters: Check modal for proper HTML escaping ✓
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

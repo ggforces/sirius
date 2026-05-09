@@ -203,35 +203,26 @@
     color: white;
 }
 
-/* Modal Close Button (X) */
-.modal-close-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    outline: none;
-}
-
-.modal-close-btn:hover {
-    background: var(--surface-hover);
-    color: var(--text-primary);
-}
-
-.modal-close-btn i {
-    font-size: 20px;
-}
-
-/* Modal Header Adjustment */
+/* Modal Header - Centered Title */
 .modal-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    padding: 20px 24px;
+}
+
+.modal-header .modal-title {
+    margin: 0;
+    text-align: center;
+}
+
+/* Modal Actions - Single Button Centered */
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 24px;
+    gap: 12px;
 }
 
 /* Empty State */

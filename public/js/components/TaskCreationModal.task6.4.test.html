@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 6.4 - Complete TaskCreationModal Verification</title>
+    <link rel="stylesheet" href="../../css/base/variables.css">
+    <link rel="stylesheet" href="../../css/base/reset.css">
+    <link rel="stylesheet" href="../../css/components/modals.css">
+    <link rel="stylesheet" href="../../css/components/task-creation-modal.css">
+    <link rel="stylesheet" href="../../css/components/buttons.css">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.0.3"></script>
+    <style>
+        body {
+            padding: 40px;
+            background: var(--background-primary);
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: var(--surface-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .test-section h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        
+        .test-section h3 {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .test-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .test-list li {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: var(--surface-secondary);
+            border-radius: 8px;
+            border-left: 4px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .test-list li.pass {
+            border-left-color: var(--success);
+        }
+        
+        .test-list li.fail {
+            border-left-color: var(--danger);
+        }
+        
+        .test-button {
+            margin-top: 16px;
+            margin-right: 8px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .status-badge.pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+        
+        .status-badge.pass {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .status-badge.fail {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+        
+        .overall-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-left: 12px;
+        }
+        
+        .overall-status.pending {
+            background: rgba(255, 193, 7, 0.3);
+            color: #FFC107;
+        }
+        
+        .overall-status.pass {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+        
+        .overall-status.fail {
+            background: rgba(244, 67, 54, 0.3);
+            color: #F44336;
+        }
+        
+        .event-log {
+            background: #1E1E1E;
+            color: #4CAF50;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+        
+        .event-log-entry {
+            margin-bottom: 4px;
+        }
+        
+        .event-log-entry.info {
+            color: #2196F3;
+        }
+        
+        .event-log-entry.success {
+            color: #4CAF50;
+        }
+        
+        .event-log-entry.error {
+            color: #F44336;
+        }
+        
+        .event-log-entry.warning {
+            color: #FFC107;
+        }
+        
+        .summary-box {
+            background: var(--surface-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .summary-box h4 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+        
+        .summary-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+        }
+        
+        .summary-stat {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .summary-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .summary-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .requirement-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-section">
+            <h2>🧪 Task 6.4 - Complete TaskCreationModal Verification</h2>
+            <p><strong>Purpose:</strong> Comprehensive verification of all TaskCreationModal functionality after implementing tasks 6.1, 6.2, and 6.3</p>
+            <p><strong>Requirements:</strong> 4.3, 4.4, 4.6, 4.7</p>
+            
+            <div class="summary-box">
+                <h4>Test Status <span class="overall-status pending" id="overall-status">PENDING</span></h4>
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <span class="summary-stat-value" id="passed-count" style="color: var(--success);">0</span>
+                        <span class="summary-stat-label">Passed</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="summary-stat-value" id="failed-count" style="color: var(--danger);">0</span>
+                        <span class="summary-stat-label">Failed</span>
+                    </div>
+                    <div class="summary-stat">
+                        <span class="summary-stat-value" id="total-count">10</span>
+                        <span class="summary-stat-label">Total</span>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Test Actions</h3>
+            <button class="btn btn-primary test-button" onclick="openModal()">
+                <i class="ph-bold ph-play"></i>
+                Open Modal for Manual Testing
+            </button>
+            
+            <button class="btn btn-secondary test-button" onclick="runAllTests()">
+                <i class="ph-bold ph-check-circle"></i>
+                Run All Automated Tests
+            </button>
+            
+            <button class="btn btn-secondary test-button" onclick="clearEventLog()">
+                <i class="ph-bold ph-trash"></i>
+                Clear Event Log
+            </button>
+        </div>
+        
+        <div class="test-section">
+            <h2>📋 Test Cases</h2>
+            
+            <h3>1. Modal Opening Tests <span class="requirement-tag">Req 4.6</span></h3>
+            <ul class="test-list">
+                <li id="test-1">
+                    <span><strong>Test 1.1:</strong> Modal opens correctly with active class</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-2">
+                    <span><strong>Test 1.2:</strong> Modal structure is properly initialized</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+            </ul>
+            
+            <h3>2. Overlay Click Tests <span class="requirement-tag">Req 4.3</span></h3>
+            <ul class="test-list">
+                <li id="test-3">
+                    <span><strong>Test 2.1:</strong> Overlay click closes modal</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-4">
+                    <span><strong>Test 2.2:</strong> Modal content click does NOT close modal</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+            </ul>
+            
+            <h3>3. Escape Key Tests <span class="requirement-tag">Req 4.4</span></h3>
+            <ul class="test-list">
+                <li id="test-5">
+                    <span><strong>Test 3.1:</strong> Escape key closes modal when open</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-6">
+                    <span><strong>Test 3.2:</strong> Escape key handler is properly added/removed</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-7">
+                    <span><strong>Test 3.3:</strong> Escape key does nothing when modal is closed</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+            </ul>
+            
+            <h3>4. Task Creation Tests <span class="requirement-tag">Req 4.7</span></h3>
+            <ul class="test-list">
+                <li id="test-8">
+                    <span><strong>Test 4.1:</strong> Create button exists and is functional</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-9">
+                    <span><strong>Test 4.2:</strong> Account selection works correctly</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+                <li id="test-10">
+                    <span><strong>Test 4.3:</strong> Task creation callback is triggered</span>
+                    <span class="status-badge pending">Pending</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Event Log</h2>
+            <div id="event-log" class="event-log">
+                <div class="event-log-entry info">[Ready] Waiting for tests to run...</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📖 Manual Testing Instructions</h2>
+            <ol>
+                <li><strong>Run Automated Tests:</strong> Click "Run All Automated Tests" to execute all test cases</li>
+                <li><strong>Manual Verification:</strong> Click "Open Modal for Manual Testing" and verify:
+                    <ul style="margin-top: 8px;">
+                        <li>Modal opens smoothly with proper animation</li>
+                        <li>Click on the dark overlay area - modal should close</li>
+                        <li>Open modal again, click inside the white modal content - modal should NOT close</li>
+                        <li>Open modal again, press Escape key - modal should close</li>
+                        <li>Open modal, select some accounts, click Create Tasks button - verify callback is triggered</li>
+                    </ul>
+                </li>
+                <li><strong>Review Results:</strong> Check the test status badges and event log for detailed results</li>
+            </ol>
+        </div>
+        
+        <div class="test-section">
+            <h2>✅ Expected Behavior Summary</h2>
+            <ul>
+                <li>✅ Modal opens with <code>active</code> class applied</li>
+                <li>✅ Modal structure includes overlay, content, header, body, and actions</li>
+                <li>✅ Overlay click triggers <code>close()</code> method</li>
+                <li>✅ Modal content click does NOT trigger close (event bubbling prevented)</li>
+                <li>✅ Escape key closes modal when modal is open</li>
+                <li>✅ Escape key handler is added on open, removed on close</li>
+                <li>✅ Escape key does nothing when modal is already closed</li>
+                <li>✅ Create button exists and is properly wired</li>
+                <li>✅ Account selection updates internal state</li>
+                <li>✅ Task creation triggers callback for parent component refresh</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="../common.js"></script>
+    <script src="TaskCreationModal.js"></script>
+    <script>
+        let modal;
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 10
+        };
+        
+        // Mock translations
+        window.t = function(key) {
+            const translations = {
+                'tasks.createModal.title': 'Create Tasks',
+                'tasks.createModal.searchPlaceholder': 'Search accounts...',
+                'tasks.createModal.selectAll': 'Select All',
+                'tasks.createModal.selectPrime': 'Prime Only',
+                'tasks.createModal.selectNonPrime': 'Non-Prime Only',
+                'tasks.createModal.clearSelection': 'Clear',
+                'tasks.createModal.accountsSelected': 'selected',
+                'tasks.createModal.createTasks': 'Create Tasks',
+                'tasks.createModal.loading': 'Loading accounts...',
+                'tasks.createModal.noAccounts': 'No accounts available',
+                'tasks.createModal.noResults': 'No results found',
+                'tasks.createModal.noSelection': 'Please select at least one account',
+                'tasks.createModal.creating': 'Creating tasks...',
+                'tasks.createModal.tasksCreatedSuccess': 'tasks created successfully',
+                'tasks.createModal.tasksCreatedPartial': 'tasks created',
+                'tasks.createModal.tasksFailed': 'failed',
+                'tasks.createModal.allTasksFailed': 'All tasks failed to create'
+            };
+            return translations[key] || key;
+        };
+        
+        // Mock showNotification
+        window.showNotification = function(message, type) {
+            logEvent(`Notification: ${message} (${type})`, type);
+        };
+        
+        // Mock fetch for account loading
+        window.fetch = async function(url, options) {
+            if (url === '/api/accounts') {
+                return {
+                    ok: true,
+                    json: async () => ({
+                        success: true,
+                        data: [
+                            { id: 1, username: 'testuser1', is_prime: true, limited: 0 },
+                            { id: 2, username: 'testuser2', is_prime: false, limited: 0 },
+                            { id: 3, username: 'testuser3', is_prime: true, limited: 1 }
+                        ]
+                    })
+                };
+            }
+            
+            if (url.startsWith('/api/tasks/check/')) {
+                return {
+                    ok: true,
+                    json: async () => ({
+                        success: true,
+                        message: 'Task created successfully',
+                        taskId: Math.floor(Math.random() * 1000),
+                        status: 'pending'
+                    })
+                };
+            }
+            
+            return { ok: false };
+        };
+        
+        // Initialize modal
+        document.addEventListener('DOMContentLoaded', () => {
+            modal = new TaskCreationModal('taskCreationModal');
+            logEvent('TaskCreationModal initialized', 'success');
+        });
+        
+        function openModal() {
+            logEvent('Opening modal manually...', 'info');
+            modal.open();
+        }
+        
+        function logEvent(message, type = 'info') {
+            const log = document.getElementById('event-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `event-log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function clearEventLog() {
+            const log = document.getElementById('event-log');
+            log.innerHTML = '<div class="event-log-entry info">[Ready] Event log cleared...</div>';
+        }
+        
+        function updateTestStatus(testId, status) {
+            const testElement = document.getElementById(testId);
+            const badge = testElement.querySelector('.status-badge');
+            badge.className = `status-badge ${status}`;
+            badge.textContent = status === 'pass' ? 'Pass' : status === 'fail' ? 'Fail' : 'Pending';
+            testElement.className = status;
+            
+            if (status === 'pass') {
+                testResults.passed++;
+            } else if (status === 'fail') {
+                testResults.failed++;
+            }
+            
+            updateSummary();
+        }
+        
+        function updateSummary() {
+            document.getElementById('passed-count').textContent = testResults.passed;
+            document.getElementById('failed-count').textContent = testResults.failed;
+            
+            const overallStatus = document.getElementById('overall-status');
+            if (testResults.passed + testResults.failed === testResults.total) {
+                if (testResults.failed === 0) {
+                    overallStatus.textContent = 'ALL TESTS PASSED ✓';
+                    overallStatus.className = 'overall-status pass';
+                } else {
+                    overallStatus.textContent = 'SOME TESTS FAILED ✗';
+                    overallStatus.className = 'overall-status fail';
+                }
+            }
+        }
+        
+        async function runAllTests() {
+            clearEventLog();
+            testResults = { passed: 0, failed: 0, total: 10 };
+            logEvent('Starting comprehensive test suite...', 'info');
+            logEvent('═══════════════════════════════════════', 'info');
+            
+            // Test Group 1: Modal Opening Tests
+            logEvent('', 'info');
+            logEvent('GROUP 1: Modal Opening Tests', 'info');
+            logEvent('───────────────────────────────────────', 'info');
+            await testModalOpening();
+            
+            // Test Group 2: Overlay Click Tests
+            logEvent('', 'info');
+            logEvent('GROUP 2: Overlay Click Tests', 'info');
+            logEvent('───────────────────────────────────────', 'info');
+            await testOverlayClick();
+            
+            // Test Group 3: Escape Key Tests
+            logEvent('', 'info');
+            logEvent('GROUP 3: Escape Key Tests', 'info');
+            logEvent('───────────────────────────────────────', 'info');
+            await testEscapeKey();
+            
+            // Test Group 4: Task Creation Tests
+            logEvent('', 'info');
+            logEvent('GROUP 4: Task Creation Tests', 'info');
+            logEvent('───────────────────────────────────────', 'info');
+            await testTaskCreation();
+            
+            logEvent('', 'info');
+            logEvent('═══════════════════════════════════════', 'info');
+            logEvent(`Test suite completed! Passed: ${testResults.passed}/${testResults.total}`, 
+                testResults.failed === 0 ? 'success' : 'error');
+        }
+        
+        async function testModalOpening() {
+            // Test 1.1: Modal opens correctly with active class
+            logEvent('Test 1.1: Testing modal opens with active class...', 'info');
+            await modal.open();
+            await sleep(100);
+            
+            if (modal.modal.classList.contains('active')) {
+                updateTestStatus('test-1', 'pass');
+                logEvent('✅ Test 1.1 PASSED: Modal has active class', 'success');
+            } else {
+                updateTestStatus('test-1', 'fail');
+                logEvent('❌ Test 1.1 FAILED: Modal does not have active class', 'error');
+            }
+            
+            modal.close();
+            await sleep(100);
+            
+            // Test 1.2: Modal structure is properly initialized
+            logEvent('Test 1.2: Testing modal structure...', 'info');
+            const hasOverlay = modal.modal.querySelector('.modal-overlay') !== null;
+            const hasContent = modal.modal.querySelector('.modal-content') !== null;
+            const hasHeader = modal.modal.querySelector('.modal-header') !== null;
+            const hasBody = modal.modal.querySelector('.modal-body') !== null;
+            const hasActions = modal.modal.querySelector('.modal-actions') !== null;
+            
+            if (hasOverlay && hasContent && hasHeader && hasBody && hasActions) {
+                updateTestStatus('test-2', 'pass');
+                logEvent('✅ Test 1.2 PASSED: Modal structure is complete', 'success');
+            } else {
+                updateTestStatus('test-2', 'fail');
+                logEvent('❌ Test 1.2 FAILED: Modal structure is incomplete', 'error');
+                logEvent(`  → overlay: ${hasOverlay}, content: ${hasContent}, header: ${hasHeader}, body: ${hasBody}, actions: ${hasActions}`, 'error');
+            }
+        }
+        
+        async function testOverlayClick() {
+            // Test 2.1: Overlay click closes modal
+            logEvent('Test 2.1: Testing overlay click closes modal...', 'info');
+            await modal.open();
+            await sleep(100);
+            
+            const overlay = modal.modal.querySelector('.modal-overlay');
+            overlay.click();
+            await sleep(100);
+            
+            if (!modal.modal.classList.contains('active')) {
+                updateTestStatus('test-3', 'pass');
+                logEvent('✅ Test 2.1 PASSED: Overlay click closes modal', 'success');
+            } else {
+                updateTestStatus('test-3', 'fail');
+                logEvent('❌ Test 2.1 FAILED: Overlay click did not close modal', 'error');
+            }
+            
+            // Test 2.2: Modal content click does NOT close modal
+            logEvent('Test 2.2: Testing modal content click does NOT close modal...', 'info');
+            await modal.open();
+            await sleep(100);
+            
+            const modalContent = modal.modal.querySelector('.modal-content');
+            modalContent.click();
+            await sleep(100);
+            
+            if (modal.modal.classList.contains('active')) {
+                updateTestStatus('test-4', 'pass');
+                logEvent('✅ Test 2.2 PASSED: Modal content click does NOT close modal', 'success');
+            } else {
+                updateTestStatus('test-4', 'fail');
+                logEvent('❌ Test 2.2 FAILED: Modal content click closed modal (bubbling not prevented)', 'error');
+            }
+            
+            modal.close();
+            await sleep(100);
+        }
+        
+        async function testEscapeKey() {
+            // Test 3.1: Escape key closes modal when open
+            logEvent('Test 3.1: Testing Escape key closes modal...', 'info');
+            await modal.open();
+            await sleep(100);
+            
+            const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+            document.dispatchEvent(escapeEvent);
+            await sleep(100);
+            
+            if (!modal.modal.classList.contains('active')) {
+                updateTestStatus('test-5', 'pass');
+                logEvent('✅ Test 3.1 PASSED: Escape key closes modal', 'success');
+            } else {
+                updateTestStatus('test-5', 'fail');
+                logEvent('❌ Test 3.1 FAILED: Escape key did not close modal', 'error');
+            }
+            
+            // Test 3.2: Escape key handler is properly added/removed
+            logEvent('Test 3.2: Testing Escape key handler lifecycle...', 'info');
+            await modal.open();
+            await sleep(100);
+            
+            const handlerExistsWhenOpen = modal.escapeKeyHandler !== null;
+            
+            modal.close();
+            await sleep(100);
+            
+            const handlerRemovedWhenClosed = modal.escapeKeyHandler === null;
+            
+            if (handlerExistsWhenOpen && handlerRemovedWhenClosed) {
+                updateTestStatus('test-6', 'pass');
+                logEvent('✅ Test 3.2 PASSED: Handler properly added/removed', 'success');
+            } else {
+                updateTestStatus('test-6', 'fail');
+                logEvent('❌ Test 3.2 FAILED: Handler lifecycle incorrect', 'error');
+                logEvent(`  → Handler when open: ${handlerExistsWhenOpen}, Handler when closed: ${handlerRemovedWhenClosed}`, 'error');
+            }
+            
+            // Test 3.3: Escape key does nothing when modal is closed
+            logEvent('Test 3.3: Testing Escape key when modal is closed...', 'info');
+            const wasActive = modal.modal.classList.contains('active');
+            
+            const escapeWhenClosed = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+            document.dispatchEvent(escapeWhenClosed);
+            await sleep(100);
+            
+            const stillInactive = !modal.modal.classList.contains('active');
+            
+            if (!wasActive && stillInactive) {
+                updateTestStatus('test-7', 'pass');
+                logEvent('✅ Test 3.3 PASSED: Escape key does nothing when modal is closed', 'success');
+            } else {
+                updateTestStatus('test-7', 'fail');
+                logEvent('❌ Test 3.3 FAILED: Unexpected behavior when modal is closed', 'error');
+            }
+        }
+        
+        async function testTaskCreation() {
+            // Test 4.1: Create button exists and is functional
+            logEvent('Test 4.1: Testing Create button exists...', 'info');
+            const createBtn = document.getElementById('taskCreationModal-create');
+            
+            if (createBtn !== null) {
+                updateTestStatus('test-8', 'pass');
+                logEvent('✅ Test 4.1 PASSED: Create button exists', 'success');
+            } else {
+                updateTestStatus('test-8', 'fail');
+                logEvent('❌ Test 4.1 FAILED: Create button not found', 'error');
+            }
+            
+            // Test 4.2: Account selection works correctly
+            logEvent('Test 4.2: Testing account selection...', 'info');
+            await modal.open();
+            await sleep(200); // Wait for accounts to load
+            
+            const initialSelectionSize = modal.selectedAccountIds.size;
+            
+            // Simulate account selection
+            const accountChip = modal.modal.querySelector('.account-chip');
+            if (accountChip) {
+                accountChip.click();
+                await sleep(100);
+                
+                const afterSelectionSize = modal.selectedAccountIds.size;
+                
+                if (afterSelectionSize > initialSelectionSize) {
+                    updateTestStatus('test-9', 'pass');
+                    logEvent('✅ Test 4.2 PASSED: Account selection works', 'success');
+                } else {
+                    updateTestStatus('test-9', 'fail');
+                    logEvent('❌ Test 4.2 FAILED: Account selection did not update state', 'error');
+                }
+            } else {
+                updateTestStatus('test-9', 'fail');
+                logEvent('❌ Test 4.2 FAILED: No account chips found', 'error');
+            }
+            
+            modal.close();
+            await sleep(100);
+            
+            // Test 4.3: Task creation callback is triggered
+            logEvent('Test 4.3: Testing task creation callback...', 'info');
+            let callbackTriggered = false;
+            
+            modal.onTaskCreated = (data) => {
+                callbackTriggered = true;
+                logEvent(`Callback triggered with data: ${JSON.stringify(data)}`, 'info');
+            };
+            
+            await modal.open();
+            await sleep(200);
+            
+            // Select an account
+            const chip = modal.modal.querySelector('.account-chip');
+            if (chip) {
+                chip.click();
+                await sleep(100);
+                
+                // Click create button
+                const createButton = document.getElementById('taskCreationModal-create');
+                if (createButton && !createButton.disabled) {
+                    createButton.click();
+                    await sleep(300); // Wait for async task creation
+                    
+                    if (callbackTriggered) {
+                        updateTestStatus('test-10', 'pass');
+                        logEvent('✅ Test 4.3 PASSED: Task creation callback triggered', 'success');
+                    } else {
+                        updateTestStatus('test-10', 'fail');
+                        logEvent('❌ Test 4.3 FAILED: Callback not triggered', 'error');
+                    }
+                } else {
+                    updateTestStatus('test-10', 'fail');
+                    logEvent('❌ Test 4.3 FAILED: Create button not available or disabled', 'error');
+                }
+            } else {
+                updateTestStatus('test-10', 'fail');
+                logEvent('❌ Test 4.3 FAILED: No account chips found for selection', 'error');
+            }
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
