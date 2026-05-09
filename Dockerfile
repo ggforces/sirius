@@ -2,7 +2,7 @@
 FROM node:20-alpine
 
 # Install build tools for native modules (better-sqlite3, bcrypt)
-RUN apk add --no-cache python3 make g++
+RUN apk add --no-cache python3 make g++ sqlite-dev
 
 # Set working directory
 WORKDIR /app
@@ -10,8 +10,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (use npm install to avoid Windows-Linux lockfile conflicts)
+RUN npm install --omit=dev
 
 # Copy application files
 COPY . .
