@@ -1,6 +1,9 @@
 # Use official Node.js LTS (Long Term Support) image
 FROM node:20-alpine
 
+# Install build tools for native modules (better-sqlite3, bcrypt)
+RUN apk add --no-cache python3 make g++
+
 # Set working directory
 WORKDIR /app
 
